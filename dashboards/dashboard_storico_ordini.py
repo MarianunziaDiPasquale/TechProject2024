@@ -473,6 +473,13 @@ def show_dashboard8(parent_frame):
             popup.geometry("1700x850")  # Set the size of the popup window
             popup.resizable(True, True)  # Prevent resizing for consistent layout
 
+            data_frame = tk.Frame(popup)
+            data_frame.grid(row=0,column=0, columnspan=2)
+
+            # padding = {'padx': 5, 'pady': 1}
+            product_frame = tk.Frame(popup)
+            product_frame.grid(row=0,column=2, columnspan=5)
+
             # Add padding and spacing between elements
             padding = {'padx': 10, 'pady': 5}
             # Set the width of entry fields and the font size
@@ -480,118 +487,110 @@ def show_dashboard8(parent_frame):
             font_size = ("Arial", 14)  # Font family Arial, size 14
 
             # Create and grid labels and entries for each invoice field with larger font
-            tk.Label(popup, text="Numero:", font=font_size).grid(row=0, column=0, **padding)
-            entry_number = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Numero:", font=font_size).grid(row=0, column=0, **padding)
+            entry_number = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_number.grid(row=0, column=1, **padding)
             entry_number.insert(0, invoice["number"])
 
-            tk.Label(popup, text="Data:", font=font_size).grid(row=1, column=0, **padding)
-            entry_date = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Data:", font=font_size).grid(row=1, column=0, **padding)
+            entry_date = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_date.grid(row=1, column=1, **padding)
             entry_date.insert(0, invoice["Date_1"])
 
-            tk.Label(popup, text="Telefono Cliente:", font=font_size).grid(row=2, column=0, **padding)
-            entry_customer_phone = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Telefono Cliente:", font=font_size).grid(row=2, column=0, **padding)
+            entry_customer_phone = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_customer_phone.grid(row=2, column=1, **padding)
             entry_customer_phone.insert(0, invoice["customer_phone"])
 
-            tk.Label(popup, text="Indirizzo Cliente:", font=font_size).grid(row=3, column=0, **padding)
-            entry_customer_address = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Indirizzo Cliente:", font=font_size).grid(row=3, column=0, **padding)
+            entry_customer_address = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_customer_address.grid(row=3, column=1, **padding)
             entry_customer_address.insert(0, invoice["customer_address"])
 
-            tk.Label(popup, text="ID:", font=font_size).grid(row=4, column=0, **padding)
-            entry_id = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="ID:", font=font_size).grid(row=4, column=0, **padding)
+            entry_id = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_id.grid(row=4, column=1, **padding)
             entry_id.insert(0, invoice["id"])
 
-            tk.Label(popup, text="Email Cliente:", font=font_size).grid(row=5, column=0, **padding)
-            entry_customer_email = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Email Cliente:", font=font_size).grid(row=5, column=0, **padding)
+            entry_customer_email = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_customer_email.grid(row=5, column=1, **padding)
             entry_customer_email.insert(0, invoice["customer_email"])
 
-            tk.Label(popup, text="Partita IVA:", font=font_size).grid(row=6, column=0, **padding)
-            entry_vat_number = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Partita IVA:", font=font_size).grid(row=6, column=0, **padding)
+            entry_vat_number = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_vat_number.grid(row=6, column=1, **padding)
             entry_vat_number.insert(0, invoice["vat_number"])
 
-            tk.Label(popup, text="Nazione:", font=font_size).grid(row=7, column=0, **padding)
-            entry_nation = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Nazione:", font=font_size).grid(row=7, column=0, **padding)
+            entry_nation = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_nation.grid(row=7, column=1, **padding)
             entry_nation.insert(0, invoice["nation"])
 
-            tk.Label(popup, text="IBAN:", font=font_size).grid(row=8, column=0, **padding)
-            entry_iban = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="IBAN:", font=font_size).grid(row=8, column=0, **padding)
+            entry_iban = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_iban.grid(row=8, column=1, **padding)
             entry_iban.insert(0, invoice["iban"])
 
-            tk.Label(popup, text="Swift:", font=font_size).grid(row=9, column=0, **padding)
-            entry_swift = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Swift:", font=font_size).grid(row=9, column=0, **padding)
+            entry_swift = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_swift.grid(row=9, column=1, **padding)
             entry_swift.insert(0, invoice["swift"])
 
-            tk.Label(popup, text="Agente:", font=font_size).grid(row=10, column=0, **padding)
-            entry_agent_name = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Agente:", font=font_size).grid(row=10, column=0, **padding)
+            entry_agent_name = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_agent_name.grid(row=10, column=1, **padding)
             entry_agent_name.insert(0, invoice["agent_name"])
 
-            tk.Label(popup, text="Condizioni di Pagamento:", font=font_size).grid(row=11, column=0, **padding)
-            entry_payment_condition = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Condizioni di Pagamento:", font=font_size).grid(row=11, column=0, **padding)
+            entry_payment_condition = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_payment_condition.grid(row=11, column=1, **padding)
             entry_payment_condition.insert(0, invoice["payment_condition"])
 
-            tk.Label(popup, text="Mittente:", font=font_size).grid(row=12, column=0, **padding)
-            entry_sender_name = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Mittente:", font=font_size).grid(row=12, column=0, **padding)
+            entry_sender_name = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_sender_name.grid(row=12, column=1, **padding)
             entry_sender_name.insert(0, invoice["sender_name"])
 
-            tk.Label(popup, text="Giorno di chiusura:", font=font_size).grid(row=13, column=0, **padding)
-            entry_sender_giorno = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Giorno di chiusura:", font=font_size).grid(row=13, column=0, **padding)
+            entry_sender_giorno = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_sender_giorno.grid(row=13, column=1, **padding)
             entry_sender_giorno.insert(0, invoice["sender_giorno"])
 
-            tk.Label(popup, text="Servizio di Corriere:", font=font_size).grid(row=14, column=0, **padding)
-            entry_courier_service = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Servizio di Corriere:", font=font_size).grid(row=14, column=0, **padding)
+            entry_courier_service = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_courier_service.grid(row=14, column=1, **padding)
             entry_courier_service.insert(0, invoice["courier_service"])
 
-            tk.Label(popup, text="Destinatario:", font=font_size).grid(row=15, column=0, **padding)
-            entry_recipient = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Destinatario:", font=font_size).grid(row=15, column=0, **padding)
+            entry_recipient = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_recipient.grid(row=15, column=1, **padding)
             entry_recipient.insert(0, invoice["recipient"])
 
-            tk.Label(popup, text="Quantità Totale:", font=font_size).grid(row=16, column=0, **padding)
-            entry_total_quantity = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Quantità Totale:", font=font_size).grid(row=16, column=0, **padding)
+            entry_total_quantity = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_total_quantity.grid(row=16, column=1, **padding)
             entry_total_quantity.insert(0, invoice["total_quantity"])
 
-            tk.Label(popup, text="IVA:", font=font_size).grid(row=17, column=0, **padding)
-            entry_iva_amount = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="IVA:", font=font_size).grid(row=17, column=0, **padding)
+            entry_iva_amount = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_iva_amount.grid(row=17, column=1, **padding)
             entry_iva_amount.insert(0, invoice["iva_amount"])
 
-            tk.Label(popup, text="Importo Totale:", font=font_size).grid(row=18, column=0, **padding)
-            entry_total_amount = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Importo Totale:", font=font_size).grid(row=18, column=0, **padding)
+            entry_total_amount = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_total_amount.grid(row=18, column=1, **padding)
             entry_total_amount.insert(0, invoice["total_amount"])
 
-            tk.Label(popup, text="Totale Fattura EURO:", font=font_size).grid(row=19, column=0, **padding)
-            entry_total_invoice_euro = tk.Entry(popup, width=entry_width, font=font_size)
+            tk.Label(data_frame, text="Totale Fattura EURO:", font=font_size).grid(row=19, column=0, **padding)
+            entry_total_invoice_euro = tk.Entry(data_frame, width=entry_width, font=font_size)
             entry_total_invoice_euro.grid(row=19, column=1, **padding)
             entry_total_invoice_euro.insert(0, invoice["total_invoice_euro"])
 
-            #padding = {'padx': 5, 'pady': 1}
-
-            # Create headers for product fields
-            tk.Label(popup, text="Articolo", font=font_size).grid(row=0, column=2, **padding)
-            tk.Label(popup, text="Descrizione", font=font_size).grid(row=0, column=3, **padding)
-            tk.Label(popup, text="Quantità", font=font_size).grid(row=0, column=4, **padding)
-            tk.Label(popup, text="Prezzo", font=font_size).grid(row=0, column=5, **padding)
-            tk.Label(popup, text="Sconto", font=font_size).grid(row=0, column=6,**padding)
-            tk.Label(popup, text="Importo", font=font_size).grid(row= 0, column=7, **padding)
-
             # Create entries for each product in a row
             product_entries = []
+            """""
+
             for i, product in enumerate(products):
                 entry_article = tk.Entry(popup, width=10, font=font_size)
                 entry_article.grid(row=1 + i, column=2, **padding)
@@ -627,8 +626,90 @@ def show_dashboard8(parent_frame):
                 })
 
             # Add save changes button at the bottom
-            tk.Button(popup, text="Salva modifiche e conferma", command=save_changes, font=font_size).grid(row=22, columnspan=2,
-                                                                                           pady=30)
+            tk.Button(popup, text="Salva modifiche e conferma", command=save_changes, font=font_size).grid(row=22,
+                                                                                                           columnspan=2,
+                                                                                                           pady=30)
+            product_vars = []
+            """""
+            def add_product():
+                new_product = {
+                    "article": "",
+                    "product_description": "",
+                    "product_quantity": "",
+                    "product_price": "",
+                    "product_discount": "",
+                    "product_amount": ""
+                }
+                products.append(new_product)
+                new_entry = {
+                    "article": tk.StringVar(),
+                    "description": tk.StringVar(),
+                    "quantity": tk.StringVar(),
+                    "price": tk.StringVar(),
+                    "discount": tk.StringVar(),
+                    "amount": tk.StringVar()
+                }
+                product_entries.append(new_entry)  # Append this new entry reference to the product_entries list
+                update_product_entries()
+
+            def remove_product():
+                # Remove the last product from the list if there are any products
+                if products:
+                    products.pop()
+                    product_entries.pop()
+                update_product_entries()
+
+            def update_product_entries():
+                # Clear existing product entry widgets
+                for widget in product_frame.winfo_children():
+                    widget.destroy()
+
+                # Re-create entry widgets for each product
+                for i, product in enumerate(products):
+                    row = 1 + i
+                    print(i)
+                    # Create headers for product fields
+                    tk.Label(product_frame, text="Articolo", font=font_size).grid(row=0, column=2, **padding)
+                    tk.Label(product_frame, text="Descrizione", font=font_size).grid(row=0, column=3, **padding)
+                    tk.Label(product_frame, text="Quantità", font=font_size).grid(row=0, column=4, **padding)
+                    tk.Label(product_frame, text="Prezzo", font=font_size).grid(row=0, column=5, **padding)
+                    tk.Label(product_frame, text="Sconto", font=font_size).grid(row=0, column=6, **padding)
+                    tk.Label(product_frame, text="Importo", font=font_size).grid(row=0, column=7, **padding)
+
+                    entry_article = tk.Entry(product_frame, width=10, font=font_size)
+                    entry_article.grid(row=1+i, column=2, **padding)
+                    entry_article.insert(0, product["article"])
+
+                    entry_description = tk.Entry(product_frame, width=20, font=font_size)
+                    entry_description.grid(row=1+i, column=3, **padding)
+                    entry_description.insert(0, product["product_description"])
+
+                    entry_quantity = tk.Entry(product_frame, width=10, font=font_size)
+                    entry_quantity.grid(row=1+i, column=4, **padding)
+                    entry_quantity.insert(0, product["product_quantity"])
+
+                    entry_price = tk.Entry(product_frame, width=10, font=font_size)
+                    entry_price.grid(row=1+i, column=5, **padding)
+                    entry_price.insert(0, product["product_price"])
+
+                    entry_discount = tk.Entry(product_frame, width=10, font=font_size)
+                    entry_discount.grid(row=1+i, column=6, **padding)
+                    entry_discount.insert(0, product["product_discount"])
+
+                    entry_amount = tk.Entry(product_frame, width=10, font=font_size)
+                    entry_amount.grid(row=1+i, column=7, **padding)
+                    entry_amount.insert(0, product["product_amount"])
+
+            update_product_entries()  # Initial call to display product entries
+
+            tk.Button(popup, text="Aggiungi Prodotto", command=add_product, font=font_size).grid(row=23, column=0,
+                                                                                                 **padding)
+            tk.Button(popup, text="Rimuovi Prodotto", command=remove_product, font=font_size).grid(row=23, column=1,
+                                                                                                   **padding)
+            # Add save changes button at the bottom
+            tk.Button(popup, text="Salva modifiche e conferma", command=save_changes, font=font_size).grid(row=23, column=2,
+                                                                                          **padding)
+
 
         edit_and_confirm()
         # Continue to generate the PDF after the popup is closed
