@@ -45,7 +45,7 @@ VALUES (?, ?, ?, ?)
 conn.commit()
 conn.close()
 
-print("Dati inseriti nella tabella prodotti_clienti con successo!")
+#print("Dati inseriti nella tabella prodotti_clienti con successo!")
 
 def get_prodotti_by_cliente(cliente_name):
     conn = sqlite3.connect(db_path)

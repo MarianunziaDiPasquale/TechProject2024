@@ -51,7 +51,6 @@ def open_dashboard_popup(title, content_func):
 
     dashboard_frame = ctk.CTkFrame(popup, corner_radius=5)
     dashboard_frame.pack(fill="both", expand=True)
-
     content_func(dashboard_frame)  # Load the content into the popup
 
 def update_dashboard():

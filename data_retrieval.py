@@ -4,7 +4,6 @@ from dashboards.Database_Utilities.crud_fornitori import get_all_fornitori
 
 db_path = 'dashboards/Database_Utilities/Magazzino.db'
 print(db_path)
-print(db_path)
 
 def create_connection(db_path):
     """ Create a database connection to the SQLite database """
