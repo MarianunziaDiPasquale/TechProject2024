@@ -1,7 +1,7 @@
 import sqlite3
 
 # Connessione al database (crea il database se non esiste)
-conn = sqlite3.connect('C:/PROGETTO/TechProject/pythonProject/orders.db')
+conn = sqlite3.connect('Database_Utilities/Database/storico_database.db')
 c = conn.cursor()
 
 # Crea la tabella orders se non esiste

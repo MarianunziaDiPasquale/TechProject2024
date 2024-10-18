@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
 from data_retrieval import get_existing_names, delete_records_by_name, create_record_clienti, create_fornitore, create_record_prodotti
-from dashboards.Database_Utilities.crud_fornitori import get_all_fornitori
-from dashboards.Database_Utilities.crud_clienti import get_all_clienti_names
+from Database_Utilities.crud_fornitori import get_all_fornitori
+from Database_Utilities.crud_clienti import get_all_clienti_names
 def open_remove_popup(item_type):
     popup = tk.Toplevel()
     popup.title(f"Rimuovi {item_type}")

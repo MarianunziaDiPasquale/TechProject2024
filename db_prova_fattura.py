@@ -1,7 +1,7 @@
 import sqlite3
 
 # Percorso del database
-db_path = 'resources/orders_fattura_1.db'
+db_path = 'Database_Utilities/Database/orders_fattura_1.db'
 
 # Creazione della connessione al database
 conn = sqlite3.connect(db_path)

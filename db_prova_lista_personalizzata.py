@@ -1,7 +1,7 @@
 import sqlite3
 
 # Percorso del database
-db_path = 'dashboards/Database_Utilities/liste_personalizzata.db'
+db_path = 'Database_Utilities/Database/liste_personalizzata.db'
 
 # Creazione della connessione al database
 conn = sqlite3.connect(db_path)
