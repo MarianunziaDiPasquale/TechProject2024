@@ -9,7 +9,7 @@ import tkinter as tk
 
 from fpdf import FPDF
 
-from dashboards.Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_info_by_name
+from Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_info_by_name
 import openpyxl
 from tkinter import messagebox
 def center_window(window, width, height):

@@ -10,7 +10,7 @@ from datetime import datetime
 from fpdf import FPDF
 
 #da cambiare in funzioni per agenti
-from dashboards.Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_info_by_name
+from Database_Utilities.crud_agenti import get_all_clienti_names, get_cliente_info_by_name
 import openpyxl
 from tkinter import messagebox
 
@@ -535,17 +535,17 @@ def ask_details(ragione_sociale, prompt,seconda_riga, indirizzo, cap, citta, naz
         def header(self):
 
             # Aggiungi il logo in alto a sinistra
-            self.image('C:/PROGETTO/myapp/resources/LogoCINCOTTI.jpg', 8, 2, 77, 44, 'JPG')  # Modifica il percorso e le dimensioni
+            self.image('resources/LogoCINCOTTI.jpg', 8, 2, 77, 44, 'JPG')  # Modifica il percorso e le dimensioni
 
             # Aggiungi l'immagine in alto a destra
-            self.image('C:/PROGETTO/myapp/resources/Logojpeg.jpg', 120, 8, 77, 33, 'JPG')  # Modifica il percorso e le dimensioni
+            self.image('resources/Logojpeg.jpg', 120, 8, 77, 33, 'JPG')  # Modifica il percorso e le dimensioni
 
             self.ln(35)
 
         def footer(self):
             # Aggiungi l'immagine in basso al centro
             self.set_y(-40)  # Posiziona a 30 mm dal fondo della pagina
-            self.image('C:/PROGETTO/myapp/resources/LOGOMOZZABELLAECINCOTTI.jpg', 75, self.get_y(), 70, 40,
+            self.image('resources/LOGOMOZZABELLAECINCOTTI.jpg', 75, self.get_y(), 70, 40,
                        'JPG')  # Modifica il percorso e le dimensioni
 
         def draw_table(self, data, col_widths, headers=None, bold_headers=False):
@@ -1078,7 +1078,7 @@ def show_dashboard4(parent_frame):
     tree_1.bind("<Double-1>", lambda event: on_double_click_1(event, tree_1))
 
     def fetch_orders():
-        conn = sqlite3.connect('resources/orders.db')
+        conn = sqlite3.connect('Database_Utilities/Database/storico_database.db')
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM orders")
         orders = cursor.fetchall()
@@ -1107,17 +1107,17 @@ def show_dashboard4(parent_frame):
         def header(self):
 
             # Aggiungi il logo in alto a sinistra
-            self.image('C:/PROGETTO/myapp/resources/LogoCINCOTTI.jpg', 8, 2, 77, 44, 'JPG')  # Modifica il percorso e le dimensioni
+            self.image('resources/LogoCINCOTTI.jpg', 8, 2, 77, 44, 'JPG')  # Modifica il percorso e le dimensioni
 
             # Aggiungi l'immagine in alto a destra
-            self.image('C:/PROGETTO/myapp/resources/Logojpeg.jpg', 120, 8, 77, 33, 'JPG')  # Modifica il percorso e le dimensioni
+            self.image('resources/Logojpeg.jpg', 120, 8, 77, 33, 'JPG')  # Modifica il percorso e le dimensioni
 
             self.ln(35)
 
         def footer(self):
             # Aggiungi l'immagine in basso al centro
             self.set_y(-40)  # Posiziona a 30 mm dal fondo della pagina
-            self.image('C:/PROGETTO/myapp/resources/LOGOMOZZABELLAECINCOTTI.jpg', 75, self.get_y(), 70, 40,
+            self.image('resources/LOGOMOZZABELLAECINCOTTI.jpg', 75, self.get_y(), 70, 40,
                        'JPG')  # Modifica il percorso e le dimensioni
 
         def draw_table(self, data, col_widths, headers=None, bold_headers=False):

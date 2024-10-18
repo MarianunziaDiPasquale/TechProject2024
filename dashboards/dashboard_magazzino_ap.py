@@ -8,11 +8,11 @@ import sqlite3
 import openpyxl
 import pandas as pd
 # Import CRUD functions for Andria
-from dashboards.Database_Utilities.crud_andria import read_records_andria, update_record_andria, delete_record_andria
-from dashboards.Database_Utilities.crud_andria import transfer_quantity_from_andria_to_parigi
-from dashboards.Database_Utilities.crud_clienti import get_all_clienti_names
+from Database_Utilities.crud_andria import read_records_andria, update_record_andria, delete_record_andria
+from Database_Utilities.crud_andria import transfer_quantity_from_andria_to_parigi
+from Database_Utilities.crud_clienti import get_all_clienti_names
 # Import CRUD functions for Parigi
-from dashboards.Database_Utilities.crud_parigi import read_records_parigi, update_record_parigi, delete_record_parigi
+from Database_Utilities.crud_parigi import read_records_parigi, update_record_parigi, delete_record_parigi
 
 
 def aggiungi_prodotto():
@@ -87,7 +87,7 @@ def get_city_info(city):
 
 def show_info(city, tree, table_frame):
     # Connect to the merged database
-    conn = sqlite3.connect('dashboards/Database_Utilities/MergedDatabase.db')
+    conn = sqlite3.connect('Database_Utilities/Database/MergedDatabase.db')
     c = conn.cursor()
 
     # Fetch data based on the selected city

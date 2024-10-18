@@ -45,7 +45,7 @@ def show_pdf_preview(pdf_path):
 
     window.mainloop()
 def fetch_invoice_data(invoice_number):
-    conn = sqlite3.connect('resources/orders_fattura_1.db')
+    conn = sqlite3.connect('Database_Utilities/Database/storico_database.db')
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM orders_fattura_newfields WHERE id = '{invoice_number}'")
     column_names = [description[0] for description in cursor.description]
@@ -58,7 +58,7 @@ def fetch_invoice_data(invoice_number):
 
 
 def fetch_invoice_products(invoice_number):
-    conn = sqlite3.connect('resources/orders_fattura_1.db')
+    conn = sqlite3.connect('rDatabase_Utilities/Database/storico_database.db')
     cursor = conn.cursor()
     cursor.execute(
         f"SELECT article, product_description, product_quantity,product_price, product_discount,product_discount_2,product_discount_3, product_amount FROM orders_fattura_newfields WHERE id = '{invoice_number}'")

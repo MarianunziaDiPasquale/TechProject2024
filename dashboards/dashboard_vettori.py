@@ -4,7 +4,7 @@ from tkinter.filedialog import asksaveasfilename
 import customtkinter as ctk
 from tkinter import ttk, Menu
 import tkinter as tk
-from dashboards.Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_info_by_name
+from Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_info_by_name
 import openpyxl
 from tkinter import messagebox
 
