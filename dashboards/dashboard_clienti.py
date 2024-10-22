@@ -589,12 +589,12 @@ def show_dashboard3(parent_frame):
     # Frame per allineare il menù a tendina e i pulsanti "Esporta in Excel"
     search_frame = ctk.CTkFrame(parent_frame,corner_radius=5)
     search_frame.pack(pady=10)
-
+    '''
     # Style for larger font in Combobox
     style = ttk.Style()
     style.configure("TCombobox", font=('Arial', 16))  # Adjust font size as needed
     style.configure("TCombobox*Listbox*Font", font=('Arial', 16))  # Ensure larger font size for dropdown menu items
-
+    
     # Creazione del menù a tendina con ricerca incrementale
     combobox = ttk.Combobox(search_frame, textvariable=selected_cliente, values=clienti, font=('Arial', 16))
     combobox.configure(width=35)
@@ -603,22 +603,78 @@ def show_dashboard3(parent_frame):
     # Abilita la ricerca incrementale nel menù a tendina
     combobox.bind('<KeyRelease>', on_keyrelease)
     combobox.pack(pady=10)
-
+    '''
+    '''
     def on_cliente_selected(event):
         cliente = selected_cliente.get()
         show_cliente_info(cliente, tree, table_frame)
         show_lista_info(cliente, tree_1, table_frame_1)
         mostra_frame()
+    '''
 
+    def on_cliente_selected(event):
+        if listbox.curselection():  # Controlla se c'è una selezione
+            cliente = listbox.get(listbox.curselection())
+            selected_cliente.set(cliente)  # Memorizza il cliente selezionato nell'Entry
+            #listbox.place_forget()
+            # Nasconde la Listbox dopo la selezione
+            listbox_window.withdraw()
+            show_cliente_info(cliente, tree, table_frame)
+            show_lista_info(cliente, tree_1, table_frame_1)
+            mostra_frame()
+
+    # Funzione per aggiornare la Listbox in base alla ricerca
+    def update_listbox(*args):
+        search_term = entry.get().lower()  # Prende il testo inserito nella barra di ricerca
+        listbox.delete(0, tk.END)  # Svuota la Listbox
+
+        if search_term == "":  # Se la barra di ricerca è vuota, nascondi la Listbox
+            listbox_window.withdraw()
+            return
+
+        # Filtra i clienti e aggiorna la Listbox
+        filtered_clienti = [cliente for cliente in clienti if search_term in cliente.lower()]
+
+        if filtered_clienti:
+            # Mostra la Listbox sotto la Entry solo se ci sono risultati
+            #listbox.place(x=entry.winfo_x(), y=entry.winfo_y() + entry.winfo_height())
+            listbox_window.geometry(f"400x200+{parent_frame.winfo_x() + search_frame.winfo_x() + entry.winfo_x() + 20}+{parent_frame.winfo_y() + search_frame.winfo_y() +entry.winfo_y() + search_frame.winfo_height() + entry.winfo_height() + 40}")
+            listbox_window.deiconify()
+
+            for cliente in filtered_clienti:
+                listbox.insert(tk.END, cliente)
+        else:
+            listbox_window.withdraw()
+            #listbox.place_forget()
+            # Nasconde la Listbox se non ci sono risultati
+
+    # Creazione della barra di ricerca (Entry)
+    entry = tk.Entry(search_frame, textvariable=selected_cliente, font=('Arial', 16))
+    entry.pack(side="left", padx=10,pady=10)
+    entry.config(width=33)
+    entry.bind('<KeyRelease>', update_listbox)  # Ogni volta che si digita, aggiorna la Listbox
+
+    listbox_window = tk.Toplevel(search_frame)
+    listbox_window.wm_overrideredirect(True)  # Rimuove bordi e titoli della finestra
+    listbox_window.geometry("400x200")
+    listbox_window.withdraw()
+
+    # Creazione della Listbox per visualizzare i risultati (inizialmente nascosta)
+    listbox = tk.Listbox(listbox_window, font=('Arial', 16), height=8, selectmode=tk.SINGLE)
+    listbox.pack(side="left", fill="both", expand=True)
+
+
+    # Quando si seleziona un cliente dalla Listbox
+    listbox.bind('<<ListboxSelect>>', on_cliente_selected)
 
     def mostra_frame():
         table_frame.pack(side="left", padx=5, pady=10, fill="both", expand=True)  # Mostra il primo frame
         table_frame_1.pack(side="left", pady=10, fill="both", expand=True)  # Mostra il secondo frame affiancato
 
-    combobox.bind("<<ComboboxSelected>>", on_cliente_selected)
+    #combobox.bind("<<ComboboxSelected>>", on_cliente_selected)
 
     # Create a style for the Listbox within the Combobox dropdown
-    combobox.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+    #combobox.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
 
     # Pulsante "Esporta Excel Fornitori" accanto al pulsante prodotti
     export_fornitori_button = ctk.CTkButton(search_frame, text="Esporta Excel Clienti", command=open_clienti_selection_popup, font=('Arial', 14))
