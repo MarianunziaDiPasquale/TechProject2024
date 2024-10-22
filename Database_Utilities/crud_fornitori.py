@@ -1,6 +1,6 @@
 import sqlite3
 
-db_path = 'dashboards/Database_Utilities/MergedDatabase.db'
+db_path = 'Database_Utilities/Database/MergedDatabase.db'
 
 
 def get_all_fornitori():
