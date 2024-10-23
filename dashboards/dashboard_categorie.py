@@ -413,7 +413,7 @@ def show_dashboard2(parent_frame):
     # Frame per allineare il menù a tendina e i pulsanti "Esporta in Excel"
     search_frame = ctk.CTkFrame(parent_frame,corner_radius=5)
     search_frame.pack(pady=10)
-
+    '''
     # Creazione del menù a tendina con ricerca incrementale
     combobox = ttk.Combobox(search_frame, textvariable=selected_fornitore, values=fornitori, font=('Arial', 16))
     combobox.grid(row=0, column=0, padx=10)
@@ -432,18 +432,70 @@ def show_dashboard2(parent_frame):
 
     # Create a style for the Listbox within the Combobox dropdown
     combobox.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+    '''
+
+    def on_fornitore_selected(event):
+        if listbox.curselection():  # Controlla se c'è una selezione
+            fornitore = listbox.get(listbox.curselection())
+            selected_fornitore.set(fornitore)  # Memorizza il cliente selezionato nell'Entry
+            # Nasconde la Listbox dopo la selezione
+            listbox_window.withdraw()
+            show_fornitore_info(fornitore, tree, table_frame)
+
+    # Funzione per aggiornare la Listbox in base alla ricerca
+    def update_listbox(*args):
+        search_term = entry.get().lower()  # Prende il testo inserito nella barra di ricerca
+        listbox.delete(0, tk.END)  # Svuota la Listbox
+
+        if search_term == "":  # Se la barra di ricerca è vuota, nascondi la Listbox
+            listbox_window.withdraw()
+            return
+
+        # Filtra i clienti e aggiorna la Listbox
+        filtered_fornitori = [fornitore for fornitore in fornitori if search_term in fornitore.lower()]
+
+        if filtered_fornitori:
+            # Mostra la Listbox sotto la Entry solo se ci sono risultati
+            listbox_window.geometry(f"300x200+{parent_frame.winfo_x() + search_frame.winfo_x() + entry.winfo_x() + 20}+{parent_frame.winfo_y() + search_frame.winfo_y() +entry.winfo_y() + search_frame.winfo_height() + entry.winfo_height() + 40}")
+            listbox_window.deiconify()
+
+            for fornitore in filtered_fornitori:
+                listbox.insert(tk.END, fornitore)
+        else:
+            listbox_window.withdraw()
+            #listbox.place_forget()
+            # Nasconde la Listbox se non ci sono risultati
+
+    # Creazione della barra di ricerca (Entry)
+    entry = tk.Entry(search_frame, textvariable=selected_fornitore, font=('Arial', 16))
+    entry.pack(side="left", padx=10,pady=10)
+    entry.config(width=25)
+    entry.bind('<KeyRelease>', update_listbox)  # Ogni volta che si digita, aggiorna la Listbox
+
+    listbox_window = tk.Toplevel(search_frame)
+    listbox_window.wm_overrideredirect(True)  # Rimuove bordi e titoli della finestra
+    listbox_window.geometry("300x200")
+    listbox_window.withdraw()
+
+    # Creazione della Listbox per visualizzare i risultati (inizialmente nascosta)
+    listbox = tk.Listbox(listbox_window, font=('Arial', 16), height=8, selectmode=tk.SINGLE)
+    listbox.pack(side="left", fill="both", expand=True)
+
+
+    # Quando si seleziona un cliente dalla Listbox
+    listbox.bind('<<ListboxSelect>>', on_fornitore_selected)
 
     # Pulsante "Esporta Excel Fornitori" accanto al pulsante prodotti
     export_fornitori_button = ctk.CTkButton(search_frame, text="Esporta Excel Categoria", command=open_fornitori_selection_popup, font=("Arial", 14))
-    export_fornitori_button.grid(row=0, column=1, padx=10)
+    export_fornitori_button.pack(side="left", padx=10)
 
 
     add_product_button = ctk.CTkButton(search_frame, text="Aggiungi prodotto",command = lambda: open_add_popup("Prodotto"), font=("Arial", 14))
-    add_product_button.grid(row=0, column=2, padx=10)
+    add_product_button.pack(side="left", padx=10)
 
 
     add_fornitore_button = ctk.CTkButton(search_frame, text="Aggiungi Categoria",command = lambda:open_add_popup("Fornitore"), font=("Arial", 14))
-    add_fornitore_button.grid(row=0, column=3, padx=10)
+    add_fornitore_button.pack(side="left", padx=10)
 
     global table_frame
     table_frame = ctk.CTkFrame(parent_frame, corner_radius=5)

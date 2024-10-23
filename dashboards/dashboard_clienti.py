@@ -616,7 +616,6 @@ def show_dashboard3(parent_frame):
         if listbox.curselection():  # Controlla se c'è una selezione
             cliente = listbox.get(listbox.curselection())
             selected_cliente.set(cliente)  # Memorizza il cliente selezionato nell'Entry
-            #listbox.place_forget()
             # Nasconde la Listbox dopo la selezione
             listbox_window.withdraw()
             show_cliente_info(cliente, tree, table_frame)
@@ -637,7 +636,6 @@ def show_dashboard3(parent_frame):
 
         if filtered_clienti:
             # Mostra la Listbox sotto la Entry solo se ci sono risultati
-            #listbox.place(x=entry.winfo_x(), y=entry.winfo_y() + entry.winfo_height())
             listbox_window.geometry(f"400x200+{parent_frame.winfo_x() + search_frame.winfo_x() + entry.winfo_x() + 20}+{parent_frame.winfo_y() + search_frame.winfo_y() +entry.winfo_y() + search_frame.winfo_height() + entry.winfo_height() + 40}")
             listbox_window.deiconify()
 
@@ -645,7 +643,6 @@ def show_dashboard3(parent_frame):
                 listbox.insert(tk.END, cliente)
         else:
             listbox_window.withdraw()
-            #listbox.place_forget()
             # Nasconde la Listbox se non ci sono risultati
 
     # Creazione della barra di ricerca (Entry)
