@@ -7,6 +7,7 @@ from tkinter import ttk, simpledialog, messagebox, Menu
 import sqlite3
 import openpyxl
 import pandas as pd
+from Database_Utilities.crud_fornitori import get_all_prodotti
 # Import CRUD functions for Andria
 from Database_Utilities.crud_andria import read_records_andria, update_record_andria, delete_record_andria
 from Database_Utilities.crud_andria import transfer_quantity_from_andria_to_parigi
@@ -18,53 +19,118 @@ from Database_Utilities.crud_parigi import read_records_parigi, update_record_pa
 def aggiungi_prodotto():
     dialog = tk.Toplevel()
     dialog.title("Scegli Azione")
-    dialog.grab_set()  # Ottieni il focus sulla finestra di dialogo
-    dialog.transient()  # Rendi la finestra di dialogo modale
+    dialog.grab_set()
+    dialog.transient()
 
     # Etichetta per il menu a tendina
     label_prodotto = tk.Label(dialog, text="Scegli Prodotto:", font=("Arial", 14))
     label_prodotto.pack(pady=10)
 
-    # Crea il menu a tendina per selezionare il prodotto
-    prodotti = get_all_clienti_names()  # Da modificare
+    # Funzione per aggiornare il menu a tendina in base al testo digitato
+    def update_combobox(event):
+        prodotti_aggiornati = get_all_prodotti()
+        typed_text = combobox_prodotto.get()
+        prodotti_filtrati = [prod for prod in prodotti_aggiornati if typed_text.lower() in prod.lower()]
+        cursor_position = combobox_prodotto.index(tk.INSERT)
+        combobox_prodotto['values'] = prodotti_filtrati
+        combobox_prodotto.set(typed_text)
+        combobox_prodotto.icursor(cursor_position)
+        combobox_prodotto.event_generate('<Down>')
+
+    # Funzione per ottenere la composizione cartone e il codice del prodotto
+    def get_product_info(prodotto_descrizione):
+        conn = sqlite3.connect("Database_Utilities/Database/MergedDatabase.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT Codice, COMPOSIZIONE_CARTONE FROM prodotti WHERE Descrizione = ?", (prodotto_descrizione,))
+        result = cursor.fetchone()
+        conn.close()
+        return result if result else (None, None)
+
+    # Funzione per inserire o aggiornare il prodotto nella tabella Andria o Parigi
+    def update_or_insert_in_table(codice, quantita, cartoni, tabella):
+        conn = sqlite3.connect("Database_Utilities/Database/MergedDatabase.db")
+        cursor = conn.cursor()
+
+        # Verifica se il prodotto esiste già nella tabella
+        cursor.execute(f"SELECT Esistenze, Cartoni FROM {tabella} WHERE Codice = ?", (codice,))
+        result = cursor.fetchone()
+
+        if result:
+            # Aggiorna le quantità e i cartoni
+            esistenze_correnti, cartoni_correnti = result
+            nuove_esistenze = esistenze_correnti + quantita
+            nuovi_cartoni = nuove_esistenze // cartoni if cartoni > 0 else 0
+            cursor.execute(f"UPDATE {tabella} SET Esistenze = ?, Cartoni = ? WHERE Codice = ?", (nuove_esistenze, nuovi_cartoni, codice))
+        else:
+            # Inserisci una nuova riga
+            cursor.execute(f"INSERT INTO {tabella} (Codice, Esistenze, Cartoni) VALUES (?, ?, ?)", (codice, quantita, cartoni))
+
+        conn.commit()
+        conn.close()
+
+    # Creazione del menu a tendina per selezionare il prodotto
+    prodotti = get_all_prodotti()
     prodotto_selezionato = tk.StringVar()
     combobox_prodotto = ttk.Combobox(dialog, textvariable=prodotto_selezionato, values=prodotti, font=("Arial", 14))
     combobox_prodotto.configure(width=35)
     combobox_prodotto.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
     combobox_prodotto.pack(pady=5)
+    combobox_prodotto.bind("<KeyRelease>", update_combobox)
 
-    # Etichetta e campo di input per la quantità
+    # Selettore per "Andria" o "Parigi"
+    label_selezione = tk.Label(dialog, text="Seleziona la sede:", font=("Arial", 14))
+    label_selezione.pack(pady=10)
+    selezione_sede = tk.StringVar(value="andria")  # Default "andria"
+    sede_andria = tk.Radiobutton(dialog, text="Andria", variable=selezione_sede, value="andria", font=("Arial", 14))
+    sede_parigi = tk.Radiobutton(dialog, text="Parigi", variable=selezione_sede, value="parigi", font=("Arial", 14))
+    sede_andria.pack()
+    sede_parigi.pack()
+
+    # Campo per la quantità
     label_quantita = tk.Label(dialog, text="Inserisci Quantità:", font=("Arial", 14))
     label_quantita.pack(pady=10)
     quantita_entry = tk.Entry(dialog, font=("Arial", 14))
     quantita_entry.pack(pady=5)
 
-    # Etichetta e campo di input per i cartoni
-    label_cartoni = tk.Label(dialog, text="Inserisci Cartoni:", font=("Arial", 14))
-    label_cartoni.pack(pady=10)
-    cartoni_entry = tk.Entry(dialog, font=("Arial", 14))
-    cartoni_entry.pack(pady=5)
-
     # Funzione per gestire il salvataggio dei dati
     def on_confirm():
-        prodotto = prodotto_selezionato.get()
+        prodotto_descrizione = prodotto_selezionato.get()
         quantita = quantita_entry.get()
-        cartoni = cartoni_entry.get()
 
-        # Esegui l'azione desiderata, come salvare i dati o effettuare un aggiornamento
-        if prodotto and quantita.isdigit() and cartoni.isdigit():
-            # Inserisci qui la logica per aggiungere il prodotto
-            messagebox.showinfo("Prodotto Aggiunto", f"Hai aggiunto {quantita} di '{prodotto}' con {cartoni} cartoni.")
-            dialog.destroy()  # Chiudi il pop-up
-        else:
-            messagebox.showerror("Errore", "Assicurati di aver inserito tutti i dati correttamente.")
+        if not quantita.isdigit():
+            messagebox.showerror("Errore", "Inserisci un valore numerico valido per la quantità.")
+            return
 
-    # Pulsante di conferma
-    confirm_button = tk.Button(dialog, text="Conferma", command=on_confirm, font=("Arial", 14))
-    confirm_button.pack(pady=20)
+        quantita = int(quantita)
 
-    center_window(dialog,600,400)
-    dialog.wait_window()
+        # Ottieni il codice del prodotto e la composizione cartone
+        codice_prodotto, composizione_cartone = get_product_info(prodotto_descrizione)
+
+        if codice_prodotto is None or composizione_cartone is None:
+            messagebox.showerror("Errore", "Prodotto non trovato nel database.")
+            return
+
+        composizione_cartone = int(composizione_cartone) if composizione_cartone.isdigit() else 1
+        cartoni = quantita // composizione_cartone if composizione_cartone > 0 else 0
+
+        # Ottieni la sede selezionata e aggiorna/inserisci nella tabella corretta
+        sede = selezione_sede.get()
+        update_or_insert_in_table(codice_prodotto, quantita, cartoni, sede)
+
+        messagebox.showinfo("Prodotto Aggiunto", f"Hai aggiunto {quantita} unità di '{prodotto_descrizione}' ({cartoni} cartoni) a {sede.capitalize()}.")
+        dialog.destroy()
+
+    # Bottone di conferma per aggiungere il prodotto
+    button_confirm = tk.Button(dialog, text="Conferma", font=("Arial", 14), command=on_confirm)
+    button_confirm.pack(pady=10)
+
+
+
+
+
+
+
+
 
 def center_window(window, width, height):
     window.update_idletasks()

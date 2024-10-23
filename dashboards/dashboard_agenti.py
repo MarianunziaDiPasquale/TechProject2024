@@ -14,9 +14,23 @@ from Database_Utilities.crud_agenti import get_all_clienti_names, get_cliente_in
 import openpyxl
 from tkinter import messagebox
 
-from dashboards.dashboard_clienti import get_lista_info
+#from dashboards.dashboard_clienti import get_lista_info
 from db_prova_lista_personalizzata import get_prodotti_by_cliente
 from popup_functions import open_add_popup
+
+
+def get_clienti_by_agente(selected_agente):
+    """Fetch all clients associated with the selected agent."""
+    conn = sqlite3.connect('Database_Utilities/Database/Magazzino.db')  # Update this with your database path
+    cursor = conn.cursor()
+
+    query = '''SELECT 'Ragione sociale' FROM clienti WHERE 'Agente 1' = ?'''
+    cursor.execute(query, (selected_agente,))
+
+    clienti = cursor.fetchall()
+    conn.close()
+
+    return [cliente[0] for cliente in clienti]  # Returns a list of customer names
 
 
 def center_window(window, width, height):
@@ -276,16 +290,21 @@ def show_agente_info(agente, tree, table_frame):
     tree.agente = agente # Save the current client in the tree
     table_frame.pack(pady=10, fill="both", expand=True)
 
-def show_agente_clienti_conn(agente, tree_1, table_frame_1):
-    print(agente+"lista")
-    for row in tree_1.get_children():
-        tree_1.delete(row)
-    clienti_conn = get_clienti_conn(agente)
+def show_agente_clienti_conn(agente, tree, table_frame):
+    # Clear the table
+    for row in tree.get_children():
+        tree.delete(row)
+
+    # Fetch the connected customers based on the selected agent
+    clienti_conn = get_clienti_by_agente(agente)
+
+    # Insert the customer names into the table
     for cliente_conn in clienti_conn:
-        print(cliente_conn)
-        tree_1.insert("", tk.END, values=cliente_conn)
-    tree_1.agente = agente  # Save the current supplier in the tree
-    table_frame_1.pack(pady=10, fill="both", expand=True)
+        tree.insert("", tk.END, values=(cliente_conn,))
+
+    tree.agente = agente  # Save the current agent in the tree
+    table_frame.pack(pady=10, fill="both", expand=True)
+
 def update_combobox():
     value = combobox.get().lower()
     if value == '':
@@ -1076,13 +1095,14 @@ def show_dashboard4(parent_frame):
     columns = ("",)
 
     global columns_1
-    columns_1 = ("AGENTE", "ID", "CLIENTE CONNESSO", "QUANTITA'")
+    columns_1 = ("Cliente Connesso",)
 
     global tree
     tree = ttk.Treeview(table_container, columns=columns, show="headings")
     tree.table_container = table_container  # Save the frame in the treeview for reference
     setup_context_menu(tree)
     tree.bind("<B1-Motion>", lambda event: on_mouse_drag(event, tree))
+
 
     global tree_1
     tree_1 = ttk.Treeview(table_container_1, columns=columns_1, show="headings")

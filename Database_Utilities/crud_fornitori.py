@@ -15,6 +15,22 @@ def get_all_fornitori():
     conn.close()
     return fornitori
 
+def get_all_prodotti():
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # Eseguire la query per ottenere i nomi dei prodotti dalla colonna 'Descrizione'
+    cursor.execute("SELECT Descrizione FROM prodotti;")
+    product_names = cursor.fetchall()
+
+    # Chiudere la connessione
+    conn.close()
+
+    # Restituire solo i nomi dei prodotti come una lista
+    return [name[0] for name in product_names]
+
+
+
 
 def get_prodotti_by_fornitore_name(fornitore_name):
     '''Restituisce i prodotti associati a un determinato fornitore.'''

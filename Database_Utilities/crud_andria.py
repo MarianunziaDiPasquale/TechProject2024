@@ -2,7 +2,7 @@
 import sqlite3
 
 # Path to the SQLite database
-db_path = 'dashboards/Database_Utilities/MergedDatabase.db'
+db_path = 'Database_Utilities/Database/MergedDatabase.db'
 
 def create_record_andria(codice_prodotto, esistenze, cartoni):
     conn = sqlite3.connect(db_path)

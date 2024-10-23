@@ -1,7 +1,7 @@
 import sqlite3
 
 # Path to the SQLite database
-db_path = 'dashboards/Database_Utilities/Magazzino.db'
+db_path = 'Database_Utilities/Database/Magazzino.db'
 
 def create_record_prodotti(codice, descrizione, fornitore, composizione_cartone, prezzo_vendita, prezzo_acquisto):
     conn = sqlite3.connect(db_path)
