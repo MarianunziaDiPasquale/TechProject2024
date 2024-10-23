@@ -21,13 +21,16 @@ from popup_functions import open_add_popup
 
 def get_clienti_by_agente(selected_agente):
     """Fetch all clients associated with the selected agent."""
+    print("check1")
     conn = sqlite3.connect('Database_Utilities/Database/Magazzino.db')  # Update this with your database path
     cursor = conn.cursor()
 
-    query = '''SELECT 'Ragione sociale' FROM clienti WHERE 'Agente 1' = ?'''
+    query = '''SELECT "Ragione sociale" FROM clienti WHERE "Agente 1" = ?'''
+
     cursor.execute(query, (selected_agente,))
 
     clienti = cursor.fetchall()
+    print(clienti)
     conn.close()
 
     return [cliente[0] for cliente in clienti]  # Returns a list of customer names
