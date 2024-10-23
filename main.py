@@ -10,6 +10,8 @@ from dashboards.dashboard_fornitori import show_dashboard6
 from dashboards.dashboard_moduli import show_dashboard7
 from dashboards.dashboard_storico_ordini import show_dashboard8
 from dashboards.dashboard_consiglio import show_dashboard9
+from dashboards.dashboard_condizioni import show_dashboard10
+
 from side_panel import create_side_panel_buttons
 
 # Imposta la modalità di customtkinter e il tema
@@ -101,6 +103,8 @@ def update_dashboard():
                         open_dashboard_popup("Storico Ordini", show_dashboard8)
                     elif dashboard_name == "9":
                         open_dashboard_popup("Consiglio Ordini", show_dashboard9)
+                    elif dashboard_name == "A":
+                        open_dashboard_popup("Condizioni-Metodi Pay", show_dashboard10)
 
                 # Mapping buttons to the dashboard functions
 
@@ -140,15 +144,12 @@ def update_dashboard():
                     dashboard_frame = add_title_and_frame(frame, "Consiglio Ordini", lambda: close_dashboard("9"),
                                                           lambda: extract_dashboard("9"))
                     show_dashboard9(dashboard_frame)
+                elif dashboard == "A":
+                    dashboard_frame = add_title_and_frame(frame, "Condizioni-Metodi Pay", lambda: close_dashboard("0"),
+                                                          lambda: extract_dashboard("A"))
+                    show_dashboard10(dashboard_frame)
 
             main_frame.add(frame)  # Aggiungi frame al PanedWindow senza ricrearlo
-
-        """
-        if show_buttons:
-            show_dashboard_buttons()
-        else:
-            hide_frames()
-        """
 
 # Inizializza un dizionario per tenere traccia dei frame delle dashboard
 dashboard_frames = {}
