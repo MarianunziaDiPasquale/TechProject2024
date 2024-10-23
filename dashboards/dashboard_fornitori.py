@@ -492,9 +492,9 @@ def show_dashboard6(parent_frame):
     tree.pack(side="left", fill="both", expand=True)
     tree.bind("<Double-1>", lambda event: on_double_click(event, tree))
     def fetch_orders():
-        conn = sqlite3.connect('resources/orders.db')
+        conn = sqlite3.connect('Database_Utilities/Database/MergedDatabase.db')
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM orders")
+        cursor.execute("SELECT * FROM storico_ordini")
         orders = cursor.fetchall()
         conn.close()
         return orders

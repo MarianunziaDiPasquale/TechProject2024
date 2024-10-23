@@ -77,9 +77,9 @@ def show_dashboard8(parent_frame):
         combobox.bind('<KeyRelease>', on_keyrelease)
 
     def get_unique_values(column_name):
-        conn = sqlite3.connect('resources/orders.db')
+        conn = sqlite3.connect('Database_Utilities/Database/MergedDatabase.db')
         cursor = conn.cursor()
-        cursor.execute(f"SELECT DISTINCT {column_name} FROM orders")
+        cursor.execute(f"SELECT DISTINCT {column_name} FROM storico_ordini")
         values = [row[0] for row in cursor.fetchall()]
         conn.close()
         return values
@@ -92,7 +92,7 @@ def show_dashboard8(parent_frame):
 
     clienti = get_unique_values('cliente')
     fornitori = get_unique_values('fornitore')
-    date = get_unique_values('data')
+    date = get_unique_values('data_ordine')
     id_ordine = get_unique_values('id_ordine')
     totale = get_unique_values('totale')
     prodotti = get_unique_values('prodotti')
@@ -235,9 +235,9 @@ def show_dashboard8(parent_frame):
     tree.pack(side="left", fill="both", expand=True)
 
     def fetch_orders():
-        conn = sqlite3.connect('resources/orders.db')
+        conn = sqlite3.connect('Database_Utilities/Database/MergedDatabase.db')
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM orders")
+        cursor.execute("SELECT * FROM storico_ordini")
         orders = cursor.fetchall()
         conn.close()
         return orders
