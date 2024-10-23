@@ -950,6 +950,7 @@ def show_dashboard4(parent_frame):
     # Frame per allineare il menù a tendina e i pulsanti "Esporta in Excel"
     search_frame = ctk.CTkFrame(parent_frame,corner_radius=5)
     search_frame.pack(pady=10)
+    '''
 
     # Style for larger font in Combobox
     style = ttk.Style()
@@ -970,15 +971,68 @@ def show_dashboard4(parent_frame):
         show_agente_info(agente, tree, table_frame)
         show_agente_clienti_conn(agente, tree_1, table_frame_1)
         mostra_frame()
-
-    def mostra_frame():
-        table_frame.pack(side="left", padx=5, pady=10, fill="both", expand=True)  # Mostra il primo frame
-        table_frame_1.pack(side="left", pady=10, fill="both", expand=True)  # Mostra il secondo frame affiancato
-
+        
     combobox.bind("<<ComboboxSelected>>", on_agente_selected)
 
     # Create a style for the Listbox within the Combobox dropdown
     combobox.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+    '''
+    def on_agente_selected(event):
+        if listbox.curselection():  # Controlla se c'è una selezione
+            agente = listbox.get(listbox.curselection())
+            selected_agente.set(agente)  # Memorizza il cliente selezionato nell'Entry
+            # Nasconde la Listbox dopo la selezione
+            listbox_window.withdraw()
+            show_agente_info(agente, tree, table_frame)
+            show_agente_clienti_conn(agente, tree_1, table_frame_1)
+            mostra_frame()
+
+    # Funzione per aggiornare la Listbox in base alla ricerca
+    def update_listbox(*args):
+        search_term = entry.get().lower()  # Prende il testo inserito nella barra di ricerca
+        listbox.delete(0, tk.END)  # Svuota la Listbox
+
+        if search_term == "":  # Se la barra di ricerca è vuota, nascondi la Listbox
+            listbox_window.withdraw()
+            return
+
+        # Filtra i clienti e aggiorna la Listbox
+        filtered_agenti = [agente for agente in agenti if search_term in agente.lower()]
+
+        if filtered_agenti:
+            # Mostra la Listbox sotto la Entry solo se ci sono risultati
+            listbox_window.geometry(f"300x200+{parent_frame.winfo_x() + search_frame.winfo_x() + entry.winfo_x() + 20}+{parent_frame.winfo_y() + search_frame.winfo_y() +entry.winfo_y() + search_frame.winfo_height() + entry.winfo_height() + 40}")
+            listbox_window.deiconify()
+
+            for agente in filtered_agenti:
+                listbox.insert(tk.END, agente)
+        else:
+            listbox_window.withdraw()
+            #listbox.place_forget()
+            # Nasconde la Listbox se non ci sono risultati
+
+    # Creazione della barra di ricerca (Entry)
+    entry = tk.Entry(search_frame, textvariable=selected_agente, font=('Arial', 16))
+    entry.pack(side="left", padx=10,pady=10)
+    entry.config(width=25)
+    entry.bind('<KeyRelease>', update_listbox)  # Ogni volta che si digita, aggiorna la Listbox
+
+    listbox_window = tk.Toplevel(search_frame)
+    listbox_window.wm_overrideredirect(True)  # Rimuove bordi e titoli della finestra
+    listbox_window.geometry("300x200")
+    listbox_window.withdraw()
+
+    # Creazione della Listbox per visualizzare i risultati (inizialmente nascosta)
+    listbox = tk.Listbox(listbox_window, font=('Arial', 16), height=8, selectmode=tk.SINGLE)
+    listbox.pack(side="left", fill="both", expand=True)
+
+
+    # Quando si seleziona un cliente dalla Listbox
+    listbox.bind('<<ListboxSelect>>', on_agente_selected)
+
+    def mostra_frame():
+        table_frame.pack(side="left", padx=5, pady=10, fill="both", expand=True)  # Mostra il primo frame
+        table_frame_1.pack(side="left", pady=10, fill="both", expand=True)  # Mostra il secondo frame affiancato
 
     # Pulsante "Esporta Excel Fornitori" accanto al pulsante prodotti
     export_fornitori_button = ctk.CTkButton(search_frame, text="Esporta Excel Agenti", command=open_agenti_selection_popup, font=('Arial', 14))
