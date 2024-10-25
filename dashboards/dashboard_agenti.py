@@ -14,6 +14,7 @@ from Database_Utilities.crud_agenti import get_all_clienti_names, get_cliente_in
 import openpyxl
 from tkinter import messagebox
 
+from dashboards.dashboard_clienti import get_lista_info
 #from dashboards.dashboard_clienti import get_lista_info
 from db_prova_lista_personalizzata import get_prodotti_by_cliente
 from popup_functions import open_add_popup
@@ -21,7 +22,7 @@ from popup_functions import open_add_popup
 
 def get_clienti_by_agente(selected_agente):
     """Fetch all clients associated with the selected agent."""
-    print("check1")
+    #print("check1")
     conn = sqlite3.connect('Database_Utilities/Database/Magazzino.db')  # Update this with your database path
     cursor = conn.cursor()
 
@@ -30,7 +31,7 @@ def get_clienti_by_agente(selected_agente):
     cursor.execute(query, (selected_agente,))
 
     clienti = cursor.fetchall()
-    print(clienti)
+    #print(clienti)
     conn.close()
 
     return [cliente[0] for cliente in clienti]  # Returns a list of customer names
@@ -368,23 +369,9 @@ def on_double_click(event, tree):
             # Show the action dialog with the customer's info
             #cambiare in righe per agente
             show_action_dialog(agente, lambda action: handle_action(
-                action, tree,
-                cliente_info.get("Ragione sociale", ""),
-                cliente_info.get("2° riga rag. sociale", ""),
-                cliente_info.get("Indirizzo", ""),
-                cliente_info.get("CAP", ""),
-                cliente_info.get("Città", ""),
-                cliente_info.get("Nazione", ""),
-                cliente_info.get("Partita iva estero", ""),
-                cliente_info.get("Telefono", ""),
-                cliente_info.get("Email", ""),
-                cliente_info.get("Zona", ""),
-                cliente_info.get("Giorni di chiusura ", ""),
-                cliente_info.get("Orari di scarico", ""),
-                cliente_info.get("Condizioni pagamamento", ""),
-                cliente_info.get("Sconto", ""),
-                cliente_info.get("Agente 1", ""),
-                cliente_info.get("ID", "")
+                action, tree,agente,
+                cliente_info.get("nome", ""),
+                cliente_info.get("id", "")
             ))
         else:
             messagebox.showwarning("Attenzione", "Nessun dato disponibile per l'agente selezionato.")
@@ -405,13 +392,13 @@ button_font = ("Arial", 12)  # Font più grande per i pulsanti
 button_width = 15  # Larghezza maggiore per i pulsanti
 button_height = 2  # Altezza maggiore per i pulsanti
 
-def show_action_dialog(ragione_sociale, callback):
+def show_action_dialog(agente, callback):
     dialog = tk.Toplevel()
     dialog.title("Scegli Azione")
     dialog.grab_set()  # Ottieni il focus sulla finestra di dialogo
     dialog.transient()  # Rendi la finestra di dialogo modale
 
-    label = tk.Label(dialog, text=f"Vuoi modificare o eliminare '{ragione_sociale}'?",
+    label = tk.Label(dialog, text=f"Vuoi modificare o eliminare '{agente}'?",
                          font=("Arial", 16))
     label.pack(pady=10)
 
@@ -468,21 +455,21 @@ def show_action_dialog_1(current_cliente_connesso, callback):
     center_window(dialog,600,300)
     dialog.wait_window()  # Attendi la chiusura della finestra di dialogo
 
-def handle_action(action,tree, ragione_sociale, seconda_riga, indirizzo, cap, citta, nazione, partita_iva, telefono, email, zona, giorni_chiusura, orari_scarico, condizioni_pagamento, sconto, agente, id_cliente):
+def handle_action(action,tree,agente,nome, id):
     if action == "modify":
-        details = ask_details(ragione_sociale, f"Inserisci le nuove info di '{ragione_sociale}':",seconda_riga, indirizzo, cap, citta, nazione, partita_iva, telefono, email, zona, giorni_chiusura, orari_scarico, condizioni_pagamento, sconto, agente, id_cliente)
+        details = ask_details(agente, f"Inserisci le nuove info di '{agente}':",nome, id )
         if details and details['quantity'] is not None:
             #inserisci funzione per modificare a db il cliente
             show_agente_info(tree, tree.table_frame)
-            messagebox.showinfo("Modifica Prodotto", f"Hai modificato '{ragione_sociale}'.")
+            messagebox.showinfo("Modifica Prodotto", f"Hai modificato '{agente}'.")
     elif action == "delete":
-        confirm = messagebox.askokcancel("Conferma Eliminazione", f"Sei sicuro di voler eliminare '{ragione_sociale}'?")
+        confirm = messagebox.askokcancel("Conferma Eliminazione", f"Sei sicuro di voler eliminare '{agente}'?")
         if confirm:
             #inserisci funzione per far delete cliente
             show_agente_info(tree.table_frame)
-            messagebox.showinfo("Eliminazione Prodotto", f"L'agente '{ragione_sociale}' è stato eliminato.")
+            messagebox.showinfo("Eliminazione Prodotto", f"L'agente '{agente}' è stato eliminato.")
 
-def ask_details(ragione_sociale, prompt,seconda_riga, indirizzo, cap, citta, nazione, partita_iva, telefono, email, zona, giorni_chiusura, orari_scarico, condizioni_pagamento, sconto, agente, id_cliente):
+def ask_details(agente, prompt,nome, id):
     dialog = tk.Toplevel()
     dialog.title("Scegli le nuove info dell'agente")
     dialog.grab_set()
@@ -494,22 +481,8 @@ def ask_details(ragione_sociale, prompt,seconda_riga, indirizzo, cap, citta, naz
     entry_width = 40
     #cambiare per agente
     input_vars = {
-        "ragione sociale": tk.StringVar(value=ragione_sociale),
-        "seconda riga": tk.StringVar(value=seconda_riga),
-        "indirizzo": tk.StringVar(value=indirizzo),
-        "cap": tk.StringVar(value=cap),
-        "citta": tk.StringVar(value=citta),
-        "nazione": tk.StringVar(value=nazione),
-        "partita iva": tk.StringVar(value=partita_iva),
-        "telefono": tk.StringVar(value=telefono),
-        "email": tk.StringVar(value=email),
-        "zona": tk.StringVar(value=zona),
-        "giorni chiusura": tk.StringVar(value=giorni_chiusura),
-        "orari scarico": tk.StringVar(value=orari_scarico),
-        "condizioni pagamento": tk.StringVar(value=condizioni_pagamento),
-        "sconto": tk.DoubleVar(value=sconto),
-        "agente": tk.StringVar(value=agente),
-        "id cliente": tk.IntVar(value=id_cliente),
+        "agente": tk.StringVar(value=nome),
+        "id cliente": tk.IntVar(value=id),
     }
 
     container_frame = tk.Frame(dialog)
