@@ -1039,8 +1039,8 @@ def show_dashboard4(parent_frame):
     export_lista_button = ctk.CTkButton(search_frame, text="Aggiungi Agente",command = lambda:open_add_popup("Agente"), font=('Arial', 14))
     export_lista_button.pack(side="left", padx=10)
 
-    modifica_lista_button = ctk.CTkButton(search_frame, text="Aggiungi Clienti Connessi", command = lambda:open_add_popup("Cliente Connesso"), font=('Arial', 14))
-    modifica_lista_button.pack(side="left", padx=10)
+    provvigioni_button = ctk.CTkButton(search_frame, text="Calcola Provvigioni", command = lambda:open_add_popup("Provvigioni"), font=('Arial', 14))
+    provvigioni_button.pack(side="left", padx=10)
 
     global table_frame, table_frame_1
     table_frame = ctk.CTkFrame(parent_frame, corner_radius=5)

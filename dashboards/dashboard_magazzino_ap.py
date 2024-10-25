@@ -125,13 +125,6 @@ def aggiungi_prodotto():
     button_confirm.pack(pady=10)
 
 
-
-
-
-
-
-
-
 def center_window(window, width, height):
     window.update_idletasks()
     width = width

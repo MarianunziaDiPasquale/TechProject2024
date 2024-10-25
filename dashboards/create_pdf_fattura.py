@@ -7,7 +7,8 @@ from datetime import datetime
 from fpdf import FPDF
 from PIL import Image, ImageTk
 import fitz
-
+from Database_Utilities.crud_clienti import get_all_clienti_names
+# Import CRUD functions for Parigi
 def show_pdf_preview(pdf_path):
     # Apri il PDF con PyMuPDF
     doc = fitz.open(pdf_path)
@@ -313,7 +314,7 @@ def generate_invoice_pdf(order):
             invoice["iban"] = entry_iban.get()
             invoice["swift"] = entry_swift.get()
             invoice["agent_name"] = entry_agent_name.get()
-            invoice["payment_condition"] = entry_payment_condition.get()
+            invoice["payment_condition"] = entry_condizione.get()
             invoice["sender_name"] = entry_sender_name.get()
             invoice["sender_giorno"] = entry_sender_giorno.get()
             invoice["courier_service"] = entry_courier_service.get()
@@ -440,9 +441,16 @@ def generate_invoice_pdf(order):
         entry_agent_name.insert(0, invoice["agent_name"])
 
         tk.Label(data_frame, text="Condizioni di Pagamento:", font=font_size).grid(row=11, column=0, **padding)
-        entry_payment_condition = tk.Entry(data_frame, width=entry_width, font=font_size)
-        entry_payment_condition.grid(row=11, column=1, **padding)
-        entry_payment_condition.insert(0, invoice["payment_condition"])
+        #entry_payment_condition = tk.Entry(data_frame, width=entry_width, font=font_size)
+        #entry_payment_condition.grid(row=11, column=1, **padding)
+        #entry_payment_condition.insert(0, invoice["payment_condition"])
+
+        clienti = get_all_clienti_names()  # Da modificare
+        condizione_selezionata = tk.StringVar()
+        entry_condizione = ttk.Combobox(data_frame, textvariable=condizione_selezionata, values=clienti, font=("Arial", 14))
+        entry_condizione.configure(width=20)
+        entry_condizione.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+        entry_condizione.grid(row=11, column=1, **padding)
 
         tk.Label(data_frame, text="Mittente:", font=font_size).grid(row=12, column=0, **padding)
         entry_sender_name = tk.Entry(data_frame, width=entry_width, font=font_size)

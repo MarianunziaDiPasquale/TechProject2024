@@ -70,9 +70,38 @@ def open_add_popup(item_type):
         for i, field in enumerate(fields):
             label = tk.Label(form_frame, text=field, font=font_size)
             label.grid(row=i//2, column=(i%2)*2, padx=5, pady=5, sticky='e')
-            entry = tk.Entry(form_frame, width=entry_width, font=font_size)
-            entry.grid(row=i//2, column=(i%2)*2+1, padx=5, pady=5, sticky='w')
-            entries[field] = entry
+            if field == "Condizioni di pagamento":
+                clienti = get_all_clienti_names()  # Da modificare
+                condizione_selezionata = tk.StringVar()
+                condizione = ttk.Combobox(form_frame, textvariable=condizione_selezionata, values=clienti,
+                                          font=("Arial", 14))
+                condizione.configure(width=40)
+                condizione.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+                condizione.grid(row=i//2, column=(i%2)*2+1, padx=5, pady=5, sticky='w')
+                entries[field] = condizione_selezionata
+            elif field == "Esente IVA":
+                esenzioni = ["si", "no"]  # Da modificare
+                esente_selezionata = tk.StringVar()
+                esenzione = ttk.Combobox(form_frame, textvariable=esente_selezionata, values=esenzioni,
+                                         font=("Arial", 14))
+                esenzione.configure(width=40)
+                esenzione.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+                esenzione.grid(row=i//2, column=(i%2)*2+1, padx=5, pady=5, sticky='w')
+                entries[field] = esente_selezionata
+            elif field == "Agente 1":
+                agenti = get_all_clienti_names()  # Da modificare
+                agente_selezionato = tk.StringVar()
+                agente = ttk.Combobox(form_frame, textvariable=agente_selezionato, values=agenti,
+                                      font=("Arial", 14))
+                agente.configure(width=40)
+                agente.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+                agente.grid(row=i//2, column=(i%2)*2+1, padx=5, pady=5, sticky='w')
+                entries[field] = agente_selezionato
+            else:
+                entry = tk.Entry(form_frame, width=entry_width, font=font_size)
+                entry.grid(row=i//2, column=(i%2)*2+1, padx=5, pady=5, sticky='w')
+                entries[field] = entry
+
     elif item_type == "Fornitore":
         fields = ["Nome", "ID Fornitore"]
         for field in fields:
@@ -120,7 +149,7 @@ def open_add_popup(item_type):
                 entry.pack(pady=5)
                 entries[field] = entry
     elif item_type == "Vettore":
-        fields = ["Nome", "ID Vettore","Trasporto","Prezzo Mezzo","Prezzo Trasporto"]
+        fields = ["Nome", "ID Vettore"]
         for field in fields:
             label = tk.Label(popup, text=field,width=entry_width, font=font_size)
             label.pack(pady=5)
@@ -136,13 +165,34 @@ def open_add_popup(item_type):
             entry.pack(pady=5)
             entries[field] = entry
     elif item_type == "Cliente Connesso":
-        fields = ["Agente", "ID", "Cliente Connesso", "Quantita"]
+        fields = ["Agente", "ID", "Cliente Connesso"]
         for field in fields:
             label = tk.Label(popup, text=field,width=entry_width, font=font_size)
             label.pack(pady=5)
             entry = tk.Entry(popup, font=font_size)
             entry.pack(pady=5)
             entries[field] = entry
+    elif item_type == "Provvigioni":
+        fields = [ "Agente", "Provvigione"]
+        form_frame = tk.Frame(popup)
+        form_frame.pack(pady=10)
+        for i, field in enumerate(fields):
+            label = tk.Label(form_frame, text=field, font=font_size)
+            label.grid(row=i // 2, column=(i % 2) * 2, padx=5, pady=5, sticky='e')
+            if field == "Agente":
+                clienti = get_all_clienti_names()  # Da modificare
+                Agente_selezionata = tk.StringVar()
+                Agente = ttk.Combobox(form_frame, textvariable=Agente_selezionata, values=clienti,
+                                          font=("Arial", 14))
+                Agente.configure(width=30)
+                Agente.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+                Agente.grid(row=i // 2, column=(i % 2) * 2 + 1, padx=5, pady=5, sticky='w')
+                entries[field] = Agente_selezionata
+            else:
+                entry = tk.Entry(form_frame, width=entry_width, font=font_size)
+                entry.grid(row=i // 2, column=(i % 2) * 2 + 1, padx=5, pady=5, sticky='w')
+                entries[field] = entry
+
 
 
 
@@ -164,6 +214,9 @@ def open_add_popup(item_type):
             #aggiunti per agente
             print("hello")
         elif item_type == "Cliente Connesso":
+            #aggiungi per cliente connesso
+            print("hello")
+        elif item_type == "Provvigione":
             #aggiungi per cliente connesso
             print("hello")
         print(f"Aggiungi - Selezionato {item_type}: {values}")

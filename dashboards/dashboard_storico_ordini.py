@@ -12,6 +12,8 @@ import xml.etree.ElementTree as ET
 from dashboards.create_pdf_fattura import generate_invoice_pdf
 from dashboards.create_pdf_non_sold import generate_non_sold_pdf
 from dashboards.create_pdf_return import generate_return_pdf
+from tkcalendar import *
+
 
 
 def show_pdf_preview(pdf_path):
@@ -90,6 +92,23 @@ def show_dashboard8(parent_frame):
         except ValueError:
             return None
 
+    def pick_date(event):
+        global cal, date_window
+        date_window = tk.Toplevel()
+        date_window.grab_set()
+        date_window.title("Scegli una data")
+        date_window.geometry('250x220+590+370')
+        cal = Calendar(date_window, selectmode="day",date_pattern="mm-dd-yy")
+        cal.place (x=0, y=0)
+        def grab_date():
+            start_date_entry.delete(0, 'END')
+            start_date_entry.insert(0, cal.get_date())
+            date_window.destroy()
+
+        submit_button= tk.Button(date_window, text="Submit", command=lambda: grab_date)
+        submit_button.place(x=80, y=200)
+
+
     clienti = get_unique_values('cliente')
     fornitori = get_unique_values('fornitore')
     date = get_unique_values('data_ordine')
@@ -123,11 +142,15 @@ def show_dashboard8(parent_frame):
 
     ctk.CTkLabel(filter_frame, text="Start Date (DD-MM-YY):", font=('Arial', 14)).grid(row=0, column=6, padx=5, pady=5,sticky="w")
     start_date_entry = tk.Entry(filter_frame, width=12, font=('Arial', 14))
+    start_date_entry.insert(0, "dd-mm-yy")
+    start_date_entry.bind("<1>", pick_date)
     start_date_entry.grid(row=0, column=7, padx=5, pady=5)
 
     ctk.CTkLabel(filter_frame, text="End Date (DD-MM-YY):", font=('Arial', 14)).grid(row=1, column=6, padx=5, pady=5,sticky="w")
     end_date_entry = tk.Entry(filter_frame, width=12, font=('Arial', 14))
     end_date_entry.grid(row=1, column=7, padx=5, pady=5)
+
+
 
     def apply_filters():
         start_date = validate_date(start_date_entry.get().strip())

@@ -492,8 +492,33 @@ def ask_details(ragione_sociale, prompt,seconda_riga, indirizzo, cap, citta, naz
     for label_text, var in input_vars.items():
         label = tk.Label(scrollable_frame, text=label_text.capitalize() + ":", font=("Arial", 14))
         label.pack(pady=5)
-        entry = tk.Entry(scrollable_frame, width=entry_width, textvariable=var, font=("Arial", 14))
-        entry.pack(pady=5)
+        if label_text == "condizioni pagamento":
+            clienti = get_all_clienti_names()  # Da modificare
+            condizione_selezionata = tk.StringVar()
+            condizione = ttk.Combobox(scrollable_frame, textvariable=condizione_selezionata, values=clienti,
+                                      font=("Arial", 14))
+            condizione.configure(width=35)
+            condizione.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+            condizione.pack(pady=5)
+        elif label_text == "esente iva":
+            esenzioni = ["si","no"]  # Da modificare
+            esente_selezionata = tk.StringVar()
+            esenzione = ttk.Combobox(scrollable_frame, textvariable=esente_selezionata, values=esenzioni,
+                                      font=("Arial", 14))
+            esenzione.configure(width=35)
+            esenzione.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+            esenzione.pack(pady=5)
+        elif label_text == "agente":
+            agenti = get_all_clienti_names()  # Da modificare
+            agente_selezionato = tk.StringVar()
+            agente = ttk.Combobox(scrollable_frame, textvariable=agente_selezionato, values=agenti,
+                                      font=("Arial", 14))
+            agente.configure(width=35)
+            agente.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+            agente.pack(pady=5)
+        else:
+            entry = tk.Entry(scrollable_frame, width=entry_width, textvariable=var, font=("Arial", 14))
+            entry.pack(pady=5)
 
     def on_confirm():
         dialog.destroy()
