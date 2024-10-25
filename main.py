@@ -149,7 +149,7 @@ def update_dashboard():
                                                           lambda: extract_dashboard("9"))
                     show_dashboard9(dashboard_frame)
                 elif dashboard == "A":
-                    dashboard_frame = add_title_and_frame(frame, "Condizioni-Metodi Pay", lambda: close_dashboard("0"),
+                    dashboard_frame = add_title_and_frame(frame, "Condizioni-Metodi Pay", lambda: close_dashboard("A"),
                                                           lambda: extract_dashboard("A"))
                     show_dashboard10(dashboard_frame)
 
