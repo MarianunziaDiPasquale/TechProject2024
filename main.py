@@ -1,4 +1,6 @@
 import tkinter as tk
+from time import strftime
+import locale
 import customtkinter as ctk
 from PIL import Image, ImageTk
 from dashboards.dashboard_magazzino_ap import show_dashboard1
@@ -14,9 +16,11 @@ from dashboards.dashboard_condizioni import show_dashboard10
 
 from side_panel import create_side_panel_buttons
 
+# Imposta il locale in italiano
+locale.setlocale(locale.LC_TIME, 'Italian_Italy.1252')
 # Imposta la modalità di customtkinter e il tema
 ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("blue")
+ctk.set_default_color_theme("resources/GhostTrain.json")
 
 def add_title_and_frame(parent_frame, title, on_close_callback, on_extract_callback):
     """Helper function to create a labeled frame with close and extract buttons."""
@@ -209,22 +213,39 @@ def open_settings_popup():
 
 def main():
     global main_frame, open_dashboards, side_panel, toggle_button, bottom_frame, background_canvas
-    #global button_add_client, button_remove_client, button_add_product, button_remove_product, button_add_supplier, button_remove_supplier
 
     root = ctk.CTk()
     root.title("AppTechProject")
     root.geometry("1800x1200")
 
-
     # Carica l'immagine di sfondo
-    background_image = Image.open("resources/Geometry_Texture.jpg")
-    background_image = background_image.resize((2000, 1300), Image.LANCZOS)
+    background_image = Image.open("resources/A_professional_sleek_abstract_background_16_9.png")
+    background_image = background_image.resize((2000, 1000), Image.LANCZOS)
     background_photo = ImageTk.PhotoImage(background_image)
 
     # Canvas per l'immagine di sfondo
     background_canvas = tk.Canvas(root, width=1800, height=1200)
     background_canvas.pack(fill="both", expand=True)
     background_canvas.create_image(0, 0, image=background_photo, anchor="nw")
+
+    def time():
+        string = strftime("%H:%M:%S %p")
+        background_canvas.itemconfig(clock_text, text=string)
+
+        # Aggiorna la data
+        current_date = strftime("%A, %d %B %Y")  # Esempio di formato: "Monday, 01 January 2024"
+        background_canvas.itemconfig(date_text, text=current_date)
+
+        root.after(1000, time)
+
+    # Crea il testo dell'orologio direttamente sul Canvas (trasparente)
+    clock_text = background_canvas.create_text(1000, 220, text="Clock", font=("Georgia", 80, 'bold'),
+                                               fill="white")  # fill definisce il colore del testo
+
+    # Crea il testo della data sotto l'orologio
+    date_text = background_canvas.create_text(1000, 320, text="Date", font=("Georgia", 40, 'bold'), fill="white")
+
+    time()
 
     # Usa PanedWindow per il frame principale
     main_frame = tk.PanedWindow(root, orient=tk.HORIZONTAL, sashrelief=tk.RAISED, showhandle=True)
@@ -241,12 +262,7 @@ def main():
     # Crea i pulsanti nel pannello orizzontale (disposti uno accanto all'altro)
     create_side_panel_buttons(side_panel, toggle_side_panel, lambda dashboards: add_dashboards(dashboards))
 
-    # Frame per i pulsanti inferiori
-    #bottom_frame = ctk.CTkFrame(root, corner_radius=5)
-
-    #button_add_client, button_add_product, button_add_supplier, button_remove_client, button_remove_product, button_remove_supplier = create_dashboard_buttons(bottom_frame)
-
-    settings_button = tk.Button(root, text="Impostazioni", command=open_settings_popup, font=('Arial', 10))
+    settings_button = ctk.CTkButton(root, text="Impostazioni", corner_radius=5,command=open_settings_popup, font=('Arial', 11), height=15, width=90)
     settings_button.place(relx=0.99, rely=0.96, anchor="ne")
 
     #hide_all_buttons()
