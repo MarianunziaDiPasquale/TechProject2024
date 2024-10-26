@@ -219,7 +219,7 @@ def show_dashboard8(parent_frame):
     table_frame = ctk.CTkFrame(parent_frame, corner_radius=5)
     table_frame.pack(pady=10, padx=10, fill="both", expand=True)
 
-    columns = ("ID Ordine", "Data", "Cliente", "Prodotti", "Totale", "Fornitore")
+    columns = ("ID Ordine", "Data", "Cliente", "Prodotti", "Totale", "Ricavo")
     tree = ttk.Treeview(table_frame, columns=columns, show="headings")
     setup_context_menu(tree)
     tree.bind("<B1-Motion>", on_mouse_drag)
