@@ -8,14 +8,15 @@ conn = sqlite3.connect(db_path)
 c = conn.cursor()
 
 # Creazione della tabella per i prodotti
-c.execute('''
+
+"""c.execute('''
 CREATE TABLE IF NOT EXISTS prodotti_clienti (
     RAGIONE_SOCIALE TEXT,
     ID TEXT,
     PRODOTTO TEXT,
     QUANTITA INTEGER
 )
-''')
+''')"""
 
 # Dati di esempio da inserire per la tabella "prodotti_clienti"
 prodotti_clienti_data = [
@@ -36,10 +37,10 @@ prodotti_clienti_data = [
 ]
 
 # Inserimento dei dati di esempio nella tabella "prodotti_clienti"
-c.executemany('''
+"""c.executemany('''
 INSERT INTO prodotti_clienti (RAGIONE_SOCIALE, ID, PRODOTTO, QUANTITA)
 VALUES (?, ?, ?, ?)
-''', prodotti_clienti_data)
+''', prodotti_clienti_data)"""
 
 # Commit delle modifiche e chiusura della connessione
 conn.commit()

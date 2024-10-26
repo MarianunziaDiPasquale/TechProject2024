@@ -1,15 +1,56 @@
 import os
 from tkinter.filedialog import asksaveasfilename
-
+import sqlite3
 import customtkinter as ctk
 from tkinter import ttk, Menu
 import tkinter as tk
 from Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_info_by_name
-from db_prova_lista_personalizzata import get_prodotti_by_cliente
 import openpyxl
 from tkinter import messagebox
 
 from popup_functions import open_add_popup
+
+
+# Add this function to dashboard_clienti.py or an appropriate module
+def get_prodotti_by_cliente(cliente_id):
+    conn = sqlite3.connect('Database_Utilities/Database/liste_personalizzate.db')
+    cursor = conn.cursor()
+
+    # Querying a table named after the cliente_id
+    query = f"SELECT col1 FROM '{cliente_id}'"
+    cursor.execute(query)
+    prodotti = cursor.fetchall()
+    conn.close()
+    lista = []
+    for x in prodotti:
+        lista.append(x[0])
+    return lista  # This returns a list of col1
+
+
+def get_product_descriptions(prodotti):
+    risultato = {}
+    conn = sqlite3.connect('Database_Utilities/Database/MergedDatabase.db')
+    cursor = conn.cursor()
+    query = "SELECT Codice, Descrizione FROM prodotti WHERE Codice = ?"
+    print(prodotti)
+    for codice in prodotti:
+        # Esegui la query per ogni elemento della lista
+        print(codice, str(codice))
+        cursor.execute(query, (str(codice),))
+        risultato_db = cursor.fetchone()
+
+        if risultato_db:
+            # Se l'elemento è trovato, aggiungilo al dizionario
+            risultato[codice] = risultato_db[1]
+        else:
+            # Se l'elemento non è trovato, puoi decidere cosa fare (es. None o un altro valore)
+            risultato[codice] = None
+
+
+    conn.close()
+
+    # Create a dictionary mapping product_id to description
+    return risultato
 
 
 def center_window(window, width, height):
@@ -261,16 +302,35 @@ def show_cliente_info(cliente, tree, table_frame):
     tree.cliente = cliente # Save the current client in the tree
     table_frame.pack(pady=10, fill="both", expand=True)
 
+
 def show_lista_info(cliente, tree_1, table_frame_1):
-    print(cliente+"lista")
     for row in tree_1.get_children():
         tree_1.delete(row)
-    lista = get_lista_info(cliente)
-    for prodotto in lista:
-        print(prodotto)
-        tree_1.insert("", tk.END, values=prodotto)
-    tree_1.cliente = cliente  # Save the current supplier in the tree
+
+    # Get the client ID using the selected client name
+    cliente_info = get_cliente_info_by_name(cliente)
+    if cliente_info:
+        cliente_id = cliente_info.get("ID")  # Assuming the ID is stored under the "ID" column
+
+        # Get the list of products from the personalized table (table named after cliente_id)
+        lista_prodotti = get_prodotti_by_cliente(cliente_id)
+        print(lista_prodotti)
+
+
+        if lista_prodotti:
+            descrizioni_prodotti = get_product_descriptions(lista_prodotti)
+
+            # Display the products in the Treeview
+            for prodotto in lista_prodotti:
+                prodotto_id = prodotto
+                descrizione = descrizioni_prodotti[prodotto]
+                tree_1.insert("", tk.END, values=(prodotto_id, descrizione))
+        else:
+            tree_1.insert("", tk.END, values=("Nessun prodotto disponibile", ""))
+
     table_frame_1.pack(pady=10, fill="both", expand=True)
+
+
 def update_combobox():
     value = combobox.get().lower()
     if value == '':
@@ -320,11 +380,9 @@ def on_double_click_1(event, tree_1):
     item = tree_1.selection()[0]
     values = tree_1.item(item, "values")
     if values:
-        current_ragione_sociale = values[0]
-        current_id = values[1]
-        current_prodotto = values[2]
-        current_quantita = values[3]
-        show_action_dialog_1(current_prodotto, lambda action: handle_action_1(action, current_ragione_sociale,current_id,current_prodotto,current_quantita, tree))
+        current_id = values[0]
+        current_prodotto = values[1]
+        show_action_dialog_1(current_prodotto, lambda action: handle_action_1(action, current_id,current_prodotto, tree))
 
 def on_double_click(event, tree):
     # Get the current cliente saved in the tree
@@ -742,7 +800,7 @@ def show_dashboard3(parent_frame):
     columns = ("",)
 
     global columns_1
-    columns_1 = ("RAGIONE SOCIALE","ID","PRODOTTO","QUANTITA'")
+    columns_1 = ("CODICE","DESCRIZIONE")
 
     global tree
     tree = ttk.Treeview(table_container, columns=columns, show="headings")
