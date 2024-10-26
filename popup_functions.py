@@ -123,6 +123,7 @@ def open_add_popup(item_type):
                 combobox.configure(width=25)
                 combobox.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
                 combobox.pack(pady=5)
+                entries[field] = combobox
             else:
                 label = tk.Label(popup, text=field, width=entry_width, font=font_size)
                 label.pack(pady=5)
@@ -130,10 +131,10 @@ def open_add_popup(item_type):
                 entry.pack(pady=5)
                 entries[field] = entry
     elif item_type == "Lista":
-        fields = ["Ragione sociale","ID","Prodotto","Quantita"]
+        fields = ["Prodotto"]
         for field in fields:
-            if field == "Ragione sociale":
-                label = tk.Label(popup, text="Ragione sociale",width=entry_width, font=font_size)
+            if field == "Prodotto":
+                label = tk.Label(popup, text="Prodotto",width=entry_width, font=font_size)
                 label.pack(pady=5)
                 clienti = get_all_clienti_names() # Da modificare
                 selected_cliente = tk.StringVar()

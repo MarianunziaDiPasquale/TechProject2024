@@ -239,11 +239,24 @@ def open_lista_selection_popup():
     popup.title("Seleziona la lista ")
     popup.geometry("700x700")  # Dimensioni compatte
 
-    instruction_label = ctk.CTkLabel(popup, text="Seleziona i clienti di cui vuoi esportare la lista personalizzata :", font=('Arial', 14), text_color="black")
+    instruction_label = ctk.CTkLabel(popup, text="Seleziona il cliente di cui vuoi esportare la lista personalizzata :", font=('Arial', 14), text_color="black")
     instruction_label.pack(pady=10)
 
     container_frame = tk.Frame(popup)
     container_frame.pack(fill="both", expand=True, padx=60)
+
+    font_size = ("Arial", 14)
+
+    label = tk.Label(container_frame, text="Cliente", width=20, font=font_size)
+    label.pack(pady=5)
+    clienti = get_all_clienti_names()  # Da modificare
+    selected_cliente = tk.StringVar()
+    combobox = ttk.Combobox(container_frame, textvariable=selected_cliente, values=clienti,
+                            font=('Arial', 16))
+    combobox.configure(width=35)
+    combobox.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+    combobox.pack(pady=5)
+    '''
 
     canvas = tk.Canvas(container_frame)
     canvas.pack(side="left", fill="both", expand=True)
@@ -295,9 +308,18 @@ def open_lista_selection_popup():
         check = tk.Checkbutton(scrollable_frame, text=cliente, variable=var,font=('Arial', 14),
                                command=lambda c=cliente, v=var: on_checkbutton_toggle(c, v))
         check.pack(anchor="w")
+    '''
+
+    entry_width = 20
+    sconto_var = tk.StringVar()
+    sconto_label = tk.Label(container_frame, text="Sconto:", font=("Arial", 14))
+    sconto_label.pack(pady=5)
+    sconto_entry = tk.Entry(container_frame, width=entry_width, textvariable=sconto_var, font=("Arial", 14))
+    sconto_entry.pack(pady=5)
+
 
     # Pulsante di conferma
-    confirm_button = ctk.CTkButton(popup, text="Conferma", command=lambda: [popup.destroy(), export_liste_prsn_to_excel(selected_clienti)], width=120, height=30)
+    confirm_button = ctk.CTkButton(popup, text="Conferma", command=lambda: [popup.destroy(), export_liste_prsn_to_excel(selected_cliente)], width=120, height=30)
     confirm_button.pack(pady=10)
 
     popup.mainloop()
