@@ -18,6 +18,7 @@ from Database_Utilities.crud_parigi import read_records_parigi, update_record_pa
 
 def aggiungi_prodotto():
     dialog = tk.Toplevel()
+    dialog.geometry('500x400')
     dialog.title("Scegli Azione")
     dialog.grab_set()
     dialog.transient()
@@ -248,7 +249,7 @@ def show_action_dialog(product_name, city, callback):
     center_window(dialog,600,300)
     dialog.wait_window()  # Attendi la chiusura della finestra di dialogo
 
-def ask_details(product,city,action, prompt, current_esistenze, current_cartoni):
+def ask_details(product,city,action, prompt, current_esistenze):
     dialog = tk.Toplevel()
     dialog.title("Dettagli Prodotto")
     dialog.grab_set()
@@ -259,17 +260,18 @@ def ask_details(product,city,action, prompt, current_esistenze, current_cartoni)
 
     # Inizializza i campi con i valori correnti
     quantity_var = tk.IntVar(value=current_esistenze)
-    cartons_var = tk.IntVar(value=current_cartoni)
+    #cartons_var = tk.IntVar(value=current_cartoni)
 
     quantity_label = tk.Label(dialog, text=f"Quantità di '{product}':",  font= ("Arial", 14))
     quantity_label.pack(pady=5)
     quantity_entry = tk.Entry(dialog, textvariable=quantity_var, font=("Arial", 14))
     quantity_entry.pack(pady=5)
-
+    '''
     cartons_label = tk.Label(dialog, text=f"Cartoni di '{product}':", font=("Arial", 14))
     cartons_label.pack(pady=5)
     cartons_entry = tk.Entry(dialog, textvariable=cartons_var,  font=("Arial", 14))
     cartons_entry.pack(pady=5)
+    '''
 
     if city == 'parigi' and action == 'sold':
         # Crea il menu a tendina per selezionare il prodotto
@@ -286,9 +288,9 @@ def ask_details(product,city,action, prompt, current_esistenze, current_cartoni)
     def on_confirm():
         dialog.destroy()
         if city == 'parigi' and action == 'sold':
-            dialog.details = {'quantity': quantity_var.get(), 'cartons': cartons_var.get(), 'cliente': cliente_selezionato.get()}
+            dialog.details = {'quantity': quantity_var.get(), 'cliente': cliente_selezionato.get()}
         else:
-            dialog.details = {'quantity': quantity_var.get(), 'cartons': cartons_var.get()}
+            dialog.details = {'quantity': quantity_var.get()}
 
     confirm_button = tk.Button(dialog, text="Conferma",  font=("Arial", 12) , command=on_confirm)
     confirm_button.pack(pady=10)
@@ -296,12 +298,12 @@ def ask_details(product,city,action, prompt, current_esistenze, current_cartoni)
     center_window(dialog,600,400)
     dialog.wait_window()
     return getattr(dialog, 'details', None)
-def handle_action(action, product,current_esistenze, current_cartoni, city, tree):
+def handle_action(action, product,current_esistenze, city, tree):
     if city == 'andria':
         if action == "modify":
-            details = ask_details(product,city,action, f"Inserisci la nuova quantità e i cartoni per '{product}':", current_esistenze, current_cartoni)
+            details = ask_details(product,city,action, f"Inserisci la nuova quantità per '{product}':", current_esistenze)
             if details and details['quantity'] is not None:
-                update_record_andria(product, details['quantity'], details['cartons'])
+                update_record_andria(product, details['quantity'])
                 show_info(city, tree, tree.table_frame)
                 messagebox.showinfo("Aggiunta Prodotto", f"Hai aggiunto {details['quantity']} prodotti di '{product}'.")
         elif action == "delete":
@@ -311,7 +313,7 @@ def handle_action(action, product,current_esistenze, current_cartoni, city, tree
                 show_info(city, tree, tree.table_frame)
                 messagebox.showinfo("Eliminazione Prodotto", f"Il prodotto '{product}' è stato eliminato.")
         elif action == "move":
-            details = ask_details(product,city,action, f"Inserisci la quantità e i cartoni da spostare per '{product}':",current_esistenze, current_cartoni)
+            details = ask_details(product,city,action, f"Inserisci la quantità da spostare per '{product}':",current_esistenze)
             if details and details['quantity'] is not None:
                 confirm = messagebox.askokcancel("Conferma Spostamento", f"Sei sicuro di voler spostare {details['quantity']} di '{product}'?")
                 if confirm:
@@ -320,9 +322,9 @@ def handle_action(action, product,current_esistenze, current_cartoni, city, tree
                     messagebox.showinfo("Spostamento Prodotto", f"Il prodotto '{product}' è stato spostato.")
     elif city == 'parigi':
         if action == "modify":
-            details = ask_details(product,city,action, f"Inserisci la nuova quantità e i cartoni per '{product}':", current_esistenze, current_cartoni)
+            details = ask_details(product,city,action, f"Inserisci la nuova quantità per '{product}':", current_esistenze)
             if details and details['quantity'] is not None:
-                update_record_parigi(product, details['quantity'], details['cartons'])
+                update_record_parigi(product, details['quantity'])
                 show_info(city, tree, tree.table_frame)
                 messagebox.showinfo("Aggiunta Prodotto", f"Hai modificato {details['quantity']} prodotti di '{product}'.")
         elif action == "delete":
@@ -332,11 +334,11 @@ def handle_action(action, product,current_esistenze, current_cartoni, city, tree
                 show_info(city, tree, tree.table_frame)
                 messagebox.showinfo("Eliminazione Prodotto", f"Il prodotto '{product}' è stato eliminato.")
         elif action == "sold":
-            details = ask_details(product,city,action, f"Inserisci la quantità venduta, i cartoni e il cliente per '{product}':", current_esistenze, current_cartoni)
+            details = ask_details(product,city,action, f"Inserisci la quantità venduta e il cliente per '{product}':", current_esistenze)
             if details and details['quantity'] is not None and details['cliente'] is not None:
                 confirm = messagebox.askokcancel("Conferma Venduto", f"Sei sicuro di voler spostare in venduti '{product}'?")
                 if confirm:
-                    update_record_parigi(product, details['quantity'], details['cartons'],details['cliente'])
+                    update_record_parigi(product, details['quantity'],details['cliente'])
                     #aggiungere funzione per mandare ordine in storico ordini
                     show_info(city, tree, tree.table_frame)
                     messagebox.showinfo("Prodotto Venduto", f"Il prodotto '{product}' è stato venduto.")
@@ -348,8 +350,8 @@ def on_double_click(event, tree):
         city = tree.city  # Recupera la città salvata
         product = values[0]
         current_esistenze = values[4]
-        current_cartoni = values[5]
-        show_action_dialog(product, city, lambda action: handle_action(action, product,current_esistenze, current_cartoni, city, tree))
+        #current_cartoni = values[5]
+        show_action_dialog(product, city, lambda action: handle_action(action, product,current_esistenze, city, tree))
 
 def generate_excel():
     dialog = tk.Toplevel()
