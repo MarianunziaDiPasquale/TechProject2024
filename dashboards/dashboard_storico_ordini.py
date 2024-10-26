@@ -100,13 +100,13 @@ def show_dashboard8(parent_frame):
         date_window.geometry('250x220+590+370')
         cal = Calendar(date_window, selectmode="day",date_pattern="mm-dd-yy")
         cal.place (x=0, y=0)
-        def grab_date():
-            start_date_entry.delete(0, 'END')
-            start_date_entry.insert(0, cal.get_date())
-            date_window.destroy()
-
         submit_button= tk.Button(date_window, text="Submit", command=lambda: grab_date)
         submit_button.place(x=80, y=200)
+
+    def grab_date():
+        start_date_entry.delete(0, 'END')
+        start_date_entry.insert(0, cal.get_date())
+        date_window.destroy()
 
 
     clienti = get_unique_values('cliente')
