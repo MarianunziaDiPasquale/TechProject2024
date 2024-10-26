@@ -7,7 +7,9 @@ import tkinter as tk
 from Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_info_by_name
 import openpyxl
 from tkinter import messagebox
-
+import sqlite3
+import openpyxl
+from openpyxl.styles import Border, Side, PatternFill, Font, Alignment, Protection
 from popup_functions import open_add_popup
 
 
@@ -147,6 +149,90 @@ def export_liste_prsn_to_excel(selected_lista):
 
     workbook.save(file_path)
     messagebox.showinfo("Excel Generato", f"Il file Excel è stato salvato come {os.path.basename(file_path)}")
+
+def crea_file_excel_con_estetica(lista_codici, sconti, nome_tabella, db_path="database.db", output_file="output.xlsx"):
+    # Connessione al database SQLite
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # Crea una nuova cartella di lavoro (workbook) per Excel
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.title = "Ordine"
+
+    # Definisci i bordi e altri stili per l'esempio
+    bordo_sottile = Border(left=Side(style='thin'),
+                           right=Side(style='thin'),
+                           top=Side(style='thin'),
+                           bottom=Side(style='thin'))
+
+    # Definisci il riempimento e il font
+    riempimento_celle_giallo = PatternFill(start_color="FFFF99", end_color="FFFF99", fill_type="solid")
+    font_stile = Font(name="Calibri", size=12, bold=False)
+    font_rosso = Font(name="Calibri", size=12, bold=False, color="FF0000")
+    alignment_center = Alignment(horizontal="center", vertical="center")
+
+    # Imposta l'intestazione delle colonne
+    intestazioni = ["Codice", "Descrizione", "Prezzo Unitario", "Sconto (%)", "Prezzo Scontato", "Quantità"]
+    sheet.append(intestazioni)
+
+    # Applica lo sfondo giallo alla prima riga (intestazioni)
+    for col in ['A', 'B', 'C', 'D', 'E', 'F']:
+        cell = sheet[f'{col}1']
+        cell.fill = riempimento_celle_giallo
+        cell.border = bordo_sottile
+        cell.alignment = alignment_center
+
+        # Imposta il font rosso per "Sconto (%)" e "Prezzo Scontato", altrimenti nero
+        if col in ['D', 'E']:  # Colonne "Sconto (%)" e "Prezzo Scontato"
+            cell.font = font_rosso
+        else:
+            cell.font = Font(bold=True)  # Font nero e in grassetto per altre intestazioni
+
+    # Aggiungi dati per ogni codice nella lista
+    for idx, codice in enumerate(lista_codici):
+        # Recupera i dati dal database
+        query = f"SELECT descrizione, prezzo FROM {nome_tabella} WHERE codice = ?"
+        cursor.execute(query, (codice,))
+        risultato_db = cursor.fetchone()
+
+        if risultato_db:
+            descrizione, prezzo_unitario = risultato_db
+            sconto = sconti[idx]
+            prezzo_scontato = prezzo_unitario * (1 - sconto / 100)
+
+            # Aggiungi una riga al foglio Excel con i dati
+            nuova_riga = [codice, descrizione, prezzo_unitario, sconto, prezzo_scontato, ""]  # Quantità vuota
+            sheet.append(nuova_riga)
+
+            # Applica la formattazione estetica solo a queste nuove righe
+            for col in ['A', 'B', 'C', 'D', 'E', 'F']:
+                cell = sheet[f'{col}{sheet.max_row}']
+                cell.border = bordo_sottile
+                cell.fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")  # Bianco per le righe dei dati
+                cell.font = font_stile
+                cell.alignment = alignment_center
+
+        else:
+            print(f"Codice {codice} non trovato nel database.")
+
+    # Protezione delle colonne: blocca tutte le colonne tranne la colonna "Quantità"
+    for row in sheet.iter_rows(min_row=2, max_row=sheet.max_row):
+        for cell in row:
+            if cell.column != 6:  # La colonna "Quantità" è la sesta
+                cell.protection = Protection(locked=True)
+            else:
+                cell.protection = Protection(locked=False)
+
+    # Protezione del foglio
+    sheet.protection.set_password('password')
+
+    # Salva il file Excel
+    workbook.save(output_file)
+    print(f"File Excel salvato come {output_file}")
+
+    # Chiude la connessione al database
+    conn.close()
 
 def open_lista_selection_popup():
     popup = tk.Toplevel()
