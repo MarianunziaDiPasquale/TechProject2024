@@ -247,7 +247,7 @@ def open_lista_selection_popup():
 
     font_size = ("Arial", 14)
 
-    label = tk.Label(container_frame, text="Cliente", width=20, font=font_size)
+    label = tk.Label(popup, text="Cliente", width=20, font=font_size)
     label.pack(pady=5)
     clienti = get_all_clienti_names()  # Da modificare
     selected_cliente = tk.StringVar()

@@ -97,7 +97,7 @@ def show_dashboard8(parent_frame):
         date_window = tk.Toplevel()
         date_window.grab_set()
         date_window.title("Scegli una data")
-        date_window.geometry('260x230+590+370')
+        date_window.geometry(f"260x230+{parent_frame.winfo_x() + filter_frame.winfo_x() + entry.winfo_x()+128*3}+{parent_frame.winfo_y() + filter_frame.winfo_y() +entry.winfo_y() + filter_frame.winfo_height() + entry.winfo_height()-70}")
         cal = Calendar(date_window, selectmode="day",date_pattern="dd/mm/yy")
         cal.place (x=0, y=0)
         submit_button= tk.Button(date_window, text="Submit", command=lambda: grab_date(entry))

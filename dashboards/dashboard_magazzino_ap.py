@@ -539,6 +539,7 @@ def setup_treeview(tree):
 
 def show_dashboard1(parent_frame):
     parent_frame_color = parent_frame.cget("fg_color")
+    #parent_frame.attribute("-alpha", 0.5)
 
     # Crea un frame per contenere sia il titolo che la legenda
     top_frame = ctk.CTkFrame(parent_frame, corner_radius=5, fg_color=parent_frame_color)

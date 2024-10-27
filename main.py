@@ -36,7 +36,7 @@ def add_title_and_frame(parent_frame, title, on_close_callback, on_extract_callb
     close_button = ctk.CTkButton(title_bar, text="✖", width=25, command=on_close_callback)
     close_button.pack(side="right", padx=10, pady=5)
 
-    dashboard_frame = ctk.CTkFrame(parent_frame, corner_radius=5)
+    dashboard_frame = ctk.CTkFrame(parent_frame, corner_radius=95)
     dashboard_frame.pack(fill="both", expand=True)
 
     return dashboard_frame
@@ -55,7 +55,7 @@ def open_dashboard_popup(title, content_func):
     position_right = int(screen_width / 2 - window_width / 2)
     popup.geometry(f'{window_width}x{window_height}+{position_right}+{position_top}')
 
-    dashboard_frame = ctk.CTkFrame(popup, corner_radius=5)
+    dashboard_frame = ctk.CTkFrame(popup, corner_radius=95)
     dashboard_frame.pack(fill="both", expand=True)
     content_func(dashboard_frame)  # Load the content into the popup
 
@@ -78,7 +78,7 @@ def update_dashboard():
             if dashboard in dashboard_frames:
                 frame = dashboard_frames[dashboard]
             else:
-                frame = ctk.CTkFrame(main_frame, corner_radius=5)
+                frame = ctk.CTkFrame(main_frame, corner_radius=95)
                 dashboard_frames[dashboard] = frame  # Memorizza il frame nel dizionario
 
                 def close_dashboard(dashboard_name=dashboard):
@@ -211,12 +211,20 @@ def open_settings_popup():
     dark_mode_button = tk.Button(popup, text="Scuro", command=lambda: change_appearance_mode("dark"), font=('Arial', 12))
     dark_mode_button.pack(pady=5)
 
+
+#splash = ctk.CTk()
+#height = 500
+#width = 500
+#x = (splash.winfo_screenwidth()//2 - (width/2))
+#y = (splash.winfo_screenheight()//2 - (height/2))
+#splash.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+
 def main():
     global main_frame, open_dashboards, side_panel, toggle_button, bottom_frame, background_canvas
 
     root = ctk.CTk()
     root.title("AppTechProject")
-    root.geometry("1800x1200")
+    root.geometry("{}x{}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
 
     # Carica l'immagine di sfondo
     background_image = Image.open("resources/A_professional_sleek_abstract_background_16_9.png")
@@ -273,6 +281,7 @@ def main():
     # Inizializza l'elenco per tenere traccia delle dashboard aperte
     open_dashboards = []
 
+
     root.mainloop()
 
 def add_dashboards(dashboards):
@@ -285,5 +294,17 @@ def add_dashboards(dashboards):
             open_dashboards.append(dashboard)  # Aggiungi la nuova dashboard alla lista
     update_dashboard()
 
+
+'''
+def on_splash_end():
+    splash.destroy()  # Chiude la splash window
+    #main()  # Avvia la finestra principale
+
+# Avvio della funzione after per chiudere lo splash dopo 3 secondi
+splash.after(3000, on_splash_end)
+
+# Avvia il ciclo principale della splash window
+splash.mainloop()
+'''
 if __name__ == "__main__":
     main()
