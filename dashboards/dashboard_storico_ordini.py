@@ -528,16 +528,18 @@ def show_dashboard8(parent_frame):
     button_xml.pack(side="left", padx=10, pady=20)
 
     class PDFSigarette(FPDF):
-        def header_top(self):
+        def header_top(self,current_stringa):
             self.set_font('Arial', 'B', 14)
-            self.cell(200, 10, txt="Documento Fattura", ln=True, align='C')
-            # Aggiungi la data corrente nel formato GG/MM/AAAA
             current_date = datetime.now().strftime("%d/%m/%Y")
-            self.cell(200, 10, txt=f"Data: {current_date}", ln=True, align='C')
+            self.cell(200,10, txt=f"PAGAMENTO IN CONTANTI       Data: {current_date}", ln=True, align='C')
+            # Aggiungi la data corrente nel formato GG/MM/AAAA
+            #self.cell(200, 10, txt=f"Data: {current_date}", ln=True, align='C')
+            self.cell(200,10, txt=f"{current_stringa}", ln=True, align='C')
 
             # Spazio aggiuntivo dopo l'intestazione
             self.ln(10)
 
+        '''
         def add_table_headers(self):
             self.set_font('Arial', 'B', 10)
             self.cell(20, 10, 'Codice', 1, align='C')
@@ -547,6 +549,7 @@ def show_dashboard8(parent_frame):
             self.cell(30, 10, 'Sconto/Magg.', 1, align='C')
             self.cell(20, 10, 'Importo', 1, align='C')
             self.ln()
+        '''
 
         def add_table_row(self, codice, descrizione, quantita, prezzo, sconto, importo):
             self.set_font('Arial', '', 10)
@@ -560,32 +563,34 @@ def show_dashboard8(parent_frame):
 
         def add_extra_fields(self, esistenza, disponibilita, trasporto, imballo, varie, bollo, totale_merce,
                              totale_quantita, totale_fattura):
-            self.set_font('Arial', 'B', 10)
+            self.set_font('Arial', '', 10)
             self.ln(20)
-            self.cell(50, 10, f"Esistenza: {esistenza}", 0, 0, align='C')
-            self.cell(50, 10, f"Disponibilità: {disponibilita}", 0, 0, align='C')
-            self.cell(50, 10, f"Trasporto: {trasporto}", 0, 1, align='C')
-            self.cell(50, 10, f"Imballo: {imballo}", 0, 0, align='C')
-            self.cell(50, 10, f"Varie: {varie}", 0, 0, align='C')
-            self.cell(50, 10, f"Bollo: {bollo}", 0, 1, align='C')
-            self.cell(50, 10, f"Totale Merce: {totale_merce}", 0, 0, align='C')
-            self.cell(50, 10, f"Totale Quantità: {totale_quantita}", 0, 0, align='C')
-            self.cell(50, 10, f"Totale Fattura: {totale_fattura}", 0, 1, align='C')
+            self.cell(50, 10, f"{esistenza}", 0, 0, align='C')
+            self.cell(50, 10, f"{disponibilita}", 0, 0, align='C')
+            self.cell(50, 10, f"{trasporto}", 0, 1, align='C')
+            self.cell(50, 10, f"{imballo}", 0, 0, align='C')
+            self.cell(50, 10, f"{varie}", 0, 0, align='C')
+            self.cell(50, 10, f"{bollo}", 0, 1, align='C')
+            self.cell(50, 10, f"{totale_merce}", 0, 0, align='C')
+            self.cell(50, 10, f"{totale_quantita}", 0, 0, align='C')
+            self.cell(50, 10, f"{totale_fattura}", 0, 1, align='C')
 
     def generate_pdf_sigaretta():
         # Popup window to edit and confirm invoice data
         def edit_and_confirm():
             def save_changes():
                 # Salva i valori dei campi extra
+                stringa = entry_stringa.get()
                 esistenza = entry_esistenza.get()
                 disponibilita = entry_disponibilita.get()
                 trasporto = entry_trasporto.get()
                 imballo = entry_imballo.get()
                 varie = entry_varie.get()
                 bollo = entry_bollo.get()
-                totale_merce = entry_totale_merce.get()
-                totale_quantita = entry_totale_quantita.get()
-                totale_fattura = entry_totale_fattura.get()
+                #qui vanno sistemate queste quantità per calcolare il totale
+                totale_merce = entry_bollo.get()
+                totale_quantita = entry_bollo.get()
+                totale_fattura = entry_bollo.get()
 
                 # Recupera i dati dei prodotti
                 products = []
@@ -601,22 +606,22 @@ def show_dashboard8(parent_frame):
 
                 # Chiudi il popup e chiedi il percorso di salvataggio
                 popup.destroy()
-                choose_save_path(esistenza, disponibilita, trasporto, imballo, varie, bollo, totale_merce,
+                choose_save_path(stringa,esistenza, disponibilita, trasporto, imballo, varie, bollo, totale_merce,
                                  totale_quantita, totale_fattura, products)
 
             # Ottiene la data corrente e la formatta come YYYYMMDD
             current_date = datetime.now().strftime("%Y%m%d")
             filename = f"Fattura_Sigaretta_{current_date}"
-            def choose_save_path(esistenza, disponibilita, trasporto, imballo, varie, bollo, totale_merce,
+            def choose_save_path(stringa,esistenza, disponibilita, trasporto, imballo, varie, bollo, totale_merce,
                                  totale_quantita, totale_fattura, products):
                 save_path = filedialog.asksaveasfilename(defaultextension=".pdf", filetypes=[("PDF files", "*.pdf")], initialfile=filename)
                 if save_path:
                     pdf = PDFSigarette()
                     pdf.add_page()
-                    pdf.header_top()
+                    pdf.header_top(stringa)
 
                     # Aggiungi le intestazioni della tabella e i prodotti
-                    pdf.add_table_headers()
+                    #pdf.add_table_headers()
                     for product in products:
                         pdf.add_table_row(*product)
 
@@ -683,6 +688,10 @@ def show_dashboard8(parent_frame):
             entry_bollo = tk.Entry(popup, width=entry_width, font=font_size)
             entry_bollo.grid(row=13, column=5)
 
+            tk.Label(popup, text="Fornitore", font=font_size).grid(row=14, column=4, padx=20, pady=5)
+            entry_stringa = tk.Entry(popup, width=entry_width, font=font_size)
+            entry_stringa.grid(row=14, column=5)
+            '''
             tk.Label(popup, text="Totale Merce", font=font_size).grid(row=14, column=4, padx=20, pady=5)
             entry_totale_merce = tk.Entry(popup, width=entry_width, font=font_size)
             entry_totale_merce.grid(row=14, column=5)
@@ -694,6 +703,7 @@ def show_dashboard8(parent_frame):
             tk.Label(popup, text="Totale Fattura", font=font_size).grid(row=14, column=0, padx=20, pady=5)
             entry_totale_fattura = tk.Entry(popup, width=entry_width, font=font_size)
             entry_totale_fattura.grid(row=14, column=1)
+            '''
 
             # Bottone per confermare e salvare
             tk.Button(popup, text="Salva e Genera PDF", font=font_size, command=save_changes).grid(row=15, columnspan=6,

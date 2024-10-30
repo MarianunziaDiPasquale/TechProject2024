@@ -1,5 +1,6 @@
 from tkinter import ttk, messagebox ,filedialog
 import tkinter as tk
+import customtkinter as ctk
 import sqlite3
 import os
 import datetime
@@ -524,12 +525,12 @@ def generate_non_sold_pdf(order):
             if len(products) > last_entry_index:
                 products.pop(last_entry_index)
 
-        tk.Button(popup, text="Aggiungi Prodotto", command=add_product, font=font_size).grid(row=23, column=0,
-                                                                                             **padding)
-        tk.Button(popup, text="Rimuovi Prodotto", command=remove_product, font=font_size).grid(row=23, column=1,
+        button_add = ctk.CtkButton(popup, text="Aggiungi Prodotto", command=add_product, font=font_size, width=120, height=30).grid(row=23, column=0,
+                                                                                           **padding)
+        button_remove = ctk.CtkButton(popup, text="Rimuovi Prodotto", command=remove_product, font=font_size, width=120, height=30).grid(row=23, column=1,
                                                                                                **padding)
         # Add save changes button at the bottom
-        tk.Button(popup, text="Salva modifiche e conferma", command=save_changes, font=font_size).grid(row=23, column=2,
+        button_save = ctk.CtkButton(popup, text="Salva modifiche e conferma", command=save_changes, font=font_size, width=120, height=30).grid(row=23, column=2,
                                                                                                        **padding)
 
     edit_and_confirm()

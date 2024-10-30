@@ -146,6 +146,6 @@ def open_add_popup(tabella, data, listbox):
         else:
             messagebox.showerror("Errore", "L'ID deve essere un numero!")
 
-    add_button = Button(popup, text="Aggiungi Elemento", command=add_new_item)
+    add_button = ctk.CtkButton(popup, text="Aggiungi Elemento", command=add_new_item, width=120, height=30)
     add_button.pack(pady=10)
 
