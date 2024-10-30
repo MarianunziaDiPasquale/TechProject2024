@@ -175,23 +175,20 @@ def open_add_popup(item_type):
             entries[field] = entry
     elif item_type == "Provvigioni":
         fields = [ "Agente", "Provvigione"]
-        form_frame = tk.Frame(popup)
-        form_frame.pack(pady=10)
         for i, field in enumerate(fields):
-            label = tk.Label(form_frame, text=field, font=font_size)
-            label.grid(row=i // 2, column=(i % 2) * 2, padx=5, pady=5, sticky='e')
+            label = tk.Label(popup, text=field, font=font_size)
+            label.pack(pady=5)
             if field == "Agente":
                 clienti = get_all_clienti_names()  # Da modificare
                 Agente_selezionata = tk.StringVar()
-                Agente = ttk.Combobox(form_frame, textvariable=Agente_selezionata, values=clienti,
-                                          font=("Arial", 14))
+                Agente = ttk.Combobox(popup, textvariable=Agente_selezionata, values=clienti,font=("Arial", 14))
                 Agente.configure(width=30)
                 Agente.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
-                Agente.grid(row=i // 2, column=(i % 2) * 2 + 1, padx=5, pady=5, sticky='w')
+                Agente.pack(pady=5)
                 entries[field] = Agente_selezionata
             else:
-                entry = tk.Entry(form_frame, width=entry_width, font=font_size)
-                entry.grid(row=i // 2, column=(i % 2) * 2 + 1, padx=5, pady=5, sticky='w')
+                entry = tk.Entry(popup, width=entry_width, font=font_size)
+                entry.pack(pady=5)
                 entries[field] = entry
 
 
@@ -229,5 +226,5 @@ def open_add_popup(item_type):
     position_top = int(screen_height / 2 - window_height / 2)
     position_right = int(screen_width / 2 - window_width / 2)
     popup.geometry(f'{window_width}x{window_height}+{position_right}+{position_top}')
-    confirm_button = tk.Button(popup, text="Conferma", command=on_confirm, font=('Arial', 12))
+    confirm_button = ctk.CTkButton(popup, text="Conferma", command=on_confirm, font=('Arial', 12), width=120, height=30)
     confirm_button.pack(pady=10)

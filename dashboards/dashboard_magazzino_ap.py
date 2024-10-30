@@ -122,7 +122,7 @@ def aggiungi_prodotto():
         dialog.destroy()
 
     # Bottone di conferma per aggiungere il prodotto
-    button_confirm = tk.Button(dialog, text="Conferma", font=("Arial", 14), command=on_confirm)
+    button_confirm = ctk.CTkButton(dialog, text="Conferma", font=("Arial", 14), command=on_confirm, width=120, height=30)
     button_confirm.pack(pady=10)
 
 
@@ -292,7 +292,7 @@ def ask_details(product,city,action, prompt, current_esistenze):
         else:
             dialog.details = {'quantity': quantity_var.get()}
 
-    confirm_button = tk.Button(dialog, text="Conferma",  font=("Arial", 12) , command=on_confirm)
+    confirm_button = ctk.CTkButton(dialog, text="Conferma",  font=("Arial", 12) , command=on_confirm, width=120, height=30)
     confirm_button.pack(pady=10)
 
     center_window(dialog,600,400)

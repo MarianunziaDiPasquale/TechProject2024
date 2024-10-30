@@ -245,10 +245,6 @@ def open_lista_selection_popup():
     container_frame = tk.Frame(popup)
     container_frame.pack(fill="both", expand=True, padx=60)
 
-    font_size = ("Arial", 14)
-
-    label = tk.Label(popup, text="Cliente", width=20, font=font_size)
-    label.pack(pady=5)
     clienti = get_all_clienti_names()  # Da modificare
     selected_cliente = tk.StringVar()
     combobox = ttk.Combobox(container_frame, textvariable=selected_cliente, values=clienti,
@@ -690,7 +686,7 @@ def ask_details(ragione_sociale, prompt,seconda_riga, indirizzo, cap, citta, naz
         dialog.destroy()
         dialog.details = {label: var.get() for label, var in input_vars.items()}
 
-    confirm_button = tk.Button(dialog, text="Conferma",  font=("Arial", 12) , command=on_confirm)
+    confirm_button = ctk.CTkButton(dialog, text="Conferma",  font=("Arial", 12) , command=on_confirm, width=120, height=30)
     confirm_button.pack(pady=10)
 
     center_window(dialog,700,700)
@@ -744,7 +740,7 @@ def ask_details_1(current_ragione_sociale, prompt,current_id,current_prodotto,cu
         dialog.destroy()
         dialog.details = {'id': id_var.get(), 'products': prodotto_var.get(), 'quantity': quantity_var.get()}
 
-    confirm_button = tk.Button(dialog, text="Conferma",  font=("Arial", 12) , command=on_confirm)
+    confirm_button = ctk.CTkButton(dialog, text="Conferma",  font=("Arial", 12) , command=on_confirm, width=120, height=30)
     confirm_button.pack(pady=10)
 
     center_window(dialog,600,400)
@@ -780,7 +776,7 @@ def show_dashboard3(parent_frame):
     # Frame per allineare il menù a tendina e i pulsanti "Esporta in Excel"
     search_frame = ctk.CTkFrame(parent_frame,corner_radius=5)
     search_frame.pack(pady=10)
-    '''
+
     # Style for larger font in Combobox
     style = ttk.Style()
     style.configure("TCombobox", font=('Arial', 16))  # Adjust font size as needed
@@ -788,21 +784,20 @@ def show_dashboard3(parent_frame):
     
     # Creazione del menù a tendina con ricerca incrementale
     combobox = ttk.Combobox(search_frame, textvariable=selected_cliente, values=clienti, font=('Arial', 16))
-    combobox.configure(width=35)
+    combobox.configure(width=30)
     combobox.pack(side="left", padx=10)
 
     # Abilita la ricerca incrementale nel menù a tendina
     combobox.bind('<KeyRelease>', on_keyrelease)
     combobox.pack(pady=10)
-    '''
-    '''
+
     def on_cliente_selected(event):
         cliente = selected_cliente.get()
         show_cliente_info(cliente, tree, table_frame)
         show_lista_info(cliente, tree_1, table_frame_1)
         mostra_frame()
-    '''
 
+    '''
     def on_cliente_selected(event):
         if listbox.curselection():  # Controlla se c'è una selezione
             cliente = listbox.get(listbox.curselection())
@@ -854,15 +849,15 @@ def show_dashboard3(parent_frame):
 
     # Quando si seleziona un cliente dalla Listbox
     listbox.bind('<<ListboxSelect>>', on_cliente_selected)
-
+    '''
     def mostra_frame():
         table_frame.pack(side="left", padx=5, pady=10, fill="both", expand=True)  # Mostra il primo frame
         table_frame_1.pack(side="left", pady=10, fill="both", expand=True)  # Mostra il secondo frame affiancato
 
-    #combobox.bind("<<ComboboxSelected>>", on_cliente_selected)
+    combobox.bind("<<ComboboxSelected>>", on_cliente_selected)
 
     # Create a style for the Listbox within the Combobox dropdown
-    #combobox.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+    combobox.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
 
     # Pulsante "Esporta Excel Fornitori" accanto al pulsante prodotti
     export_fornitori_button = ctk.CTkButton(search_frame, text="Esporta Excel Clienti", command=open_clienti_selection_popup, font=('Arial', 14))

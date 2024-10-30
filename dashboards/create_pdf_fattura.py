@@ -178,7 +178,7 @@ class PDF(FPDF):
     def invoice_header(self, invoice):
         self.set_font('Arial', '', 10)
         data = [
-            f"Document: INVOICE", f"n. {invoice['number']}", f"Data: {invoice['Date_1']}"
+            [f"Document: INVOICE", f"n. {invoice['number']}", f"Data: {invoice['Date_1']}"]
         ]
         col_widths = [70, 40, 70]  # Regola le larghezze delle colonne come necessario
         self.set_y(self.get_y())  # Assicurati che inizi dopo la sezione precedente

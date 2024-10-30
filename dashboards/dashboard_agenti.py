@@ -511,7 +511,7 @@ def ask_details(agente, prompt,nome, id):
         dialog.destroy()
         dialog.details = {label: var.get() for label, var in input_vars.items()}
 
-    confirm_button = tk.Button(dialog, text="Conferma",  font=("Arial", 12) , command=on_confirm)
+    confirm_button = ctk.CTkButton(dialog, text="Conferma",  font=("Arial", 12) , command=on_confirm, width=120, height=30)
     confirm_button.pack(pady=10)
 
     center_window(dialog,700,700)
@@ -945,7 +945,6 @@ def show_dashboard4(parent_frame):
     # Frame per allineare il menù a tendina e i pulsanti "Esporta in Excel"
     search_frame = ctk.CTkFrame(parent_frame,corner_radius=5)
     search_frame.pack(pady=10)
-    '''
 
     # Style for larger font in Combobox
     style = ttk.Style()
@@ -954,7 +953,7 @@ def show_dashboard4(parent_frame):
 
     # Creazione del menù a tendina con ricerca incrementale
     combobox = ttk.Combobox(search_frame, textvariable=selected_agente, values=agenti, font=('Arial', 16))
-    combobox.configure(width=35)
+    combobox.configure(width=20)
     combobox.pack(side="left", padx=10)
 
     # Abilita la ricerca incrementale nel menù a tendina
@@ -1024,6 +1023,7 @@ def show_dashboard4(parent_frame):
 
     # Quando si seleziona un cliente dalla Listbox
     listbox.bind('<<ListboxSelect>>', on_agente_selected)
+    '''
 
     def mostra_frame():
         table_frame.pack(side="left", padx=5, pady=10, fill="both", expand=True)  # Mostra il primo frame

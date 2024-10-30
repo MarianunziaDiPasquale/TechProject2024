@@ -203,7 +203,7 @@ class PDFReturn(FPDF):
     def invoice_header(self, invoice):
         self.set_font('Arial', '', 10)
         data = [
-            f"Document: Bolla di reso", f"n. {invoice['number']}", f"Data: {invoice['Date_1']}"
+            [f"Document: Bolla di reso", f"n. {invoice['number']}", f"Data: {invoice['Date_1']}"]
         ]
         col_widths = [70, 40, 70]  # Regola le larghezze delle colonne come necessario
         self.set_y(self.get_y())  # Posiziona la tabella esattamente dopo l'elemento precedente

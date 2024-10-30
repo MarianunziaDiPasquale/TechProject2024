@@ -362,7 +362,7 @@ def show_dashboard6(parent_frame):
     # Frame per allineare il menù a tendina e i pulsanti "Esporta in Excel"
     search_frame = ctk.CTkFrame(parent_frame,corner_radius=5)
     search_frame.pack(pady=10)
-    '''
+
     # Style for larger font in Combobox
     style = ttk.Style()
     style.configure("TCombobox", font=('Arial', 16))  # Adjust font size as needed
@@ -435,6 +435,7 @@ def show_dashboard6(parent_frame):
 
     # Quando si seleziona un cliente dalla Listbox
     listbox.bind('<<ListboxSelect>>', on_cliente_selected)
+    '''
 
     # Pulsante "Esporta Excel Fornitori" accanto al pulsante prodotti
     export_fornitori_button = ctk.CTkButton(search_frame, text="Esporta Excel Fornitori", command=open_clienti_selection_popup, font=('Arial', 14))

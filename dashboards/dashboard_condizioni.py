@@ -14,10 +14,10 @@ def show_dashboard10(parent_frame):
 
     # Crea due frame per contenere le liste
     frame_table1 = ctk.CTkFrame(parent_frame, corner_radius=5)
-    frame_table1.pack(side="left", padx=10, pady=10, fill="both", expand=True)
+    frame_table1.pack(side="left", padx=5, pady=10, fill="both", expand=True)
 
     frame_table2 = ctk.CTkFrame(parent_frame, corner_radius=5)
-    frame_table2.pack(side="right", padx=10, pady=10, fill="both", expand=True)
+    frame_table2.pack(side="right", padx=5, pady=10, fill="both", expand=True)
 
     # Etichette per le due tabelle
     label_table1 = ctk.CTkLabel(frame_table1, text="Condizioni pagamento", font=('Arial', 14))
@@ -111,10 +111,10 @@ def open_popup(listbox, data):
             popup.destroy()
 
     # Pulsanti per salvare le modifiche o eliminare
-    save_button = Button(popup, text="Salva Modifiche", command=save_changes)
+    save_button =ctk.CTkButton(popup, text="Salva Modifiche", command=save_changes, width=120, height=30)
     save_button.pack(pady=10)
 
-    delete_button = Button(popup, text="Elimina Elemento", command=delete_item)
+    delete_button = ctk.CtkButton(popup, text="Elimina Elemento", command=delete_item, width=120, height=30)
     delete_button.pack(pady=10)
 
 
