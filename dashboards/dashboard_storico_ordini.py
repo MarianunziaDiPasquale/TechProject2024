@@ -557,13 +557,13 @@ def show_dashboard8(parent_frame):
         '''
 
         def add_table_row(self, codice, descrizione, quantita, prezzo, sconto, importo):
-            self.set_font('Arial', '', 10)
-            self.cell(20, 10, codice if codice else '', 1, align='C')
-            self.cell(70, 10, descrizione if descrizione else '', 1, align='C')
-            self.cell(20, 10, quantita if quantita else '', 1, align='C')
-            self.cell(20, 10, prezzo if prezzo else '', 1, align='C')
-            self.cell(30, 10, sconto if sconto else '', 1, align='C')
-            self.cell(20, 10, importo if importo else '', 1, align='C')
+            self.set_font('Arial', '', 8)
+            self.cell(20, 10, codice if codice else '', 0, align='C')
+            self.cell(70, 10, descrizione if descrizione else '', 0, align='C')
+            self.cell(20, 10, quantita if quantita else '', 0, align='C')
+            self.cell(20, 10, prezzo if prezzo else '', 0, align='C')
+            self.cell(30, 10, sconto if sconto else '', 0, align='C')
+            self.cell(20, 10, importo if importo else '', 0, align='C')
 
 
         def add_extra_fields(self, esistenza, disponibilita, trasporto, imballo, varie, bollo, totale_merce,
