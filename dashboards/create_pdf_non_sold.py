@@ -426,6 +426,35 @@ def generate_non_sold_pdf(order):
         entry_total_invoice_euro.grid(row=19, column=1, **padding)
         entry_total_invoice_euro.insert(0, invoice["total_invoice_euro"])
 
+        def calculate_total_amount():
+            total = 0.0
+            for product_entry in product_entries:
+                try:
+                    quantity = float(product_entry["quantity"].get() or 0)
+                    price = float(product_entry["price"].get() or 0)
+                    discount1 = float(product_entry["discount"].get() or 0) / 100
+                    # Calculate initial amount
+                    amount = quantity * price
+
+                    # Apply discounts sequentially
+                    amount -= amount * discount1
+
+                    # Update product's amount field
+                    product_entry["amount"].config(state='normal')
+                    product_entry["amount"].delete(0, tk.END)
+                    product_entry["amount"].insert(0, f"{amount:.2f}")
+                    product_entry["amount"].config(state='readonly')
+
+                    # Add to total
+                    total += amount
+                except ValueError:
+                    # Handle any entries that aren't valid numbers
+                    pass
+            entry_total_invoice_euro.config(state='normal')  # Enable editing to update value
+            entry_total_invoice_euro.delete(0, tk.END)
+            entry_total_invoice_euro.insert(0, f"{total:.2f}")
+            entry_total_invoice_euro.config(state='readonly')  # Set back to readonly
+
         # Create entries for each product in a row
         product_entries = []
         for i, product in enumerate(products):
@@ -450,14 +479,17 @@ def generate_non_sold_pdf(order):
             entry_quantity = tk.Entry(product_frame, width=10, font=font_size)
             entry_quantity.grid(row=1 + i, column=4, **padding)
             entry_quantity.insert(0, product["product_quantity"])
+            entry_quantity.bind("<KeyRelease>", lambda e: calculate_total_amount())
 
             entry_price = tk.Entry(product_frame, width=10, font=font_size)
             entry_price.grid(row=1 + i, column=5, **padding)
             entry_price.insert(0, product["product_price"])
+            entry_price.bind("<KeyRelease>", lambda e: calculate_total_amount())
 
             entry_discount = tk.Entry(product_frame, width=5, font=font_size)
             entry_discount.grid(row=1 + i, column=6, **padding)
             entry_discount.insert(0, product["product_discount"])
+            entry_discount.bind("<KeyRelease>", lambda e: calculate_total_amount())
 
             entry_amount = tk.Entry(product_frame, width=10, font=font_size)
             entry_amount.grid(row=1 + i, column=7, **padding)
@@ -481,12 +513,15 @@ def generate_non_sold_pdf(order):
 
             entry_quantity = tk.Entry(product_frame, width=10, font=font_size)
             entry_quantity.grid(row=len(product_entries) + 1, column=4, **padding)
+            entry_quantity.bind("<KeyRelease>", lambda e: calculate_total_amount())
 
             entry_price = tk.Entry(product_frame, width=10, font=font_size)
             entry_price.grid(row=len(product_entries) + 1, column=5, **padding)
+            entry_price.bind("<KeyRelease>", lambda e: calculate_total_amount())
 
             entry_discount = tk.Entry(product_frame, width=5, font=font_size)
             entry_discount.grid(row=len(product_entries) + 1, column=6, **padding)
+            entry_discount.bind("<KeyRelease>", lambda e: calculate_total_amount())
 
             entry_amount = tk.Entry(product_frame, width=10, font=font_size)
             entry_amount.grid(row=len(product_entries) + 1, column=7, **padding)
@@ -524,6 +559,7 @@ def generate_non_sold_pdf(order):
                 last_entry["amount"].grid_forget()
             if len(products) > last_entry_index:
                 products.pop(last_entry_index)
+            calculate_total_amount()
 
         button_add = ctk.CtkButton(popup, text="Aggiungi Prodotto", command=add_product, font=font_size, width=120, height=30).grid(row=23, column=0,
                                                                                            **padding)
@@ -532,6 +568,7 @@ def generate_non_sold_pdf(order):
         # Add save changes button at the bottom
         button_save = ctk.CtkButton(popup, text="Salva modifiche e conferma", command=save_changes, font=font_size, width=120, height=30).grid(row=23, column=2,
                                                                                                        **padding)
+        calculate_total_amount()
 
     edit_and_confirm()
 

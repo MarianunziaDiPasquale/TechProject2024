@@ -589,8 +589,8 @@ def show_dashboard8(parent_frame):
                 bollo = entry_bollo.get()
                 #qui vanno sistemate queste quantità per calcolare il totale
                 totale_merce = entry_bollo.get()
-                totale_quantita = entry_bollo.get()
-                totale_fattura = entry_bollo.get()
+                totale_quantita = entry_totale_quantita.get()
+                totale_fattura = entry_totale_fattura.get()
 
                 # Recupera i dati dei prodotti
                 products = []
@@ -659,6 +659,10 @@ def show_dashboard8(parent_frame):
                     row_entries.append(entry)
                 entries.append(row_entries)
 
+            for row_entries in entries:
+                row_entries[2].bind("<KeyRelease>", lambda e: calculate_totals())  # Quantity column
+                row_entries[3].bind("<KeyRelease>", lambda e: calculate_totals())
+
             # Aggiungi una riga di spazio tra i prodotti e gli altri campi
             spacer = tk.Label(popup, text="", font=font_size)
             spacer.grid(row=11, columnspan=7, pady=10)
@@ -687,11 +691,54 @@ def show_dashboard8(parent_frame):
             tk.Label(popup, text="Bollo", font=font_size).grid(row=13, column=4, padx=20, pady=5)
             entry_bollo = tk.Entry(popup, width=entry_width, font=font_size)
             entry_bollo.grid(row=13, column=5)
+            entry_bollo.bind("<KeyRelease>", lambda e: calculate_totals())
 
             tk.Label(popup, text="Fornitore", font=font_size).grid(row=14, column=4, padx=20, pady=5)
             entry_stringa = tk.Entry(popup, width=entry_width, font=font_size)
             entry_stringa.grid(row=14, column=5)
-            '''
+
+            def calculate_totals():
+                total_quantity = 0
+                total_merce = 0.0
+
+                # Calculate Totale Quantità and Totale Merce
+                for row_entries in entries:
+                    try:
+                        quantity = float(row_entries[2].get() or 0)  # Quantity is in column 2
+                        price = float(row_entries[3].get() or 0)  # Price is in column 3
+
+                        # Update Totale Quantità and Totale Merce
+                        total_quantity += quantity
+                        total_merce += quantity * price
+                    except ValueError:
+                        # Ignore rows with invalid or empty entries
+                        pass
+
+                # Calculate Totale Fattura as Totale Merce plus Bollo
+                try:
+                    bollo = float(entry_bollo.get() or 0)
+                except ValueError:
+                    bollo = 0
+
+                total_fattura = total_merce + bollo
+
+                # Update the UI with calculated totals
+                entry_totale_quantita.config(state='normal')
+                entry_totale_quantita.delete(0, tk.END)
+                entry_totale_quantita.insert(0, f"{total_quantity:.2f}")
+                entry_totale_quantita.config(state='readonly')
+
+                entry_totale_merce.config(state='normal')
+                entry_totale_merce.delete(0, tk.END)
+                entry_totale_merce.insert(0, f"{total_merce:.2f}")
+                entry_totale_merce.config(state='readonly')
+
+                entry_totale_fattura.config(state='normal')
+                entry_totale_fattura.delete(0, tk.END)
+                entry_totale_fattura.insert(0, f"{total_fattura:.2f}")
+                entry_totale_fattura.config(state='readonly')
+
+
             tk.Label(popup, text="Totale Merce", font=font_size).grid(row=14, column=4, padx=20, pady=5)
             entry_totale_merce = tk.Entry(popup, width=entry_width, font=font_size)
             entry_totale_merce.grid(row=14, column=5)
@@ -703,7 +750,6 @@ def show_dashboard8(parent_frame):
             tk.Label(popup, text="Totale Fattura", font=font_size).grid(row=14, column=0, padx=20, pady=5)
             entry_totale_fattura = tk.Entry(popup, width=entry_width, font=font_size)
             entry_totale_fattura.grid(row=14, column=1)
-            '''
 
             # Bottone per confermare e salvare
             tk.Button(popup, text="Salva e Genera PDF", font=font_size, command=save_changes).grid(row=15, columnspan=6,

@@ -15,6 +15,7 @@ from Database_Utilities.crud_clienti import get_all_clienti_names
 # Import CRUD functions for Parigi
 from Database_Utilities.crud_parigi import read_records_parigi, update_record_parigi, delete_record_parigi
 
+dashboard_font_size = 14  # Default font size
 
 def aggiungi_prodotto():
     dialog = tk.Toplevel()
@@ -24,7 +25,7 @@ def aggiungi_prodotto():
     dialog.transient()
 
     # Etichetta per il menu a tendina
-    label_prodotto = tk.Label(dialog, text="Scegli Prodotto:", font=("Arial", 14))
+    label_prodotto = tk.Label(dialog, text="Scegli Prodotto:", font=("Arial", dashboard_font_size))
     label_prodotto.pack(pady=10)
 
     # Funzione per aggiornare il menu a tendina in base al testo digitato
@@ -72,25 +73,25 @@ def aggiungi_prodotto():
     # Creazione del menu a tendina per selezionare il prodotto
     prodotti = get_all_prodotti()
     prodotto_selezionato = tk.StringVar()
-    combobox_prodotto = ttk.Combobox(dialog, textvariable=prodotto_selezionato, values=prodotti, font=("Arial", 14))
+    combobox_prodotto = ttk.Combobox(dialog, textvariable=prodotto_selezionato, values=prodotti, font=("Arial",dashboard_font_size))
     combobox_prodotto.configure(width=35)
-    combobox_prodotto.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+    combobox_prodotto.option_add('*TCombobox*Listbox*Font', ('Arial', dashboard_font_size))
     combobox_prodotto.pack(pady=5)
     combobox_prodotto.bind("<KeyRelease>", update_combobox)
 
     # Selettore per "Andria" o "Parigi"
-    label_selezione = tk.Label(dialog, text="Seleziona la sede:", font=("Arial", 14))
+    label_selezione = tk.Label(dialog, text="Seleziona la sede:", font=("Arial", dashboard_font_size))
     label_selezione.pack(pady=10)
     selezione_sede = tk.StringVar(value="andria")  # Default "andria"
-    sede_andria = tk.Radiobutton(dialog, text="Andria", variable=selezione_sede, value="andria", font=("Arial", 14))
-    sede_parigi = tk.Radiobutton(dialog, text="Parigi", variable=selezione_sede, value="parigi", font=("Arial", 14))
+    sede_andria = tk.Radiobutton(dialog, text="Andria", variable=selezione_sede, value="andria", font=("Arial", dashboard_font_size))
+    sede_parigi = tk.Radiobutton(dialog, text="Parigi", variable=selezione_sede, value="parigi", font=("Arial", dashboard_font_size))
     sede_andria.pack()
     sede_parigi.pack()
 
     # Campo per la quantità
-    label_quantita = tk.Label(dialog, text="Inserisci Quantità:", font=("Arial", 14))
+    label_quantita = tk.Label(dialog, text="Inserisci Quantità:", font=("Arial", dashboard_font_size))
     label_quantita.pack(pady=10)
-    quantita_entry = tk.Entry(dialog, font=("Arial", 14))
+    quantita_entry = tk.Entry(dialog, font=("Arial", dashboard_font_size))
     quantita_entry.pack(pady=5)
 
     # Funzione per gestire il salvataggio dei dati
@@ -122,7 +123,7 @@ def aggiungi_prodotto():
         dialog.destroy()
 
     # Bottone di conferma per aggiungere il prodotto
-    button_confirm = ctk.CTkButton(dialog, text="Conferma", font=("Arial", 14), command=on_confirm, width=120, height=30)
+    button_confirm = ctk.CTkButton(dialog, text="Conferma", font=("Arial", dashboard_font_size), command=on_confirm, width=120, height=30)
     button_confirm.pack(pady=10)
 
 
@@ -134,7 +135,7 @@ def center_window(window, width, height):
     y = (window.winfo_screenheight() // 2) - (height // 2)
     window.geometry(f'{width}x{height}+{x}+{y}')
 
-button_font = ("Arial", 12)  # Font più grande per i pulsanti
+button_font = ("Arial", dashboard_font_size)  # Font più grande per i pulsanti
 button_width = 15  # Larghezza maggiore per i pulsanti
 button_height = 2  # Altezza maggiore per i pulsanti
 
@@ -201,12 +202,12 @@ def show_action_dialog(product_name, city, callback):
 
     if city == 'andria':
         label = tk.Label(dialog, text=f"Vuoi inserire una nuova quantità, eliminare o spostare '{product_name}'?",
-                         font=("Arial", 16))
+                         font=("Arial", dashboard_font_size))
         label.pack(pady=10)
 
     elif city == 'parigi':
         label = tk.Label(dialog, text=f"Vuoi inserire una nuova quantità, eliminare o vendere '{product_name}'?",
-                         font=("Arial", 16))
+                         font=("Arial", dashboard_font_size))
         label.pack(pady=10)
 
     button_frame = tk.Frame(dialog)
@@ -255,16 +256,16 @@ def ask_details(product,city,action, prompt, current_esistenze):
     dialog.grab_set()
     dialog.transient()
 
-    label = tk.Label(dialog, text=prompt, font=("Arial", 14))
+    label = tk.Label(dialog, text=prompt, font=("Arial", dashboard_font_size))
     label.pack(pady=10)
 
     # Inizializza i campi con i valori correnti
     quantity_var = tk.IntVar(value=current_esistenze)
     #cartons_var = tk.IntVar(value=current_cartoni)
 
-    quantity_label = tk.Label(dialog, text=f"Quantità di '{product}':",  font= ("Arial", 14))
+    quantity_label = tk.Label(dialog, text=f"Quantità di '{product}':",  font= ("Arial", dashboard_font_size))
     quantity_label.pack(pady=5)
-    quantity_entry = tk.Entry(dialog, textvariable=quantity_var, font=("Arial", 14))
+    quantity_entry = tk.Entry(dialog, textvariable=quantity_var, font=("Arial", dashboard_font_size))
     quantity_entry.pack(pady=5)
     '''
     cartons_label = tk.Label(dialog, text=f"Cartoni di '{product}':", font=("Arial", 14))
@@ -277,11 +278,11 @@ def ask_details(product,city,action, prompt, current_esistenze):
         # Crea il menu a tendina per selezionare il prodotto
         clienti = get_all_clienti_names()  # Da modificare
         cliente_selezionato = tk.StringVar()
-        cliente_label = tk.Label(dialog, text=f"Cliente:", font=("Arial", 14))
+        cliente_label = tk.Label(dialog, text=f"Cliente:", font=("Arial", dashboard_font_size))
         cliente_label.pack(pady=5)
-        clienti_prodotto = ttk.Combobox(dialog, textvariable=cliente_selezionato, values=clienti, font=("Arial", 14))
+        clienti_prodotto = ttk.Combobox(dialog, textvariable=cliente_selezionato, values=clienti, font=("Arial", dashboard_font_size))
         clienti_prodotto.configure(width=35)
-        clienti_prodotto.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+        clienti_prodotto.option_add('*TCombobox*Listbox*Font', ('Arial', dashboard_font_size))
         clienti_prodotto.pack(pady=5)
 
 
@@ -359,7 +360,7 @@ def generate_excel():
     dialog.grab_set()
     dialog.transient()
 
-    label = tk.Label(dialog, text="Scegli la città per generare il report Excel:", font=("Arial", 16))
+    label = tk.Label(dialog, text="Scegli la città per generare il report Excel:", font=("Arial", dashboard_font_size))
     label.pack(pady=20)
 
     def on_city_selected(city):
@@ -537,41 +538,100 @@ def setup_treeview(tree):
     tree.column("ESISTENTI", width=150, anchor="center")
     tree.column("CARTONI", width=120, anchor="center")
 
+# Define a global variable for the font size
+dashboard_font_size = 14  # Default font size for the dashboard
+
 def show_dashboard1(parent_frame):
     parent_frame_color = parent_frame.cget("fg_color")
-    #parent_frame.attribute("-alpha", 0.5)
 
-    # Crea un frame per contenere sia il titolo che la legenda
+    def open_font_size_popup():
+        """Open a popup to choose the font size and reload the dashboard with the new size."""
+        popup = tk.Toplevel()
+        popup.title("Scegli la dimensione del font")
+        popup.geometry("300x150")
+        popup.transient()  # Make it modal
+
+        # Label for font size selection
+        label = tk.Label(popup, text="Seleziona la dimensione del font:", font=("Arial", dashboard_font_size))
+        label.pack(pady=10)
+
+        # Scale widget to select font size
+        font_size_var = tk.IntVar(value=dashboard_font_size)
+        # Label to display the current slider value on top of the slider handle
+        value_display = ctk.CTkLabel(popup, text=str(dashboard_font_size), font=("Arial", 12))
+        value_display.place(relx=0.5, rely=0.35, anchor="center")  # Initial position
+        # CTkSlider to select font size with inverted color appearance
+        font_slider = ctk.CTkSlider(
+            popup,
+            from_=10,
+            to=30,
+            number_of_steps=20,
+            fg_color="white",
+            progress_color= parent_frame_color,
+            command=lambda value: update_slider_value(value) # Sync slider value to font_size_var
+        )
+        font_slider.set(dashboard_font_size)  # Set initial slider position
+        font_slider.pack(pady=10)
+
+        def update_slider_value(value):
+            """Update the label text and position to follow the slider handle."""
+            font_size_var.set(int(value))  # Update the IntVar with the new slider value
+            value_display.configure(text=str(int(value)))  # Update the display label text
+            # Position the display label above the slider handle
+            slider_pos = font_slider.get()
+            display_x = 20 + (slider_pos - font_slider.cget("from")) / (
+                        font_slider.cget("to") - font_slider.cget("from")) * 240
+            value_display.place(x=display_x, y=60)
+
+        def apply_font_size():
+            global dashboard_font_size
+            dashboard_font_size = int(font_slider.get())
+            popup.destroy()
+            # Clear the existing dashboard and reload it with the new font size
+            for widget in parent_frame.winfo_children():
+                widget.destroy()  # Remove all existing widgets from parent_frame
+            show_dashboard1(parent_frame)
+
+        # Button to confirm font size selection
+        apply_button = ctk.CTkButton(popup, text="Applica", font=("Arial", dashboard_font_size), command=apply_font_size)
+        apply_button.pack(pady=10)
+
     top_frame = ctk.CTkFrame(parent_frame, corner_radius=5, fg_color=parent_frame_color)
-    top_frame.pack(fill="x", pady=0)  # Si espande orizzontalmente
+    top_frame.pack(fill="x", pady=0)
 
-    # Usa il layout grid nel top_frame
-    top_frame.columnconfigure(0, weight=0)  # La colonna 0 non si espande
-    top_frame.columnconfigure(1, weight=1)  # La colonna 1 si espande
+    top_frame.columnconfigure(0, weight=0)
+    top_frame.columnconfigure(1, weight=1)
 
-    # Aggiungi l'etichetta "Scegli una città" all'interno del top_frame, allineata a sinistra
-    label = ctk.CTkLabel(top_frame, text="Scegli una città:", font=('Arial', 14))
+    label = ctk.CTkLabel(top_frame, text="Scegli una città:", font=('Arial', dashboard_font_size))
     label.grid(row=0, column=1, padx=10)
 
-    # Aggiungi la legenda all'interno del top_frame, allineata a destra
     legend_label = ctk.CTkLabel(top_frame, text="Unità di misura:\n- L: liters\n- Kg: kilograms\n- Pz: pieces",
-                                font=('Arial', 12), justify="left")
+                                font=('Arial', dashboard_font_size - 2), justify="left")
     legend_label.grid(row=0, column=0, sticky="w", padx=10)
 
     button_frame = ctk.CTkFrame(parent_frame, corner_radius=5)
     button_frame.pack(pady=0)
 
-    button_andria = ctk.CTkButton(button_frame, text="Andria", command=lambda: show_info("andria", tree, table_frame), corner_radius=5)
+    button_andria = ctk.CTkButton(button_frame, text="Andria", font=("Arial", dashboard_font_size),
+                                  command=lambda: show_info("andria", tree, table_frame), corner_radius=5)
     button_andria.grid(row=0, column=0, padx=10)
 
-    button_paris = ctk.CTkButton(button_frame, text="Parigi", command=lambda: show_info("parigi", tree, table_frame), corner_radius=5)
+    button_paris = ctk.CTkButton(button_frame, text="Parigi", font=("Arial", dashboard_font_size),
+                                 command=lambda: show_info("parigi", tree, table_frame), corner_radius=5)
     button_paris.grid(row=0, column=1, padx=10)
 
-    button_excel = ctk.CTkButton(button_frame, text="Stampa Excel", command=generate_excel, corner_radius=5)
+    button_excel = ctk.CTkButton(button_frame, text="Stampa Excel", font=("Arial", dashboard_font_size),
+                                 command=generate_excel, corner_radius=5)
     button_excel.grid(row=0, column=2, padx=10)
 
-    button_add_products = ctk.CTkButton(button_frame, text="Aggiungi prodotto", command= aggiungi_prodotto, corner_radius=5)
-    button_add_products.grid(row=0, column=2, padx=10)
+    button_add_products = ctk.CTkButton(button_frame, text="Aggiungi prodotto", font=("Arial", dashboard_font_size),
+                                        command=aggiungi_prodotto, corner_radius=5)
+    button_add_products.grid(row=0, column=3, padx=10)
+
+    # Add a button to open the font size selection popup
+    font_size_button = ctk.CTkButton(button_frame, text="Cambia Dimensione Font", font=("Arial", dashboard_font_size),
+                                     command=open_font_size_popup, corner_radius=5)
+    font_size_button.grid(row=0, column=4, padx=10)
 
     global table_frame
     table_frame = ctk.CTkFrame(parent_frame, corner_radius=5)
@@ -580,8 +640,8 @@ def show_dashboard1(parent_frame):
     global columns
     columns = ("CODICE", "ESISTENTI", "CARTONI")
     global tree
-    tree = ttk.Treeview(table_frame, columns=columns,style="dash1.Treeview",show="headings")
-    tree.table_frame = table_frame  # Salva il frame nella treeview per riferimento
+    tree = ttk.Treeview(table_frame, columns=columns, style="dash1.Treeview", show="headings")
+    tree.table_frame = table_frame
     setup_treeview(tree)
     setup_context_menu(tree)
     tree.bind("<B1-Motion>", on_mouse_drag)
@@ -589,7 +649,7 @@ def show_dashboard1(parent_frame):
     style = ttk.Style()
     style.configure("dash1.Treeview",
                     rowheight=30,
-                    font=('Arial', 14),
+                    font=('Arial', dashboard_font_size),
                     background="#f1f8e9",
                     foreground="#004d40",
                     fieldbackground="#f1f8e9",
@@ -597,7 +657,7 @@ def show_dashboard1(parent_frame):
                     relief="solid",
                     borderwidth=1)
     style.configure("dash1.Treeview.Heading",
-                    font=('Arial', 16, 'bold'),
+                    font=('Arial', dashboard_font_size + 2, 'bold'),
                     background="#a5d6a7",
                     foreground="#004d40")
     style.map("dash1.Treeview",

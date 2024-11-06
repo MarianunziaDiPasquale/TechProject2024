@@ -1,9 +1,31 @@
 import tkinter as tk
 from tkinter import ttk
+from tkcalendar import *
 import customtkinter as ctk
 from data_retrieval import get_existing_names, delete_records_by_name, create_record_clienti, create_fornitore, create_record_prodotti
 from Database_Utilities.crud_fornitori import get_all_fornitori
 from Database_Utilities.crud_clienti import get_all_clienti_names
+
+
+def pick_date(event,popup, entry):  #
+    global cal, date_window
+    date_window = tk.Toplevel()
+    date_window.grab_set()
+    date_window.title("Scegli una data")
+    date_window.geometry(
+        f"260x230+{popup.winfo_x() + entry.winfo_x() + 128 * 3}+{popup.winfo_y() + entry.winfo_y() + entry.winfo_height() - 70}")
+    cal = Calendar(date_window, selectmode="day", date_pattern="dd/mm/yy")
+    cal.place(x=0, y=0)
+    submit_button = tk.Button(date_window, text="Submit", command=lambda: grab_date(entry))
+    submit_button.place(x=80, y=200)
+
+
+def grab_date(entry):
+    entry.delete(0, 'end')
+    entry.insert(0, cal.get_date())
+    date_window.destroy()
+
+
 def open_remove_popup(item_type):
     popup = tk.Toplevel()
     popup.title(f"Rimuovi {item_type}")
@@ -174,7 +196,7 @@ def open_add_popup(item_type):
             entry.pack(pady=5)
             entries[field] = entry
     elif item_type == "Provvigioni":
-        fields = [ "Agente", "Provvigione"]
+        fields = [ "Agente", "Provvigione", "Start Date", "End Date" ]
         for i, field in enumerate(fields):
             label = tk.Label(popup, text=field, font=font_size)
             label.pack(pady=5)
@@ -186,6 +208,16 @@ def open_add_popup(item_type):
                 Agente.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
                 Agente.pack(pady=5)
                 entries[field] = Agente_selezionata
+            elif field == "Start Date":
+                start_date_entry = tk.Entry(popup, width=12, font=('Arial', 14))
+                start_date_entry.insert(0, "dd/mm/yy")
+                start_date_entry.bind("<1>", lambda event: pick_date(event,popup, start_date_entry))
+                start_date_entry.pack(pady=5)
+            elif field == "End Date":
+                end_date_entry = tk.Entry(popup, width=12, font=('Arial', 14))
+                end_date_entry.insert(0, "dd/mm/yy")
+                end_date_entry.bind("<1>", lambda event: pick_date(event,popup,end_date_entry))
+                end_date_entry.pack(pady=5)
             else:
                 entry = tk.Entry(popup, width=entry_width, font=font_size)
                 entry.pack(pady=5)
