@@ -13,7 +13,12 @@ from dashboards.create_pdf_fattura import generate_invoice_pdf
 from dashboards.create_pdf_non_sold import generate_non_sold_pdf
 from dashboards.create_pdf_return import generate_return_pdf
 from tkcalendar import *
+from Database_Utilities.crud_clienti import get_all_clienti_names
+import sqlite3
 
+# Path to the SQLite database
+db_path = 'Database_Utilities/Database/Magazzino.db'
+# Import CRUD functions for Parigi
 
 
 def show_pdf_preview(pdf_path):
@@ -638,7 +643,7 @@ def show_dashboard8(parent_frame):
             # Crea il popup per l'inserimento dei dati
             popup = tk.Toplevel()
             popup.title("Modifica i dati della fattura")
-            popup.geometry("1600x700")
+            popup.geometry("1800x700")
 
             padding = {'padx': 20, 'pady': 5}  # Spaziatura extra a sinistra per le entry
             # Set the width of entry fields and the font size
@@ -651,8 +656,45 @@ def show_dashboard8(parent_frame):
             for i, header in enumerate(headers):
                 tk.Label(popup, text=header, font=font_size).grid(row=0, column=i + 1, **padding)
 
+
             for row in range(1, 11):  # Imposta 10 righe per inserimento prodotti
                 row_entries = []
+                clienti = get_all_clienti_names()
+                condizione_selezionata = tk.StringVar()
+                entry_article = ttk.Combobox(popup, textvariable=condizione_selezionata, values=clienti, font=font_size)
+                entry_article.configure(width=25)
+                entry_article.grid(row=row, column=1, padx=0, pady=0)
+                entry_article.bind("<<ComboboxSelected>>", lambda event, r=row: update_row_description_and_price(r))
+                row_entries.append(entry_article)
+
+                entry_description = tk.Entry(popup,  width=25, font=font_size)
+                entry_description.grid(row=row, column=2, padx=0, pady=0)
+                row_entries.append(entry_description)
+
+                entry_quantity = tk.Entry(popup,  width=entry_width, font=font_size)
+                entry_quantity.grid(row=row, column=3, padx=0, pady=0)
+                entry_quantity.bind("<KeyRelease>", lambda e: calculate_total_amount())
+                row_entries.append(entry_quantity)
+
+                # Prezzo (Entry)
+                entry_price = tk.Entry(popup,  width=entry_width, font=font_size)
+                entry_price.grid(row=row, column=4, padx=0, pady=0)
+                entry_price.bind("<KeyRelease>", lambda e: calculate_total_amount())
+                row_entries.append(entry_price)
+
+                # Sconto/Magg. (Entry)
+                entry_discount = tk.Entry(popup,  width=entry_width, font=font_size)
+                entry_discount.grid(row=row, column=5, padx=0, pady=0)
+                entry_discount.bind("<KeyRelease>", lambda e: calculate_total_amount())
+                row_entries.append(entry_discount)
+
+                # Importo (Entry)
+                entry_amount = tk.Entry(popup,  width=entry_width, font=font_size)
+                entry_amount.grid(row=row, column=6, padx=0, pady=0)
+                row_entries.append(entry_amount)
+
+                entries.append(row_entries)
+            '''
                 for col in range(6):  # 6 colonne (Codice, Descrizione, ecc.)
                     entry = tk.Entry(popup, width=entry_width, font=font_size)
                     entry.grid(row=row, column=col + 1, padx=0, pady=0)
@@ -662,6 +704,45 @@ def show_dashboard8(parent_frame):
             for row_entries in entries:
                 row_entries[2].bind("<KeyRelease>", lambda e: calculate_totals())  # Quantity column
                 row_entries[3].bind("<KeyRelease>", lambda e: calculate_totals())
+                
+            '''
+
+            def update_row_description_and_price(row):
+                """Update description and price for a given row based on the selected article"""
+                entry_article = entries[row - 1][0]  # Combobox for Codice
+                entry_description = entries[row - 1][1]  # Entry for Descrizione
+                entry_price = entries[row - 1][3]  # Entry for Prezzo
+
+                article = entry_article.get()
+                description = fetch_description_for_article(article)
+                entry_description.delete(0, tk.END)
+                entry_description.insert(0, description)
+
+                price = fetch_price_for_article(article)
+                entry_price.delete(0, tk.END)
+                entry_price.insert(0, price)
+
+            def fetch_description_for_article(article):
+                """Fetches the description (Indirizzo) for the selected article from the database."""
+                conn = sqlite3.connect(db_path)
+                cursor = conn.cursor()
+                cursor.execute("SELECT `Indirizzo` FROM clienti WHERE `Ragione Sociale` = ?;", (article,))
+                result = cursor.fetchone()
+                conn.close()
+                description = result[0] if result else ""
+                return description
+
+            def fetch_price_for_article(article):
+                """Fetches the price (CAP) for the selected article from the database."""
+                conn = sqlite3.connect(db_path)
+                cursor = conn.cursor()
+                cursor.execute("SELECT `CAP` FROM clienti WHERE `Ragione Sociale` = ?;", (article,))
+                result = cursor.fetchone()
+                conn.close()
+                price = result[0] if result else ""
+                return price
+
+
 
             # Aggiungi una riga di spazio tra i prodotti e gli altri campi
             spacer = tk.Label(popup, text="", font=font_size)
@@ -691,17 +772,15 @@ def show_dashboard8(parent_frame):
             tk.Label(popup, text="Bollo", font=font_size).grid(row=13, column=4, padx=20, pady=5)
             entry_bollo = tk.Entry(popup, width=entry_width, font=font_size)
             entry_bollo.grid(row=13, column=5)
-            entry_bollo.bind("<KeyRelease>", lambda e: calculate_totals())
+            entry_bollo.bind("<KeyRelease>", lambda e:calculate_total_amount())
 
             tk.Label(popup, text="Fornitore", font=font_size).grid(row=14, column=4, padx=20, pady=5)
             entry_stringa = tk.Entry(popup, width=entry_width, font=font_size)
             entry_stringa.grid(row=14, column=5)
 
-            def calculate_totals():
+            def calculate_total_amount():
                 total_quantity = 0
                 total_merce = 0.0
-
-                # Calculate Totale Quantità and Totale Merce
                 for row_entries in entries:
                     try:
                         quantity = float(row_entries[2].get() or 0)  # Quantity is in column 2
