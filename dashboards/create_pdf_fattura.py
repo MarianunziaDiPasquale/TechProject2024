@@ -9,6 +9,10 @@ from fpdf import FPDF
 from PIL import Image, ImageTk
 import fitz
 from Database_Utilities.crud_clienti import get_all_clienti_names
+import sqlite3
+
+# Path to the SQLite database
+db_path = 'Database_Utilities/Database/Magazzino.db'
 # Import CRUD functions for Parigi
 def show_pdf_preview(pdf_path):
     # Apri il PDF con PyMuPDF
@@ -621,6 +625,7 @@ def generate_invoice_pdf(order):
             entry_article.configure(width=15)
             entry_article.option_add('*TCombobox*Listbox*Font', font_size)
             entry_article.grid(row=len(product_entries) + 1, column=2, **padding)
+            entry_article.bind("<<ComboboxSelected>>",lambda event: update_description(entry_article, entry_description, entry_price))
             setup_incremental_search(entry_article, clienti)
 
             entry_description = tk.Entry(product_frame, width=20, font=font_size)
@@ -689,6 +694,37 @@ def generate_invoice_pdf(order):
             if len(products) > last_entry_index:
                 products.pop(last_entry_index)
             calculate_total_amount()
+
+        def update_description(entry_article, entry_description, entry_price):
+            article = entry_article.get()
+            description = fetch_description_for_article(article)  # Query the description based on the article
+            entry_description.delete(0, tk.END)
+            entry_description.insert(0, description)
+            price = fetch_price_for_article(article)
+            entry_price.delete(0, tk.END)
+            entry_price.insert(0, price)
+
+        def fetch_price_for_article(article):
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute("SELECT `CAP` FROM clienti WHERE `Ragione Sociale` = ?;", (article,))
+            # Check if result is not None and access the first element of the tuple
+            result = cursor.fetchone()  # Use fetchone() to get a single result directly
+            conn.close()
+            price = result[0] if result else ""
+            return price
+
+        def fetch_description_for_article(article):
+            """ Get the names of all clienti from the 'clienti' table """
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute("SELECT `Indirizzo` FROM clienti WHERE `Ragione Sociale` = ?;", (article,))
+            # Check if result is not None and access the first element of the tuple
+            result = cursor.fetchone()  # Use fetchone() to get a single result directly
+            conn.close()
+            description = result[0] if result else ""
+            return description
+
 
         button_add = ctk.CTkButton(popup, text="Aggiungi Prodotto", command=add_product, font=font_size, width=120, height=30).grid(row=23, column=0,**padding)
         button_remove = ctk.CTkButton(popup, text="Rimuovi Prodotto", command=remove_product, font=font_size, width=120, height=30).grid(row=23, column=1,**padding)
