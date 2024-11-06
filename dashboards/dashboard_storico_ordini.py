@@ -781,14 +781,27 @@ def show_dashboard8(parent_frame):
             def calculate_total_amount():
                 total_quantity = 0
                 total_merce = 0.0
+                # Iterate through each row to calculate total amount with discount applied
                 for row_entries in entries:
                     try:
-                        quantity = float(row_entries[2].get() or 0)  # Quantity is in column 2
-                        price = float(row_entries[3].get() or 0)  # Price is in column 3
+                        # Fetch values from the entries in each row
+                        quantity = float(row_entries[2].get() or 0)  # Quantity is in column 3
+                        price = float(row_entries[3].get() or 0)  # Price is in column 4
+                        discount = float(row_entries[4].get() or 0) / 100 # Discount is in column 5
+
+                        # Calculate total for the row as (quantity * price) - discount
+                        row_total = (quantity * price) - (quantity*price*discount)
 
                         # Update Totale Quantità and Totale Merce
                         total_quantity += quantity
-                        total_merce += quantity * price
+                        total_merce += row_total
+
+                        # Update Importo (total amount) for the current row
+                        row_entries[5].config(state='normal')
+                        row_entries[5].delete(0, tk.END)
+                        row_entries[5].insert(0, f"{row_total:.2f}")
+                        row_entries[5].config(state='readonly')
+
                     except ValueError:
                         # Ignore rows with invalid or empty entries
                         pass
