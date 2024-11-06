@@ -292,6 +292,25 @@ def format_field(value):
     return value if value.strip() else "-"
 
 
+def setup_incremental_search(combobox, all_values):
+    def filter_values():
+        search_text = combobox.get().lower()
+        filtered_values = [item for item in all_values if search_text in item.lower()]
+        combobox['values'] = filtered_values if search_text else all_values
+        if filtered_values:
+            combobox.event_generate('<Down>')
+
+    def on_keyrelease(event):
+            # Schedule the filtering function to run after 500ms (or any other suitable delay)
+        combobox.after_id = combobox.after(1000, filter_values)  # Delay of 500ms
+
+        # Initialize after_id to manage subsequent calls
+    combobox.after_id = None
+
+        # Bind the on_keyrelease function to the KeyRelease event
+    combobox.bind('<KeyRelease>', on_keyrelease)
+
+
 def generate_invoice_pdf(order):
     invoice_number = order[0]
     invoice = fetch_invoice_data(invoice_number)
@@ -591,8 +610,18 @@ def generate_invoice_pdf(order):
             })
 
         def add_product():
+            '''
             entry_article = tk.Entry(product_frame, width=10, font=font_size)
             entry_article.grid(row=len(product_entries) + 1, column=2, **padding)
+            '''
+
+            clienti = get_all_clienti_names()  # Da modificare
+            condizione_selezionata = tk.StringVar()
+            entry_article = ttk.Combobox(product_frame, textvariable=condizione_selezionata, values=clienti, font= font_size)
+            entry_article.configure(width=15)
+            entry_article.option_add('*TCombobox*Listbox*Font', font_size)
+            entry_article.grid(row=len(product_entries) + 1, column=2, **padding)
+            setup_incremental_search(entry_article, clienti)
 
             entry_description = tk.Entry(product_frame, width=20, font=font_size)
             entry_description.grid(row=len(product_entries) + 1, column=3, **padding)
