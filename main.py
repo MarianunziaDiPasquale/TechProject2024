@@ -260,7 +260,7 @@ def main():
     main_frame.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.98, relheight=0.87)
 
     # Pannello orizzontale per le dashboard (in alto)
-    side_panel = ctk.CTkFrame(root, height=100, corner_radius=5)
+    side_panel = ctk.CTkFrame(root, height=110, corner_radius=5)
     side_panel.place(relx=0.5, rely=0, anchor="n", relwidth=1)
 
     # Pulsante di toggle all'esterno del pannello orizzontale, allineato con esso

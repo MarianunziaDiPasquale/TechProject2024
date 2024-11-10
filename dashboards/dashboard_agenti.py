@@ -1484,8 +1484,8 @@ def show_dashboard4(parent_frame):
         pdf.total_details(invoice)
         pdf.thank_you_details(invoice)
 
-    button = ctk.CTkButton(search_frame, text="Stampa Fattura", command=print_invoice, font=(('Arial', 14)))
-    button.pack(side="left", padx=10)
+    #button = ctk.CTkButton(search_frame, text="Stampa Fattura", command=print_invoice, font=(('Arial', 14)))
+    #button.pack(side="left", padx=10)
 
 
 

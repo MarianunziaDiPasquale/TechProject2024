@@ -238,6 +238,7 @@ class PDF(FPDF):
              str(product['product_discount_3']), str(product['product_amount'])]
             for product in products
         ]
+        data.append(["" for _ in headers])
         col_widths = [20, 60, 20, 20, 20, 10, 10, 20]
         self.set_font('Arial', 'B', 10)
         self.cell(0, 8, 'Product Details', 0, 1, 'L')
@@ -530,9 +531,7 @@ def generate_invoice_pdf(order):
                     amount = quantity * price
 
                     # Apply discounts sequentially
-                    amount -= amount * discount1
-                    amount -= amount * discount2
-                    amount -= amount * discount3
+                    amount -= amount * (discount1+ discount2 +discount3)
 
                     # Update product's amount field
                     product_entry["amount"].config(state='normal')
