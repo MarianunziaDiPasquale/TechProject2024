@@ -348,7 +348,7 @@ def setup_context_menu(tree):
     tree.bind("<Button-3>", on_right_click)  # <Button-3> è il clic del pulsante destro del mouse
 
 # Aggiungere il supporto per la selezione trascinando
-def on_mouse_drag(event):
+def on_mouse_drag(event, tree):
     # Identifica l'item su cui si trova il cursore
     item = tree.identify_row(event.y)
     if item:
