@@ -325,7 +325,7 @@ def handle_action(action, product,current_descrizione,current_composizione_carto
 def ask_details(product, prompt, current_descrizione, current_composizione_cartoni, current_prezzo_vendita,
                 current_prezzo_acquisto):
     dialog = tk.Toplevel()
-    dialog.title("Scegli le nuove info del prodotto")
+    dialog.title("Scegli le nuove info della categoria")
     dialog.grab_set()
     dialog.transient()
 

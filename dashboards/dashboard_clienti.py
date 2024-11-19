@@ -4,6 +4,9 @@ import sqlite3
 import customtkinter as ctk
 from tkinter import ttk, Menu
 import tkinter as tk
+
+from tkcalendar import Calendar
+
 from Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_info_by_name
 import openpyxl
 from tkinter import messagebox
@@ -13,6 +16,23 @@ from openpyxl.styles import Border, Side, PatternFill, Font, Alignment, Protecti
 from popup_functions import open_add_popup
 
 
+def pick_date(event,popup, entry):  #
+    global cal, date_window
+    date_window = tk.Toplevel()
+    date_window.grab_set()
+    date_window.title("Scegli una data")
+    date_window.geometry(
+        f"260x230+{popup.winfo_x() + entry.winfo_x() + 128 * 3}+{popup.winfo_y() + entry.winfo_y() + entry.winfo_height() - 70}")
+    cal = Calendar(date_window, selectmode="day", date_pattern="dd/mm/yy")
+    cal.place(x=0, y=0)
+    submit_button = tk.Button(date_window, text="Submit", command=lambda: grab_date(entry))
+    submit_button.place(x=80, y=200)
+
+
+def grab_date(entry):
+    entry.delete(0, 'end')
+    entry.insert(0, cal.get_date())
+    date_window.destroy()
 # Add this function to dashboard_clienti.py or an appropriate module
 def get_prodotti_by_cliente(cliente_id):
     conn = sqlite3.connect('Database_Utilities/Database/liste_personalizzate.db')
@@ -606,7 +626,7 @@ def handle_action(action,tree, ragione_sociale, seconda_riga, indirizzo, cap, ci
 
 def ask_details(ragione_sociale, prompt,seconda_riga, indirizzo, cap, citta, nazione, partita_iva,esente_iva, telefono, email, zona, giorni_chiusura, orari_scarico, condizioni_pagamento, sconto, agente, id_cliente):
     dialog = tk.Toplevel()
-    dialog.title("Scegli le nuove info del prodotto")
+    dialog.title("Scegli le nuove info del cliente")
     dialog.grab_set()
     dialog.transient()
 
@@ -682,6 +702,20 @@ def ask_details(ragione_sociale, prompt,seconda_riga, indirizzo, cap, citta, naz
             entry = tk.Entry(scrollable_frame, width=entry_width, textvariable=var, font=("Arial", 14))
             entry.pack(pady=5)
 
+    label = tk.Label(scrollable_frame, text="data prima lista", font=("Arial", 14))
+    label.pack(pady=5)
+    start_date_entry = tk.Entry(scrollable_frame, width=12, font=('Arial', 14))
+    start_date_entry.insert(0, "dd/mm/yy")
+    start_date_entry.bind("<1>", lambda event: pick_date(event, scrollable_frame, start_date_entry))
+    start_date_entry.pack(pady=5)
+
+    label = tk.Label(scrollable_frame, text="data ultima lista", font=("Arial", 14))
+    label.pack(pady=5)
+    end_date_entry = tk.Entry(scrollable_frame, width=12, font=('Arial', 14))
+    end_date_entry.insert(0, "dd/mm/yy")
+    end_date_entry.bind("<1>", lambda event: pick_date(event, scrollable_frame, end_date_entry))
+    end_date_entry.pack(pady=5)
+
     def on_confirm():
         dialog.destroy()
         dialog.details = {label: var.get() for label, var in input_vars.items()}
@@ -709,7 +743,7 @@ def handle_action_1(action, current_ragione_sociale,current_id,current_prodotto,
 
 def ask_details_1(current_ragione_sociale, prompt,current_id,current_prodotto,current_quantita):
     dialog = tk.Toplevel()
-    dialog.title("Dettagli Prodotto")
+    dialog.title("Scegli le nuove info della lista personalizzata")
     dialog.grab_set()
     dialog.transient()
 

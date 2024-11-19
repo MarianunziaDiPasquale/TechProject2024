@@ -179,7 +179,7 @@ class PDF(FPDF):
             total_height += max(row_heights)
 
         return total_height
-
+    ò
     def invoice_header(self, invoice):
         self.set_font('Arial', '', 10)
         data = [
@@ -240,7 +240,7 @@ class PDF(FPDF):
         ]
         data.append(["" for _ in headers])
         col_widths = [20, 60, 20, 20, 20, 10, 10, 20]
-        self.set_font('Arial', 'B', 10)
+        self.set_font('Arial', 'B', 8)
         self.cell(0, 8, 'Product Details', 0, 1, 'L')
         self.set_y(self.get_y())  # Assicurati che inizi dopo la sezione precedente
         end_y = self.draw_table(data, col_widths, bold_headers=True)  # Salva la posizione finale Y

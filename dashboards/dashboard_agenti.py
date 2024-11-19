@@ -332,7 +332,6 @@ def copy_selection(tree):
     tree.clipboard_append(clipboard_text)  # Aggiunge il testo agli appunti
     messagebox.showinfo("Copiato", "I testi selezionati sono stati copiati negli appunti.")
 
-
 def setup_context_menu(tree):
     # Creare un menu contestuale
     context_menu = Menu(tree, tearoff=0)
@@ -879,7 +878,7 @@ def handle_action_1(action, current_agente,current_id,current_cliente_connesso,c
 
 def ask_details_1(current_agente, prompt,current_id,current_cliente_connesso,current_quantita):
     dialog = tk.Toplevel()
-    dialog.title("Dettagli Cliente Connesso")
+    dialog.title("Scegli le nuove info del cliente connesso")
     dialog.grab_set()
     dialog.transient()
 

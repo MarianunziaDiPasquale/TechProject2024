@@ -75,8 +75,12 @@ def open_add_popup(item_type):
     window_width = 800
     window_height = 600
 
-    label = tk.Label(popup, text=f"Inserisci i dettagli del nuovo {item_type}", font=('Arial', 14))
-    label.pack(pady=10)
+    if item_type == 'Provvigioni':
+        label = tk.Label(popup, text=f"Inserisci i dettagli della provvigione e seleziona i clienti ", font=('Arial', 14))
+        label.pack(pady=10)
+    else:
+        label = tk.Label(popup, text=f"Inserisci i dettagli del nuovo {item_type}", font=('Arial', 14))
+        label.pack(pady=10)
 
     entry_width = 40
     font_size = ("Arial", 14)  # Font family Arial, size 14
@@ -223,6 +227,41 @@ def open_add_popup(item_type):
                 entry.pack(pady=5)
                 entries[field] = entry
 
+        container_frame = tk.Frame(popup)
+        container_frame.pack(fill="both", expand=True, padx=60)
+
+        canvas = tk.Canvas(container_frame)
+        canvas.pack(side="left", fill="both", expand=True)
+
+        scrollbar = ttk.Scrollbar(container_frame, orient="vertical", command=canvas.yview)
+        scrollbar.pack(side="right", fill="y")
+
+        scrollable_frame = tk.Frame(canvas)
+        scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="n")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Variabile per tenere traccia dei fornitori selezionati
+        selected_fornitori = []
+
+        def on_checkbutton_toggle(fornitore, var):
+            if var.get():
+                if fornitore not in selected_fornitori:
+                    selected_fornitori.append(fornitore)
+            else:
+                if fornitore in selected_fornitori:
+                    selected_fornitori.remove(fornitore)
+
+        selections = {}
+
+        fornitori = get_all_fornitori()
+        for fornitore in fornitori:
+            var = tk.BooleanVar()
+            selections[fornitore] = var
+            check = tk.Checkbutton(scrollable_frame, text=fornitore, variable=var, font=("Arial", 14),
+                                   command=lambda f=fornitore, v=var: on_checkbutton_toggle(f, v))
+            check.pack(anchor="w")
 
 
 

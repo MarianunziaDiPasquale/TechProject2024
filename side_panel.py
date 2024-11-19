@@ -36,7 +36,7 @@ def create_side_panel_buttons(side_panel, toggle_side_panel, update_dashboard):
     button_dashboard1 = ctk.CTkButton(side_panel, text="Magazzino Andria-Parigi", image=icon1, compound="left",
                                       command=lambda: [update_dashboard("1")],
                                       corner_radius=5, anchor="w",font=('Arial', 15), height=20, width=130)
-    button_dashboard1.pack(side="left",pady=4, padx=(70, 3), fill="x")
+    button_dashboard1.pack(side="left",pady=4, padx=(60, 3), fill="x")
 
     button_dashboard2 = ctk.CTkButton(side_panel, text="Categorie", image=icon2, compound="left",
                                       command=lambda: [update_dashboard("2")],
