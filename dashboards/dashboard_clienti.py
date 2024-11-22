@@ -702,14 +702,14 @@ def ask_details(ragione_sociale, prompt,seconda_riga, indirizzo, cap, citta, naz
             entry = tk.Entry(scrollable_frame, width=entry_width, textvariable=var, font=("Arial", 14))
             entry.pack(pady=5)
 
-    label = tk.Label(scrollable_frame, text="data prima lista", font=("Arial", 14))
+    label = tk.Label(scrollable_frame, text="Data prima lista", font=("Arial", 14))
     label.pack(pady=5)
     start_date_entry = tk.Entry(scrollable_frame, width=12, font=('Arial', 14))
     start_date_entry.insert(0, "dd/mm/yy")
     start_date_entry.bind("<1>", lambda event: pick_date(event, scrollable_frame, start_date_entry))
     start_date_entry.pack(pady=5)
 
-    label = tk.Label(scrollable_frame, text="data ultima lista", font=("Arial", 14))
+    label = tk.Label(scrollable_frame, text="Data ultima lista", font=("Arial", 14))
     label.pack(pady=5)
     end_date_entry = tk.Entry(scrollable_frame, width=12, font=('Arial', 14))
     end_date_entry.insert(0, "dd/mm/yy")

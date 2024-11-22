@@ -179,7 +179,7 @@ class PDF(FPDF):
             total_height += max(row_heights)
 
         return total_height
-    ò
+
     def invoice_header(self, invoice):
         self.set_font('Arial', '', 10)
         data = [
@@ -507,14 +507,34 @@ def generate_invoice_pdf(order):
         entry_iva_amount.grid(row=17, column=1, **padding)
         entry_iva_amount.insert(0, invoice["iva_amount"])
 
-        tk.Label(data_frame, text="Importo Totale:", font=font_size).grid(row=18, column=0, **padding)
+        tk.Label(data_frame, text="Trasporto:", font=font_size).grid(row=18, column=0, **padding)
+        entry_trasporto = tk.Entry(data_frame, width=entry_width, font=font_size)
+        entry_trasporto.grid(row=18, column=1, **padding)
+        entry_trasporto.bind("<KeyRelease>", lambda e: calculate_total_amount())
+
+        tk.Label(data_frame, text="Imballo:", font=font_size).grid(row=19, column=0, **padding)
+        entry_imballo = tk.Entry(data_frame, width=entry_width, font=font_size)
+        entry_imballo.grid(row=19, column=1, **padding)
+        entry_imballo.bind("<KeyRelease>", lambda e: calculate_total_amount())
+
+        tk.Label(data_frame, text="Varie:", font=font_size).grid(row=20, column=0, **padding)
+        entry_varie = tk.Entry(data_frame, width=entry_width, font=font_size)
+        entry_varie.grid(row=20, column=1, **padding)
+        entry_varie.bind("<KeyRelease>", lambda e: calculate_total_amount())
+
+        tk.Label(data_frame, text="Bollo:", font=font_size).grid(row=21, column=0, **padding)
+        entry_bollo = tk.Entry(data_frame, width=entry_width, font=font_size)
+        entry_bollo.grid(row=21, column=1, **padding)
+        entry_bollo.bind("<KeyRelease>", lambda e: calculate_total_amount())
+
+        tk.Label(data_frame, text="Importo Totale:", font=font_size).grid(row=22, column=0, **padding)
         entry_total_amount = tk.Entry(data_frame, width=entry_width, font=font_size)
-        entry_total_amount.grid(row=18, column=1, **padding)
+        entry_total_amount.grid(row=22, column=1, **padding)
         entry_total_amount.insert(0, invoice["total_amount"])
 
-        tk.Label(data_frame, text="Totale Fattura EURO:", font=font_size).grid(row=19, column=0, **padding)
+        tk.Label(data_frame, text="Totale Fattura EURO:", font=font_size).grid(row=23, column=0, **padding)
         entry_total_invoice_euro = tk.Entry(data_frame, width=entry_width, font=font_size)
-        entry_total_invoice_euro.grid(row=19, column=1, **padding)
+        entry_total_invoice_euro.grid(row=23, column=1, **padding)
         entry_total_invoice_euro.insert(0, invoice["total_invoice_euro"])
 
         def calculate_total_amount():
@@ -544,6 +564,29 @@ def generate_invoice_pdf(order):
                 except ValueError:
                     # Handle any entries that aren't valid numbers
                     pass
+
+            try:
+                bollo = float(entry_bollo.get() or 0)
+            except ValueError:
+                bollo = 0
+
+            try:
+                trasporto = float(entry_trasporto.get() or 0)
+            except ValueError:
+                trasporto = 0
+
+            try:
+                imballo = float(entry_imballo.get() or 0)
+            except ValueError:
+                imballo = 0
+
+            try:
+                varie = float(entry_varie.get() or 0)
+            except ValueError:
+                varie = 0
+
+            total += bollo + trasporto + imballo + varie
+
             entry_total_invoice_euro.config(state='normal')  # Enable editing to update value
             entry_total_invoice_euro.delete(0, tk.END)
             entry_total_invoice_euro.insert(0, f"{total:.2f}")
@@ -725,10 +768,10 @@ def generate_invoice_pdf(order):
             return description
 
 
-        button_add = ctk.CTkButton(popup, text="Aggiungi Prodotto", command=add_product, font=font_size, width=120, height=30).grid(row=23, column=0,**padding)
-        button_remove = ctk.CTkButton(popup, text="Rimuovi Prodotto", command=remove_product, font=font_size, width=120, height=30).grid(row=23, column=1,**padding)
+        button_add = ctk.CTkButton(popup, text="Aggiungi Prodotto", command=add_product, font=font_size, width=120, height=30).grid(row=27, column=0,**padding)
+        button_remove = ctk.CTkButton(popup, text="Rimuovi Prodotto", command=remove_product, font=font_size, width=120, height=30).grid(row=27, column=1,**padding)
         # Add save changes button at the bottom
-        button_save = ctk.CTkButton(popup, text="Salva modifiche e conferma", command=save_changes, font=font_size, width=120, height=30).grid(row=23, column=2,**padding)
+        button_save = ctk.CTkButton(popup, text="Salva modifiche e conferma", command=save_changes, font=font_size, width=120, height=30).grid(row=27, column=2,**padding)
         calculate_total_amount()
 
     edit_and_confirm()

@@ -240,14 +240,17 @@ def generate_pdf_sigaretta():
         tk.Label(popup, text="Trasporto", font=font_size).grid(row=12, column=2, padx=20, pady=5)
         entry_trasporto = tk.Entry(popup, width=entry_width, font=font_size)
         entry_trasporto.grid(row=12, column=3)
+        entry_trasporto.bind("<KeyRelease>", lambda e: calculate_total_amount())
 
         tk.Label(popup, text="Imballo", font=font_size).grid(row=13, column=2, padx=20, pady=5)
         entry_imballo = tk.Entry(popup, width=entry_width, font=font_size)
         entry_imballo.grid(row=13, column=3)
+        entry_imballo.bind("<KeyRelease>", lambda e: calculate_total_amount())
 
         tk.Label(popup, text="Varie", font=font_size).grid(row=12, column=4, padx=20, pady=5)
         entry_varie = tk.Entry(popup, width=entry_width, font=font_size)
         entry_varie.grid(row=12, column=5)
+        entry_varie.bind("<KeyRelease>", lambda e: calculate_total_amount())
 
         tk.Label(popup, text="Bollo", font=font_size).grid(row=13, column=4, padx=20, pady=5)
         entry_bollo = tk.Entry(popup, width=entry_width, font=font_size)
@@ -292,7 +295,22 @@ def generate_pdf_sigaretta():
             except ValueError:
                 bollo = 0
 
-            total_fattura = total_merce + bollo
+            try:
+                trasporto = float(entry_trasporto.get() or 0)
+            except ValueError:
+                trasporto = 0
+
+            try:
+                imballo = float(entry_imballo.get() or 0)
+            except ValueError:
+                imballo = 0
+
+            try:
+                varie = float(entry_varie.get() or 0)
+            except ValueError:
+                varie = 0
+
+            total_fattura = total_merce + bollo + trasporto + imballo + varie
 
             # Update the UI with calculated totals
             entry_totale_quantita.config(state='normal')
