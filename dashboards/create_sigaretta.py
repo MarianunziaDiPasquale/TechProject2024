@@ -39,22 +39,22 @@ class PDFSigarette(FPDF):
 
     def add_table_row(self, codice, descrizione, quantita, prezzo, sconto, importo):
         self.set_font('Arial', '', 8)
-        self.cell(20, 10, codice if codice else '', 0, align='C')
-        self.cell(70, 10, descrizione if descrizione else '', 0, align='C')
-        self.cell(20, 10, quantita if quantita else '', 0, align='C')
-        self.cell(20, 10, prezzo if prezzo else '', 0, align='C')
-        self.cell(30, 10, sconto if sconto else '', 0, align='C')
-        self.cell(20, 10, importo if importo else '', 0, align='C')
+        self.cell(70, 10, codice if codice else '', 0, align='L')
+        self.cell(70, 10, descrizione if descrizione else '', 0, align='L')
+        self.cell(10, 10, quantita if quantita else '', 0, align='L')
+        self.cell(10, 10, prezzo if prezzo else '', 0, align='L')
+        self.cell(10, 10, sconto if sconto else '', 0, align='L')
+        self.cell(10, 10, importo if importo else '', 0, align='L')
 
     def add_extra_fields(self, esistenza, disponibilita, trasporto, imballo, varie, bollo, totale_merce,
                          totale_quantita, totale_fattura):
         self.set_font('Arial', '', 10)
         self.ln(20)
-        self.cell(50, 10, f"{esistenza}", 0, 0, align='C')
-        self.cell(50, 10, f"{disponibilita}", 0, 0, align='C')
-        self.cell(50, 10, f"{totale_merce}", 0, 0, align='C')
-        self.cell(50, 10, f"{totale_quantita}", 0, 0, align='C')
-        self.cell(50, 10, f"{totale_fattura}", 0, 1, align='C')
+        self.cell(50, 10, f"{esistenza}", 0, 0, align='L')
+        self.cell(50, 10, f"{disponibilita}", 0, 0, align='L')
+        self.cell(50, 10, f"{totale_merce}", 0, 0, align='L')
+        self.cell(50, 10, f"{totale_quantita}", 0, 0, align='L')
+        self.cell(50, 10, f"{totale_fattura}", 0, 1, align='L')
 
 
 def generate_pdf_sigaretta():
