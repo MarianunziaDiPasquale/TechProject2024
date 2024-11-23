@@ -1,8 +1,18 @@
 import sqlite3
 import openpyxl
 from openpyxl.styles import Border, Side, PatternFill, Font, Alignment, Protection
+from openpyxl.drawing.image import Image
+from datetime import datetime
 
 def crea_file_excel_con_estetica(lista_codici, sconti):
+    data_oggi = datetime.now().strftime("%Y-%m-%d")
+    output_file = f"output_{data_oggi}.xlsx"
+    merged_db_path = '/mnt/data/MergedDatabase.db'
+    liste_personalizzate_db_path = '/mnt/data/liste_personalizzate.db'
+    logo_path = 'resources/LogoCINCOTTI.jpg'
+
+
+
     output_file = "output.xlsx"
     db_path = "Database_Utilities/Database/MergedDatabase.db"
     query = f"SELECT Descrizione, COMPOSIZIONE_CARTONE, PREZZO_VENDITA FROM prodotti WHERE Codice = ?"
@@ -38,17 +48,17 @@ def crea_file_excel_con_estetica(lista_codici, sconti):
 
     # Imposta l'intestazione delle colonne (con la nuova colonna "Composizione Cartone" e "Prezzo Totale")
     intestazioni = ["Codice", "Descrizione", "Composizione Cartone", "Prezzo Unitario", "Sconto (%)", "Prezzo Scontato (€)",
-                    "Quantità", "Prezzo Totale"]
+                    "Quantità"]
     sheet.append(intestazioni)
 
     # Imposta larghezza colonne per evitare che il testo venga tagliato
-    larghezze_colonne = [15, 30, 30, 15, 12, 18, 10, 15]  # Larghezze personalizzate per ciascuna colonna
+    larghezze_colonne = [15, 40, 20, 15, 12, 18, 10, 15]  # Larghezze personalizzate per ciascuna colonna
     for i, col_width in enumerate(larghezze_colonne, start=1):
         col_lettera = openpyxl.utils.get_column_letter(i)
         sheet.column_dimensions[col_lettera].width = col_width
 
     # Applica lo sfondo giallo alla prima riga (intestazioni)
-    for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']:
+    for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G']:
         cell = sheet[f'{col}1']
         cell.fill = riempimento_celle_giallo
         cell.border = bordo_sottile
@@ -86,7 +96,7 @@ def crea_file_excel_con_estetica(lista_codici, sconti):
                 riempimento_riga = riempimento_rosso
 
             # Applica la formattazione estetica solo a queste nuove righe, esclusa la colonna "Quantità"
-            for col in ['A', 'B', 'C', 'D', 'E', 'F', 'H']:  # Esclusa la colonna "Quantità"
+            for col in ['A', 'B', 'C', 'D', 'E', 'F']:  # Esclusa la colonna "Quantità"
                 cell = sheet[f'{col}{sheet.max_row}']
                 cell.border = bordo_sottile
                 cell.fill = riempimento_riga
@@ -101,16 +111,14 @@ def crea_file_excel_con_estetica(lista_codici, sconti):
                 if col == 'F':
                     cell.font = font_blu
 
-                # Font verde, grassetto e sottolineato per la colonna H (Prezzo Totale)
-                if col == 'H':
-                    cell.font = font_blu
+
 
             # Colonna "Quantità" ha i bordi ma senza riempimento
             cell_quantita = sheet[f'G{sheet.max_row}']
             cell_quantita.border = bordo_sottile
 
             # Inserisci la formula per calcolare il Prezzo Totale (colonna H)
-            sheet[f'H{sheet.max_row}'] = f'=F{sheet.max_row}*G{sheet.max_row}'  # Prezzo Scontato * Quantità
+
 
         else:
             print(f"Codice {codice} non trovato nel database.")
