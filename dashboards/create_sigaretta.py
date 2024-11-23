@@ -58,7 +58,7 @@ class PDFSigarette(FPDF):
 
 
 def generate_pdf_sigaretta():
-    # Popup window to edit and confirm invoice data
+    # Popup window to edit and confirm invoice datadei ca
     def edit_and_confirm():
         def save_changes():
             # Salva i valori dei campi extra
