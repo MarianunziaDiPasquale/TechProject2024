@@ -473,7 +473,7 @@ def generate_invoice_pdf(order):
         clienti = get_all_clienti_names()  # Da modificare
         condizione_selezionata = tk.StringVar()
         entry_condizione = ttk.Combobox(data_frame, textvariable=condizione_selezionata, values=clienti, font=("Arial", 14))
-        entry_condizione.configure(width=20)
+        entry_condizione.configure(width=37)
         entry_condizione.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
         entry_condizione.grid(row=11, column=1, **padding)
 

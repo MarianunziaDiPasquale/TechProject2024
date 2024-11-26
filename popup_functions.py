@@ -1,3 +1,4 @@
+import sqlite3
 import tkinter as tk
 from tkinter import ttk
 from tkcalendar import *
@@ -5,7 +6,34 @@ import customtkinter as ctk
 from data_retrieval import get_existing_names, delete_records_by_name, create_record_clienti, create_fornitore, create_record_prodotti
 from Database_Utilities.crud_fornitori import get_all_fornitori
 from Database_Utilities.crud_clienti import get_all_clienti_names
+# Path to the SQLite database
+db_path = 'Database_Utilities/Database/MergedDatabase.db'
 
+def get_all_agenti_names():
+    """ Get the names of all clienti from the 'clienti' table """
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+    query = "SELECT `nome` FROM agenti;"
+    cur.execute(query)
+    clienti = cur.fetchall()
+    conn.close()
+    return [cliente[0] for cliente in clienti]
+
+def get_clienti_by_agente(selected_agente):
+    """Fetch all clients associated with the selected agent."""
+    #print("check1")
+    conn = sqlite3.connect('Database_Utilities/Database/Magazzino.db')  # Update this with your database path
+    cursor = conn.cursor()
+
+    query = '''SELECT "Ragione sociale" FROM clienti WHERE "Agente 1" = ?'''
+
+    cursor.execute(query, (selected_agente,))
+
+    clienti = cursor.fetchall()
+    #print(clienti)
+    conn.close()
+
+    return [cliente[0] for cliente in clienti]  # Returns a list of customer names
 
 def pick_date(event,popup, entry):  #
     global cal, date_window
@@ -205,13 +233,13 @@ def open_add_popup(item_type):
             label = tk.Label(popup, text=field, font=font_size)
             label.pack(pady=5)
             if field == "Agente":
-                clienti = get_all_clienti_names()  # Da modificare
-                Agente_selezionata = tk.StringVar()
-                Agente = ttk.Combobox(popup, textvariable=Agente_selezionata, values=clienti,font=("Arial", 14))
+                clienti = get_all_agenti_names()  # Da modificare
+                Agente_selezionato = tk.StringVar()
+                Agente = ttk.Combobox(popup, textvariable=Agente_selezionato, values=clienti,font=("Arial", 14))
                 Agente.configure(width=30)
                 Agente.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
                 Agente.pack(pady=5)
-                entries[field] = Agente_selezionata
+                entries[field] = Agente_selezionato
             elif field == "Start Date":
                 start_date_entry = tk.Entry(popup, width=12, font=('Arial', 14))
                 start_date_entry.insert(0, "dd/mm/yy")
@@ -255,13 +283,35 @@ def open_add_popup(item_type):
 
         selections = {}
 
-        fornitori = get_all_fornitori()
-        for fornitore in fornitori:
-            var = tk.BooleanVar()
-            selections[fornitore] = var
-            check = tk.Checkbutton(scrollable_frame, text=fornitore, variable=var, font=("Arial", 14),
-                                   command=lambda f=fornitore, v=var: on_checkbutton_toggle(f, v))
-            check.pack(anchor="w")
+        def update_fornitori_list():
+            """Aggiorna la lista dei fornitori in base all'agente selezionato."""
+            # Ottieni l'agente selezionato
+            agente = Agente_selezionato.get()
+            print(agente)
+            if not agente:
+                return
+
+            # Ottieni i fornitori per l'agente selezionato (modifica `get_fornitori_by_agente` con la tua funzione)
+            fornitori = get_clienti_by_agente(agente)
+            print(fornitori)
+
+            # Svuota la lista corrente
+            for widget in scrollable_frame.winfo_children():
+                widget.destroy()
+
+            # Ricrea i Checkbutton per i fornitori aggiornati
+            fornitore_selezionato = []
+            selections.clear()
+
+            for fornitore in fornitori:
+                var = tk.BooleanVar()
+                selections[fornitore] = var
+                check = tk.Checkbutton(scrollable_frame, text=fornitore, variable=var, font=("Arial", 14),
+                                       command=lambda f=fornitore, v=var: on_checkbutton_toggle(f, v))
+                check.pack(anchor="w")
+
+        # Collegare il callback all'evento di cambio dell'agente
+        Agente.bind("<<ComboboxSelected>>", lambda event: update_fornitori_list())
 
 
 

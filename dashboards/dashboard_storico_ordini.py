@@ -364,11 +364,11 @@ def show_dashboard8(parent_frame):
             aliquota_iva = float(aliquota_iva)
         except ValueError:
             raise ValueError("Uno o più valori numerici sono invalidi.")
-        fattura = ET.Element('FatturaElettronica',
-                             xmlns="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2", versione="FPR12")
+        fattura = ET.Element('FatturaElettronica', versione="FPR12",
+                             xmlns="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2")
 
         # Header
-        header = ET.SubElement(fattura, 'FatturaElettronicaHeader')
+        header = ET.SubElement(fattura, 'FatturaElettronicaHeader  xmlns=""')
         dati_trasmissione = ET.SubElement(header, 'DatiTrasmissione')
         id_trasmittente = ET.SubElement(dati_trasmissione, 'IdTrasmittente')
         ET.SubElement(id_trasmittente, 'IdPaese').text = 'IT'
@@ -416,7 +416,7 @@ def show_dashboard8(parent_frame):
         ET.SubElement(sede, 'Nazione').text = cessionario_nazione
 
         # Body
-        body = ET.SubElement(fattura, 'FatturaElettronicaBody')
+        body = ET.SubElement(fattura, 'FatturaElettronicaBody xmlns=""')
         dati_generali = ET.SubElement(body, 'DatiGenerali')
         dati_generali_documento = ET.SubElement(dati_generali, 'DatiGeneraliDocumento')
         ET.SubElement(dati_generali_documento, 'TipoDocumento').text = tipo_documento
@@ -523,7 +523,7 @@ def show_dashboard8(parent_frame):
             entry.insert(0, data)
             entries[field.replace(" ", "_").lower()] = entry
 
-        save_button = tk.Button(frame, text="Salva Fattura", command=save_invoice, font=font_size)
+        save_button = ctk.CTkButton(frame, text="Salva Fattura", command=save_invoice, font=font_size)
         save_button.grid(row=len(fields), columnspan=2, pady=20)
 
         frame.update_idletasks()  # Aggiorna lo stato del frame per calcolare la regione dello scroll
