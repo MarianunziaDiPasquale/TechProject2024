@@ -16,6 +16,7 @@ from dashboards.create_sigaretta import generate_pdf_sigaretta
 from tkcalendar import *
 from Database_Utilities.crud_clienti import get_all_clienti_names
 import sqlite3
+from xml.dom import minidom
 
 # Path to the SQLite database
 db_path = 'Database_Utilities/Database/Magazzino.db'
@@ -346,6 +347,8 @@ def show_dashboard8(parent_frame):
     button_return = ctk.CTkButton(parent_frame, text="Stampa Bolla di reso", command=print_return_document)
     button_return.pack(side="left", padx=10, pady=20)
 
+    def format_decimal(value):
+        return f"{value:.2f}"
     def create_invoice_xml(id_trasmittente, codice_trasmittente, progressivo_invio, codice_destinatario,
                            cedente_id_codice, cedente_codice_fiscale, cedente_nome, cedente_cognome,
                            cedente_regime_fiscale, cedente_indirizzo, cedente_numero_civico, cedente_cap,
@@ -357,22 +360,25 @@ def show_dashboard8(parent_frame):
                            importo_pagamento, data_scadenza_pagamento, modalita_pagamento):
 
         try:
-            quantita = float(quantita)  # o int(quantita) se è sempre un numero intero
+            quantita = float(quantita)
             prezzo_unitario = float(prezzo_unitario)
             importo_totale_documento = float(importo_totale_documento)
             importo_pagamento = float(importo_pagamento)
             aliquota_iva = float(aliquota_iva)
         except ValueError:
             raise ValueError("Uno o più valori numerici sono invalidi.")
-        fattura = ET.Element('FatturaElettronica', versione="FPR12",
-                             xmlns="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2")
+
+        fattura = ET.Element('FatturaElettronica', {'versione':"FPR12",
+                             'xmlns':"http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2"}
+                             )
 
         # Header
-        header = ET.SubElement(fattura, 'FatturaElettronicaHeader  xmlns=""')
+        header = ET.SubElement(fattura, 'FatturaElettronicaHeader',{'xmlns':""})
         dati_trasmissione = ET.SubElement(header, 'DatiTrasmissione')
         id_trasmittente = ET.SubElement(dati_trasmissione, 'IdTrasmittente')
         ET.SubElement(id_trasmittente, 'IdPaese').text = 'IT'
-        ET.SubElement(id_trasmittente, 'IdCodice').text = id_trasmittente
+        ET.SubElement(id_trasmittente, 'IdCodice').text = codice_trasmittente
+
         ET.SubElement(dati_trasmissione, 'ProgressivoInvio').text = progressivo_invio
         ET.SubElement(dati_trasmissione, 'FormatoTrasmissione').text = 'FPR12'
         ET.SubElement(dati_trasmissione, 'CodiceDestinatario').text = codice_destinatario
@@ -416,41 +422,43 @@ def show_dashboard8(parent_frame):
         ET.SubElement(sede, 'Nazione').text = cessionario_nazione
 
         # Body
-        body = ET.SubElement(fattura, 'FatturaElettronicaBody xmlns=""')
+        body = ET.SubElement(fattura, 'FatturaElettronicaBody',{'xmlns':""})
         dati_generali = ET.SubElement(body, 'DatiGenerali')
         dati_generali_documento = ET.SubElement(dati_generali, 'DatiGeneraliDocumento')
         ET.SubElement(dati_generali_documento, 'TipoDocumento').text = tipo_documento
         ET.SubElement(dati_generali_documento, 'Divisa').text = 'EUR'
         ET.SubElement(dati_generali_documento, 'Data').text = data_documento
         ET.SubElement(dati_generali_documento, 'Numero').text = numero_documento
-        ET.SubElement(dati_generali_documento, 'ImportoTotaleDocumento').text = str(importo_totale_documento)
+        ET.SubElement(dati_generali_documento, 'ImportoTotaleDocumento').text = str(format_decimal(importo_totale_documento))
 
         dati_beni_servizi = ET.SubElement(body, 'DatiBeniServizi')
         dettaglio_linee = ET.SubElement(dati_beni_servizi, 'DettaglioLinee')
         ET.SubElement(dettaglio_linee, 'NumeroLinea').text = '1'
         ET.SubElement(dettaglio_linee, 'Descrizione').text = descrizione
-        ET.SubElement(dettaglio_linee, 'Quantita').text = str(quantita)
-        ET.SubElement(dettaglio_linee, 'PrezzoUnitario').text = str(prezzo_unitario)
-        ET.SubElement(dettaglio_linee, 'PrezzoTotale').text = str(prezzo_unitario * quantita)
-        ET.SubElement(dettaglio_linee, 'AliquotaIVA').text = str(aliquota_iva)
+        ET.SubElement(dettaglio_linee, 'Quantita').text = str(format_decimal(quantita))
+        ET.SubElement(dettaglio_linee, 'PrezzoUnitario').text = str(format_decimal(prezzo_unitario))
+        ET.SubElement(dettaglio_linee, 'PrezzoTotale').text = str(format_decimal(prezzo_unitario * quantita))
+        ET.SubElement(dettaglio_linee, 'AliquotaIVA').text = str(format_decimal(aliquota_iva))
 
         dati_riepilogo = ET.SubElement(dati_beni_servizi, 'DatiRiepilogo')
-        ET.SubElement(dati_riepilogo, 'AliquotaIVA').text = str(aliquota_iva)
-        ET.SubElement(dati_riepilogo, 'ImponibileImporto').text = str(prezzo_unitario * quantita)
-        ET.SubElement(dati_riepilogo, 'Imposta').text = str(prezzo_unitario * quantita * aliquota_iva / 100)
+        ET.SubElement(dati_riepilogo, 'AliquotaIVA').text = str(format_decimal(aliquota_iva))
+        ET.SubElement(dati_riepilogo, 'ImponibileImporto').text = str(format_decimal(prezzo_unitario * quantita))
+        ET.SubElement(dati_riepilogo, 'Imposta').text = str(format_decimal(prezzo_unitario * quantita * aliquota_iva / 100))
 
         dati_pagamento = ET.SubElement(body, 'DatiPagamento')
         condizioni_pagamento = ET.SubElement(dati_pagamento, 'CondizioniPagamento').text = 'TP02'
         dettaglio_pagamento = ET.SubElement(dati_pagamento, 'DettaglioPagamento')
         ET.SubElement(dettaglio_pagamento, 'ModalitaPagamento').text = modalita_pagamento
         ET.SubElement(dettaglio_pagamento, 'DataScadenzaPagamento').text = data_scadenza_pagamento
-        ET.SubElement(dettaglio_pagamento, 'ImportoPagamento').text = str(importo_pagamento)
+        ET.SubElement(dettaglio_pagamento, 'ImportoPagamento').text = str(format_decimal(importo_pagamento))
 
         # Convert to XML string
+
         tree = ET.ElementTree(fattura)
         ET.indent(tree, space="\t", level=0)
         xml_string = ET.tostring(fattura, encoding='unicode')
         return xml_string
+
 
     def show_invoice_form():
         def save_invoice():
@@ -467,6 +475,9 @@ def show_dashboard8(parent_frame):
                 messagebox.showinfo("Successo", "Fattura salvata correttamente.")
             else:
                 messagebox.showwarning("Annullato", "Salvataggio file annullato.")
+
+                # Close the popup window after saving changes
+            popup.destroy()
 
         popup = tk.Toplevel()
         popup.title("Conferma Dati Fattura XML")
@@ -488,7 +499,19 @@ def show_dashboard8(parent_frame):
         entries = {}
 
         fields = [
-            "ID Trasmittente", "Codice Trasmittente", "Progressivo Invio", "Codice Destinatario",
+            "id_trasmittente","codice_trasmittente", "progressivo_invio", "codice_destinatario",
+            "cedente_id_codice", "cedente_codice_fiscale", "cedente_nome", "cedente_cognome",
+            "cedente_regime_fiscale", "cedente_indirizzo", "cedente_numero_civico", "cedente_cap",
+            "cedente_comune", "cedente_provincia", "cedente_nazione", "cedente_email",
+            "cessionario_id_codice", "cessionario_codice_fiscale", "cessionario_denominazione",
+            "cessionario_indirizzo", "cessionario_cap", "cessionario_comune", "cessionario_provincia",
+            "cessionario_nazione", "tipo_documento", "data_documento", "numero_documento",
+            "importo_totale_documento", "descrizione", "quantita", "prezzo_unitario", "aliquota_iva",
+            "importo_pagamento", "data_scadenza_pagamento", "modalita_pagamento"
+        ]
+
+        fields_name = [
+            "ID Trasmittente","Codice Trasmittente", "Progressivo Invio", "Codice Destinatario",
             "Cedente ID Codice", "Cedente Codice Fiscale", "Cedente Nome", "Cedente Cognome",
             "Cedente Regime Fiscale", "Cedente Indirizzo", "Cedente Numero Civico", "Cedente CAP",
             "Cedente Comune", "Cedente Provincia", "Cedente Nazione", "Cedente Email",
@@ -500,7 +523,7 @@ def show_dashboard8(parent_frame):
         ]
 
         example_data = [
-            "IT12345678901", "12345678901", "001", "ABCDE",
+            "IT000","XXXXXXX", "001", "XXXXXXX",
             "98765432109", "98765432109", "Mario", "Rossi",
             "RF01", "Via Roma 1", "10", "00100",
             "Roma", "RM", "IT", "info@aziendatest.it",
@@ -515,8 +538,8 @@ def show_dashboard8(parent_frame):
         entry_width = 40
         font_size = ("Arial", 14)  # Font family Arial, size 14
 
-        for idx, (field, data) in enumerate(zip(fields, example_data)):
-            label = tk.Label(frame, text=field, width=entry_width, font=font_size)
+        for idx, (field, fields_name, data) in enumerate(zip(fields, fields_name, example_data)):
+            label = tk.Label(frame, text=fields_name, width=entry_width, font=font_size)
             label.grid(row=idx, column=0, padx=10, pady=2, sticky=tk.W)
             entry = tk.Entry(frame, width=entry_width, font=font_size)
             entry.grid(row=idx, column=1, padx=10, pady=2, sticky=tk.EW)
@@ -529,6 +552,7 @@ def show_dashboard8(parent_frame):
         frame.update_idletasks()  # Aggiorna lo stato del frame per calcolare la regione dello scroll
 
         canvas.config(scrollregion=canvas.bbox("all"))  # Aggiorna la regione dello scroll nel canvas
+
 
     button_xml = ctk.CTkButton(parent_frame, text="Stampa Fattura XML", command=show_invoice_form)
     button_xml.pack(side="left", padx=10, pady=20)
