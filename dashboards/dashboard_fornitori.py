@@ -13,7 +13,7 @@ from Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_i
 import openpyxl
 from tkinter import messagebox
 
-dashboard_font_size
+dashboard_font_size = 14
 def center_window(window, width, height):
     window.update_idletasks()
     width = width

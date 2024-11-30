@@ -3,6 +3,7 @@ from tkinter import Toplevel, Listbox, Scrollbar, Entry, Button, Label, messageb
 import tkinter as tk
 
 dashboard_font_size = 14
+
 # Simuliamo le due tabelle con delle liste (puoi sostituire con le tue query al database)
 table1_data = [{"id": 1, "nome": "Prelevement le 17 mois suivant"}, {"id": 2, "nome": "Prelevement le 20 mois suivant"}]
 table2_data = [{"id": 1, "nome": "MP20 SEPA Direct Debit CORE"}, {"id": 2, "nome": "MP05"}]
@@ -13,6 +14,60 @@ def show_dashboard10(parent_frame):
     for widget in parent_frame.winfo_children():
         widget.destroy()
 
+        parent_frame_color = parent_frame.cget("fg_color")
+
+    def open_font_size_popup():
+        """Open a popup to choose the font size and reload the dashboard with the new size."""
+        popup = tk.Toplevel()
+        popup.title("Scegli la dimensione del font")
+        popup.geometry("300x150")
+        popup.transient()  # Make it modal
+
+        # Label for font size selection
+        label = tk.Label(popup, text="Seleziona la dimensione del font:", font=("Arial", dashboard_font_size))
+        label.pack(pady=10)
+
+        # Scale widget to select font size
+        font_size_var = tk.IntVar(value=dashboard_font_size)
+        # Label to display the current slider value on top of the slider handle
+        value_display = ctk.CTkLabel(popup, text=str(dashboard_font_size), font=("Arial", dashboard_font_size))
+        value_display.place(relx=0.5, rely=0.35, anchor="center")  # Initial position
+        # CTkSlider to select font size with inverted color appearance
+        font_slider = ctk.CTkSlider(
+            popup,
+            from_=10,
+            to=30,
+            number_of_steps=20,
+            fg_color="white",
+            progress_color= "blue",
+            command=lambda value: update_slider_value(value) # Sync slider value to font_size_var
+        )
+        font_slider.set(dashboard_font_size)  # Set initial slider position
+        font_slider.pack(pady=10)
+
+        def update_slider_value(value):
+            """Update the label text and position to follow the slider handle."""
+            font_size_var.set(int(value))  # Update the IntVar with the new slider value
+            value_display.configure(text=str(int(value)))  # Update the display label text
+            # Position the display label above the slider handle
+            slider_pos = font_slider.get()
+            display_x = 20 + (slider_pos - font_slider.cget("from")) / (
+                        font_slider.cget("to") - font_slider.cget("from")) * 240
+            value_display.place(x=display_x, y=60)
+
+        def apply_font_size():
+            global dashboard_font_size
+            dashboard_font_size = int(font_slider.get())
+            popup.destroy()
+            # Clear the existing dashboard and reload it with the new font size
+            for widget in parent_frame.winfo_children():
+                widget.destroy()  # Remove all existing widgets from parent_frame
+            show_dashboard10(parent_frame)
+
+        # Button to confirm font size selection
+        apply_button = ctk.CTkButton(popup, text="Applica", font=("Arial", dashboard_font_size), command=apply_font_size)
+        apply_button.pack(pady=10)
+
     # Crea due frame per contenere le liste
     frame_table1 = ctk.CTkFrame(parent_frame, corner_radius=5)
     frame_table1.pack(side="left", padx=5, pady=10, fill="both", expand=True)
@@ -21,15 +76,15 @@ def show_dashboard10(parent_frame):
     frame_table2.pack(side="right", padx=5, pady=10, fill="both", expand=True)
 
     # Etichette per le due tabelle
-    label_table1 = ctk.CTkLabel(frame_table1, text="Condizioni pagamento", font=('Arial', 14))
+    label_table1 = ctk.CTkLabel(frame_table1, text="Condizioni pagamento", font=('Arial', dashboard_font_size))
     label_table1.pack(pady=5)
 
-    label_table2 = ctk.CTkLabel(frame_table2, text="Metodi pagamento", font=('Arial', 14))
+    label_table2 = ctk.CTkLabel(frame_table2, text="Metodi pagamento", font=('Arial', dashboard_font_size))
     label_table2.pack(pady=5)
 
     # Crea le liste di elementi
-    listbox_table1 = Listbox(frame_table1, font=('Arial', 14), height=10)
-    listbox_table2 = Listbox(frame_table2, font=('Arial', 14), height=10)
+    listbox_table1 = Listbox(frame_table1, font=('Arial', dashboard_font_size), height=10)
+    listbox_table2 = Listbox(frame_table2, font=('Arial', dashboard_font_size), height=10)
 
     # Aggiungi uno scrollbar per ogni lista
     scrollbar_table1 = Scrollbar(frame_table1, orient="vertical", command=listbox_table1.yview)
@@ -54,13 +109,22 @@ def show_dashboard10(parent_frame):
     listbox_table2.bind("<Double-1>", lambda event: open_popup(listbox_table2, table2_data))
 
     # Pulsanti per aggiungere nuovi elementi
-    add_button_table1 = ctk.CTkButton(frame_table1, text="Aggiungi Elemento",
+    add_button_table1 = ctk.CTkButton(frame_table1, text="Aggiungi Elemento", font=("Arial", dashboard_font_size),
                                       command=lambda: open_add_popup("Tabella 1", table1_data, listbox_table1))
-    add_button_table1.pack(pady=10)
+    add_button_table1.pack(side="left", padx=10)
 
-    add_button_table2 = ctk.CTkButton(frame_table2, text="Aggiungi Elemento",
+    add_button_table2 = ctk.CTkButton(frame_table2, text="Aggiungi Elemento", font=("Arial", dashboard_font_size),
                                       command=lambda: open_add_popup("Tabella 2", table2_data, listbox_table2))
-    add_button_table2.pack(pady=10)
+    add_button_table2.pack(side="left", padx=10)
+
+    font_size_button = ctk.CTkButton(frame_table2, text="Cambia Dimensione Font", font=("Arial", dashboard_font_size),
+                                     command=open_font_size_popup, corner_radius=5)
+    font_size_button.pack(side="left", padx=10)
+
+    font_size_button = ctk.CTkButton(frame_table1, text="Cambia Dimensione Font", font=("Arial", dashboard_font_size),
+                                     command=open_font_size_popup, corner_radius=5)
+    font_size_button.pack(side="left", padx=10)
+
 
 
 # Funzione per aprire il popup di modifica/eliminazione
@@ -77,15 +141,15 @@ def open_popup(listbox, data):
     popup.title(f"Modifica/Elimina {item['nome']}")
 
     # Campi precompilati per ID e Nome
-    label_id = Label(popup, text="ID:", font=('Arial', 14), )
+    label_id = Label(popup, text="ID:", font=('Arial', dashboard_font_size), )
     label_id.pack(pady=5)
-    entry_id = Entry(popup, font=('Arial', 14),  width=120, height=30)
+    entry_id = Entry(popup, font=('Arial', dashboard_font_size),  width=120, height=30)
     entry_id.pack(pady=5)
     entry_id.insert(0, item['id'])
 
-    label_nome = Label(popup, text="Nome:", font=('Arial', 14))
+    label_nome = Label(popup, text="Nome:", font=('Arial', dashboard_font_size))
     label_nome.pack(pady=5)
-    entry_nome = Entry(popup, font=('Arial', 14),  width=120, height=30)
+    entry_nome = Entry(popup, font=('Arial', dashboard_font_size),  width=120, height=30)
     entry_nome.pack(pady=5)
     entry_nome.insert(0, item['nome'])
 
@@ -112,10 +176,10 @@ def open_popup(listbox, data):
             popup.destroy()
 
     # Pulsanti per salvare le modifiche o eliminare
-    save_button =ctk.CTkButton(popup, text="Salva Modifiche", command=save_changes, font=('Arial', 12), width=120, height=30)
+    save_button =ctk.CTkButton(popup, text="Salva Modifiche", command=save_changes, font=('Arial', dashboard_font_size), width=120, height=30)
     save_button.pack(pady=10)
 
-    delete_button = ctk.CTkButton(popup, text="Elimina Elemento", command=delete_item, font=('Arial', 12),  width=120, height=30)
+    delete_button = ctk.CTkButton(popup, text="Elimina Elemento", command=delete_item, font=('Arial', dashboard_font_size),  width=120, height=30)
     delete_button.pack(pady=10)
 
 
@@ -124,14 +188,14 @@ def open_add_popup(tabella, data, listbox):
     popup = Toplevel()
     popup.title(f"Aggiungi Elemento a {tabella}")
 
-    label_id = Label(popup, text="ID:", font=('Arial', 14))
+    label_id = Label(popup, text="ID:", font=('Arial', dashboard_font_size))
     label_id.pack(pady=5)
-    entry_id = Entry(popup, font=('Arial', 14))
+    entry_id = Entry(popup, font=('Arial', dashboard_font_size))
     entry_id.pack(pady=5)
 
-    label_nome = Label(popup, text="Nome:", font=('Arial', 14))
+    label_nome = Label(popup, text="Nome:", font=('Arial', dashboard_font_size))
     label_nome.pack(pady=5)
-    entry_nome = Entry(popup, font=('Arial', 14))
+    entry_nome = Entry(popup, font=('Arial', dashboard_font_size))
     entry_nome.pack(pady=5)
 
     # Funzione per salvare il nuovo elemento
@@ -147,5 +211,5 @@ def open_add_popup(tabella, data, listbox):
         else:
             messagebox.showerror("Errore", "L'ID deve essere un numero!")
 
-    add_button = ctk.CTkButton(popup, text="Aggiungi Elemento", command=add_new_item, font=('Arial', 12),  width=120, height=30)
+    add_button = ctk.CTkButton(popup, text="Aggiungi Elemento", command=add_new_item, font=('Arial', dashboard_font_size),  width=120, height=30)
     add_button.pack(pady=10)
