@@ -357,6 +357,9 @@ def show_dashboard6(parent_frame):
         value_display = ctk.CTkLabel(popup, text=str(dashboard_font_size), font=("Arial", dashboard_font_size))
         value_display.place(relx=0.5, rely=0.35, anchor="center")  # Initial position
         # CTkSlider to select font size with inverted color appearance
+        # CTkSlider to select font size with inverted color appearance
+        slider_min = 10
+        slider_max = 30
         font_slider = ctk.CTkSlider(
             popup,
             from_=10,
@@ -375,8 +378,7 @@ def show_dashboard6(parent_frame):
             value_display.configure(text=str(int(value)))  # Update the display label text
             # Position the display label above the slider handle
             slider_pos = font_slider.get()
-            display_x = 20 + (slider_pos - font_slider.cget("from")) / (
-                        font_slider.cget("to") - font_slider.cget("from")) * 240
+            display_x = 20 + (slider_pos - slider_min) / (slider_max - slider_min) * 240
             value_display.place(x=display_x, y=60)
 
         def apply_font_size():

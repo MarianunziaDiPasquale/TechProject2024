@@ -548,7 +548,7 @@ def show_dashboard1(parent_frame):
         """Open a popup to choose the font size and reload the dashboard with the new size."""
         popup = tk.Toplevel()
         popup.title("Scegli la dimensione del font")
-        popup.geometry("300x150")
+        popup.geometry("500x250")
         popup.transient()  # Make it modal
 
         # Label for font size selection
@@ -560,14 +560,19 @@ def show_dashboard1(parent_frame):
         # Label to display the current slider value on top of the slider handle
         value_display = ctk.CTkLabel(popup, text=str(dashboard_font_size), font=("Arial", 12))
         value_display.place(relx=0.5, rely=0.35, anchor="center")  # Initial position
-        # CTkSlider to select font size with inverted color appearance
+        # CTkSlider to select font size with inverted color
+
+        # Define the slider's range
+        slider_min = 10
+        slider_max = 30
+
         font_slider = ctk.CTkSlider(
             popup,
             from_=10,
             to=30,
             number_of_steps=20,
             fg_color="white",
-            progress_color= parent_frame_color,
+            progress_color=parent_frame_color,
             command=lambda value: update_slider_value(value) # Sync slider value to font_size_var
         )
         font_slider.set(dashboard_font_size)  # Set initial slider position
@@ -579,8 +584,7 @@ def show_dashboard1(parent_frame):
             value_display.configure(text=str(int(value)))  # Update the display label text
             # Position the display label above the slider handle
             slider_pos = font_slider.get()
-            display_x = 20 + (slider_pos - font_slider.cget("from")) / (
-                        font_slider.cget("to") - font_slider.cget("from")) * 240
+            display_x = 20 + (slider_pos - slider_min) / (slider_max - slider_min) * 240
             value_display.place(x=display_x, y=60)
 
         def apply_font_size():
