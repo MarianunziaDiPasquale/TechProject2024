@@ -327,6 +327,11 @@ def generate_invoice_pdf(order):
     # Popup window to edit and confirm invoice data
     def edit_and_confirm():
         def save_changes():
+            # Associa il messagebox al popup come finestra genitore
+            messagebox.showinfo("Attenzione", "Dati della fattura salvati.", parent=popup)
+            #funzione che salva le info su DB
+
+        def save_changes_and_print():
             # Update invoice data from the entry fields
             invoice["number"] = entry_number.get()
             invoice["Date_1"] = entry_date.get()
@@ -395,13 +400,41 @@ def generate_invoice_pdf(order):
         popup.title("Modifica i dettagli della fattura")
         popup.geometry("1800x850")  # Set the size of the popup window
         popup.resizable(True, True)  # Prevent resizing for consistent layout
-
+        '''
         data_frame = tk.Frame(popup)
         data_frame.grid(row=0, column=0, columnspan=2)
 
         # padding = {'padx': 5, 'pady': 1}
         product_frame = tk.Frame(popup)
         product_frame.grid(row=0, column=2, columnspan=5)
+        '''
+        # Create a frame for the canvas and scrollbar
+        data_frame_container = tk.Frame(popup)
+        data_frame_container.grid(row=0, column=0, columnspan=3, sticky="nsew")
+
+        # Create the canvas and the scrollbar
+        canvas = tk.Canvas(data_frame_container)
+        scrollbar = tk.Scrollbar(data_frame_container, orient=tk.VERTICAL, command=canvas.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Configure the canvas with the scrollbar
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.bind("<Configure>", lambda e: canvas.config(scrollregion=canvas.bbox("all")))
+
+        # Create the actual data_frame inside the canvas
+        data_frame = tk.Frame(canvas)
+        canvas.create_window((0, 0), window=data_frame, anchor="nw")
+
+        product_frame = tk.Frame(popup)
+        product_frame.grid(row=0, column=3, columnspan=5, sticky="nsew")
+
+        # Configure popup grid layout
+        popup.grid_rowconfigure(0, weight=1)
+        popup.grid_columnconfigure(0, weight=20, minsize=100)  # Prima colonna più larga
+        popup.grid_columnconfigure(1, weight=20, minsize=100)  # Seconda colonna più larga
+        popup.grid_columnconfigure(2, weight=0, minsize=5)
+        popup.grid_columnconfigure(3, weight=20, minsize=100)
 
         # Add padding and spacing between elements
         padding = {'padx': 10, 'pady': 5}
@@ -472,10 +505,10 @@ def generate_invoice_pdf(order):
 
         clienti = get_all_clienti_names()  # Da modificare
         condizione_selezionata = tk.StringVar()
-        entry_condizione = ttk.Combobox(data_frame, textvariable=condizione_selezionata, values=clienti, font=("Arial", 14))
-        entry_condizione.configure(width=37)
-        entry_condizione.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
-        entry_condizione.grid(row=11, column=1, **padding)
+        entry_condizione = ttk.Combobox(data_frame, textvariable=condizione_selezionata, values=clienti, font=font_size)
+        entry_condizione.configure(width=34)
+        entry_condizione.option_add('*TCombobox*Listbox*Font', font_size)
+        entry_condizione.grid(row=11, column=1, **padding, sticky="w")
 
         tk.Label(data_frame, text="Mittente:", font=font_size).grid(row=12, column=0, **padding)
         entry_sender_name = tk.Entry(data_frame, width=entry_width, font=font_size)
@@ -771,7 +804,8 @@ def generate_invoice_pdf(order):
         button_add = ctk.CTkButton(popup, text="Aggiungi Prodotto", command=add_product, font=font_size, width=120, height=30).grid(row=27, column=0,**padding)
         button_remove = ctk.CTkButton(popup, text="Rimuovi Prodotto", command=remove_product, font=font_size, width=120, height=30).grid(row=27, column=1,**padding)
         # Add save changes button at the bottom
-        button_save = ctk.CTkButton(popup, text="Salva modifiche e conferma", command=save_changes, font=font_size, width=120, height=30).grid(row=27, column=2,**padding)
+        button_save = ctk.CTkButton(popup, text="Salva modifiche", command=save_changes, font=font_size, width=120, height=30).grid(row=27, column=2, **padding)
+        button_save_and_print = ctk.CTkButton(popup, text="Salva modifiche e conferma", command=save_changes_and_print, font=font_size, width=120, height=30).grid(row=27, column=3,**padding)
         calculate_total_amount()
 
     edit_and_confirm()

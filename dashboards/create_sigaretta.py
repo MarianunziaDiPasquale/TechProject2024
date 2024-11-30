@@ -45,6 +45,7 @@ class PDFSigarette(FPDF):
         self.cell(10, 10, prezzo if prezzo else '', 0, align='L')
         self.cell(10, 10, sconto if sconto else '', 0, align='L')
         self.cell(10, 10, importo if importo else '', 0, align='L')
+        self.ln()
 
     def add_extra_fields(self, esistenza, disponibilita, trasporto, imballo, varie, bollo, totale_merce,
                          totale_quantita, totale_fattura):
@@ -56,7 +57,23 @@ class PDFSigarette(FPDF):
         self.cell(50, 10, f"{totale_quantita}", 0, 0, align='L')
         self.cell(50, 10, f"{totale_fattura}", 0, 1, align='L')
 
+def setup_incremental_search(combobox, all_values):
+    def filter_values():
+        search_text = combobox.get().lower()
+        filtered_values = [item for item in all_values if search_text in item.lower()]
+        combobox['values'] = filtered_values if search_text else all_values
+        if filtered_values:
+            combobox.event_generate('<Down>')
 
+    def on_keyrelease(event):
+            # Schedule the filtering function to run after 500ms (or any other suitable delay)
+        combobox.after_id = combobox.after(1000, filter_values)  # Delay of 500ms
+
+        # Initialize after_id to manage subsequent calls
+    combobox.after_id = None
+
+        # Bind the on_keyrelease function to the KeyRelease event
+    combobox.bind('<KeyRelease>', on_keyrelease)
 def generate_pdf_sigaretta():
     # Popup window to edit and confirm invoice datadei ca
     def edit_and_confirm():
@@ -77,6 +94,8 @@ def generate_pdf_sigaretta():
             # Recupera i dati dei prodotti
             products = []
             for row_entries in entries:
+                print("Riga raccolta:")
+                print([widget.get() for widget in row_entries])
                 codice = row_entries[0].get()
                 descrizione = row_entries[1].get()
                 quantita = row_entries[2].get()
@@ -106,8 +125,11 @@ def generate_pdf_sigaretta():
 
                 # Aggiungi le intestazioni della tabella e i prodotti
                 # pdf.add_table_headers()
+                print("Prodotti nel PDF:")
                 for product in products:
-                    pdf.add_table_row(*product)
+                    print(product)
+                    codice, descrizione, quantita, prezzo, sconto, importo = product
+                    pdf.add_table_row(codice, descrizione, quantita, prezzo, sconto, importo)
 
                 # Aggiungi i campi extra
                 pdf.add_extra_fields(esistenza, disponibilita, trasporto, imballo, varie, bollo, totale_merce,
@@ -135,7 +157,7 @@ def generate_pdf_sigaretta():
         for i, header in enumerate(headers):
             tk.Label(popup, text=header, font=font_size).grid(row=0, column=i + 1, **padding)
 
-        for row in range(1, 11):  # Imposta 10 righe per inserimento prodotti
+        for row in range(1, 3):  # Imposta 10 righe per inserimento prodotti
             row_entries = []
             clienti = get_all_clienti_names()
             condizione_selezionata = tk.StringVar()
@@ -185,6 +207,138 @@ def generate_pdf_sigaretta():
 
         '''
 
+        def add_product():
+            row = len(entries) + 1  # Nuova riga
+
+            row_entries = []
+
+            # Codice (Combobox)
+            clienti = get_all_clienti_names()
+            condizione_selezionata = tk.StringVar()
+            entry_article = ttk.Combobox(popup, textvariable=condizione_selezionata, values=clienti, font= font_size)
+            entry_article.configure(width=25)
+            entry_article.option_add('*TCombobox*Listbox*Font', font_size)
+            entry_article.grid(row=row, column=1, padx=0, pady=0)
+            entry_article.bind("<<ComboboxSelected>>",lambda event, r=row: update_row_description_and_price(r))
+            row_entries.append(entry_article)
+
+            # Descrizione
+            entry_description = tk.Entry(popup, width=25, font=font_size)
+            entry_description.grid(row=row, column=2, padx=0, pady=0)
+            row_entries.append(entry_description)
+
+            # Quantità
+            entry_quantity = tk.Entry(popup, width=entry_width, font=font_size)
+            entry_quantity.grid(row=row, column=3, padx=0, pady=0)
+            entry_quantity.bind("<KeyRelease>", lambda e: calculate_total_amount())  # Quantity column
+            row_entries.append(entry_quantity)
+
+            # Prezzo
+            entry_price = tk.Entry(popup, width=entry_width, font=font_size)
+            entry_price.grid(row=row, column=4, padx=0, pady=0)
+            entry_price.bind("<KeyRelease>", lambda e: calculate_total_amount())
+            row_entries.append(entry_price)
+
+            # Sconto
+            entry_discount = tk.Entry(popup, width=entry_width, font=font_size)
+            entry_discount.grid(row=row, column=5, padx=0, pady=0)
+            entry_discount.bind("<KeyRelease>", lambda e: calculate_total_amount())
+            row_entries.append(entry_discount)
+
+            # Importo
+            entry_amount = tk.Entry(popup, width=entry_width, font=font_size)
+            entry_amount.grid(row=row, column=6, padx=0, pady=0)
+            entry_amount.bind("<KeyRelease>", lambda e: calculate_total_amount())
+            row_entries.append(entry_amount)
+
+            # Aggiungi la riga alla lista entries
+            entries.append(row_entries)
+
+            '''
+            entry_article = tk.Entry(product_frame, width=10, font=font_size)
+            entry_article.grid(row=len(product_entries) + 1, column=2, **padding)
+
+
+            clienti = get_all_clienti_names()  # Da modificare
+            condizione_selezionata = tk.StringVar()
+            entry_article = ttk.Combobox(popup, textvariable=condizione_selezionata, values=clienti, font= font_size)
+            entry_article.configure(width=25)
+            entry_article.option_add('*TCombobox*Listbox*Font', font_size)
+            entry_article.grid(row=len(row_entries) + 1, column=1, padx=0, pady=0)
+            entry_article.bind("<<ComboboxSelected>>",lambda event, r=row: update_row_description_and_price(r))
+            setup_incremental_search(entry_article, clienti)
+
+            entry_description = tk.Entry(popup, width=25, font=font_size)
+            entry_description.grid(row=len(row_entries) + 1, column=2, padx=0, pady=0)
+
+            entry_quantity = tk.Entry(popup, width=entry_width, font=font_size)
+            entry_quantity.grid(row=len(row_entries) + 1, column=3, padx=0, pady=0)
+            entry_quantity.bind("<KeyRelease>", lambda e: calculate_total_amount())
+
+            entry_price = tk.Entry(popup, width=entry_width, font=font_size)
+            entry_price.grid(row=len(row_entries) + 1,column=4, padx=0, pady=0)
+            entry_price.bind("<KeyRelease>", lambda e: calculate_total_amount())
+
+            entry_discount = tk.Entry(popup, width=entry_width, font=font_size)
+            entry_discount.grid(row=len(row_entries) + 1, column=5, padx=0, pady=0)
+            entry_discount.bind("<KeyRelease>", lambda e: calculate_total_amount())
+
+            entry_amount = tk.Entry(popup, width=entry_width, font=font_size)
+            entry_amount.grid(row=len(row_entries) + 1, column=6, padx=0, pady=0)
+
+            new_product = {
+                "codice": entry_article,
+                "descrizione": entry_description,
+                "quantita": entry_quantity,
+                "prezzo": entry_price,
+                "sconto": entry_discount,
+                "importo": entry_amount
+            }
+            new_entry = {
+                "codice": tk.StringVar(),
+                "descrizione": tk.StringVar(),
+                "quantita": tk.StringVar(),
+                "prezzo": tk.StringVar(),
+                "sconto": tk.StringVar(),
+                "importo": tk.StringVar()
+            }
+            row_entries.append(new_product)
+            entries.append(new_product)  # Append this new entry reference to the product_entries list
+            '''
+
+
+        def remove_product():
+            # Controlla se ci sono righe da rimuovere
+            if entries:
+                # Rimuovi l'ultima riga dalla lista `entries`
+                last_entry = entries.pop()
+
+                # Rimuovi i widget della riga dalla griglia
+                last_entry[0].grid_forget()  # Codice (Combobox)
+                last_entry[1].grid_forget()  # Descrizione (Entry)
+                last_entry[2].grid_forget()  # Quantità (Entry)
+                last_entry[3].grid_forget()  # Prezzo (Entry)
+                last_entry[4].grid_forget()  # Sconto (Entry)
+                last_entry[5].grid_forget()  # Importo (Entry)
+
+                # Ricalcola il totale
+                calculate_total_amount()
+            '''
+            # Remove the last product from the list if there are any products
+            if row_entries:
+                last_entry_index = len(row_entries) - 1
+                last_entry = row_entries.pop()  # Rimuove l'ultima riga aggiunta
+                # Rimuove gli entry widget dalla grid
+                last_entry["codice"].grid_forget()
+                last_entry["descrizione"].grid_forget()
+                last_entry["quantita"].grid_forget()
+                last_entry["prezzo"].grid_forget()
+                last_entry["sconto"].grid_forget()
+                last_entry["importo"].grid_forget()
+            if len(entries) > last_entry_index:
+                entries.pop(last_entry_index)
+            calculate_total_amount()
+            '''
         def update_row_description_and_price(row):
             """Update description and price for a given row based on the selected article"""
             entry_article = entries[row - 1][0]  # Combobox for Codice
@@ -337,8 +491,14 @@ def generate_pdf_sigaretta():
         entry_totale_fattura.grid(row=14, column=1)
 
         # Bottone per confermare e salvare
-        tk.Button(popup, text="Salva e Genera PDF", font=font_size, command=save_changes).grid(row=15, columnspan=6,
+        ctk.CTkButton(popup, text="Salva e Genera PDF", font=font_size, command=save_changes).grid(row=15, column=1,
                                                                                                pady=20)
+
+        button_add = ctk.CTkButton(popup, text="Aggiungi Prodotto", command=add_product, font=font_size, width=120,
+                                   height=30).grid(row=15, column=2,pady=20)
+        button_remove = ctk.CTkButton(popup, text="Rimuovi Prodotto", command=remove_product, font=font_size, width=120,
+                                      height=30).grid(row=15, column=3,pady=20)
+        # Add save changes button at the bottom
 
         # Richiama la funzione di editing e conferma
 

@@ -10,6 +10,9 @@ from fpdf import FPDF
 from PIL import Image, ImageTk
 import fitz
 
+from Database_Utilities.crud_clienti import get_all_clienti_names
+db_path = 'Database_Utilities/Database/Magazzino.db'
+
 def show_pdf_preview(pdf_path):
     # Apri il PDF con PyMuPDF
     doc = fitz.open(pdf_path)
@@ -46,7 +49,7 @@ def show_pdf_preview(pdf_path):
 
     window.mainloop()
 def fetch_invoice_data(invoice_number):
-    conn = sqlite3.connect('Database_Utilities/Database/storico_database.db')
+    conn = sqlite3.connect('resources/orders_fattura_1.db')
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM orders_fattura_newfields WHERE id = '{invoice_number}'")
     column_names = [description[0] for description in cursor.description]
@@ -59,7 +62,7 @@ def fetch_invoice_data(invoice_number):
 
 
 def fetch_invoice_products(invoice_number):
-    conn = sqlite3.connect('rDatabase_Utilities/Database/storico_database.db')
+    conn = sqlite3.connect('resources/orders_fattura_1.db')
     cursor = conn.cursor()
     cursor.execute(
         f"SELECT article, product_description, product_quantity,product_price, product_discount,product_discount_2,product_discount_3, product_amount FROM orders_fattura_newfields WHERE id = '{invoice_number}'")
@@ -250,7 +253,23 @@ class PDFReturn(FPDF):
         end_y = self.draw_table(data, col_widths, bold_headers=True)  # Salva la posizione finale Y
         self.set_y(end_y)  # Imposta Y per la prossima sezione
 
+def setup_incremental_search(combobox, all_values):
+    def filter_values():
+        search_text = combobox.get().lower()
+        filtered_values = [item for item in all_values if search_text in item.lower()]
+        combobox['values'] = filtered_values if search_text else all_values
+        if filtered_values:
+            combobox.event_generate('<Down>')
 
+    def on_keyrelease(event):
+            # Schedule the filtering function to run after 500ms (or any other suitable delay)
+        combobox.after_id = combobox.after(1000, filter_values)  # Delay of 500ms
+
+        # Initialize after_id to manage subsequent calls
+    combobox.after_id = None
+
+        # Bind the on_keyrelease function to the KeyRelease event
+    combobox.bind('<KeyRelease>', on_keyrelease)
 def generate_return_pdf(order):
     invoice_number = order[0]
     invoice = fetch_invoice_data(invoice_number)
@@ -261,7 +280,12 @@ def generate_return_pdf(order):
 
     # Popup window to edit and confirm invoice data
     def edit_and_confirm():
+
         def save_changes():
+            # Associa il messagebox al popup come finestra genitore
+            messagebox.showinfo("Attenzione", "Dati della fattura salvati.", parent=popup)
+            #funzione che salva le info su DB
+        def save_changes_and_print():
             # Update invoice data from the entry fields
             invoice["number"] = entry_number.get()
             invoice["Date_1"] = entry_date.get()
@@ -456,8 +480,16 @@ def generate_return_pdf(order):
             })
 
         def add_product():
-            entry_article = tk.Entry(product_frame, width=10, font=font_size)
+            clienti = get_all_clienti_names()  # Da modificare
+            condizione_selezionata = tk.StringVar()
+            entry_article = ttk.Combobox(product_frame, textvariable=condizione_selezionata, values=clienti,
+                                         font=font_size)
+            entry_article.configure(width=15)
+            entry_article.option_add('*TCombobox*Listbox*Font', font_size)
             entry_article.grid(row=len(product_entries) + 1, column=2, **padding)
+            entry_article.bind("<<ComboboxSelected>>",
+                               lambda event: update_description(entry_article, entry_description, entry_price))
+            setup_incremental_search(entry_article, clienti)
 
             entry_description = tk.Entry(product_frame, width=20, font=font_size)
             entry_description.grid(row=len(product_entries) + 1, column=3, **padding)
@@ -512,13 +544,44 @@ def generate_return_pdf(order):
                 products.pop(last_entry_index)
             calculate_total_amount()
 
-        button_add = ctk.CtkButton(popup, text="Aggiungi Prodotto", command=add_product, font=font_size, width=120, height=30).grid(row=23, column=0,
+        def update_description(entry_article, entry_description, entry_price):
+            article = entry_article.get()
+            description = fetch_description_for_article(article)  # Query the description based on the article
+            entry_description.delete(0, tk.END)
+            entry_description.insert(0, description)
+            price = fetch_price_for_article(article)
+            entry_price.delete(0, tk.END)
+            entry_price.insert(0, price)
+
+        def fetch_price_for_article(article):
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute("SELECT `CAP` FROM clienti WHERE `Ragione Sociale` = ?;", (article,))
+            # Check if result is not None and access the first element of the tuple
+            result = cursor.fetchone()  # Use fetchone() to get a single result directly
+            conn.close()
+            price = result[0] if result else ""
+            return price
+
+        def fetch_description_for_article(article):
+            """ Get the names of all clienti from the 'clienti' table """
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute("SELECT `Indirizzo` FROM clienti WHERE `Ragione Sociale` = ?;", (article,))
+            # Check if result is not None and access the first element of the tuple
+            result = cursor.fetchone()  # Use fetchone() to get a single result directly
+            conn.close()
+            description = result[0] if result else ""
+            return description
+
+        button_add = ctk.CTkButton(popup, text="Aggiungi Prodotto", command=add_product, font=font_size, width=120, height=30).grid(row=23, column=0,
                                                                                              **padding)
-        button_remove = ctk.CtkButton(popup, text="Rimuovi Prodotto", command=remove_product, font=font_size, width=120, height=30).grid(row=23, column=1,
+        button_remove = ctk.CTkButton(popup, text="Rimuovi Prodotto", command=remove_product, font=font_size, width=120, height=30).grid(row=23, column=1,
                                                                                                **padding)
-        # Add save changes button at the bottom
-        button_save = ctk.CtkButton(popup, text="Salva modifiche e conferma", command=save_changes, font=font_size, width=120, height=30).grid(row=23, column=2,
-                                                                                                       **padding)
+        button_save = ctk.CTkButton(popup, text="Salva modifiche", command=save_changes, font=font_size, width=120,
+                                    height=30).grid(row=23, column=2, **padding)
+        button_save_and_print = ctk.CTkButton(popup, text="Salva modifiche e conferma", command=save_changes_and_print,
+                                              font=font_size, width=120, height=30).grid(row=23, column=3, **padding)
         calculate_total_amount()
 
         # Add save changes button at the bottom

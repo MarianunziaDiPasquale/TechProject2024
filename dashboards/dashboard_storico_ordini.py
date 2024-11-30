@@ -541,10 +541,21 @@ def show_dashboard8(parent_frame):
         for idx, (field, fields_name, data) in enumerate(zip(fields, fields_name, example_data)):
             label = tk.Label(frame, text=fields_name, width=entry_width, font=font_size)
             label.grid(row=idx, column=0, padx=10, pady=2, sticky=tk.W)
-            entry = tk.Entry(frame, width=entry_width, font=font_size)
-            entry.grid(row=idx, column=1, padx=10, pady=2, sticky=tk.EW)
-            entry.insert(0, data)
-            entries[field.replace(" ", "_").lower()] = entry
+            if field == "modalita_pagamento":
+                clienti = get_all_clienti_names()  # Da modificare
+                condizione_selezionata = tk.StringVar()
+                entry_condizione = ttk.Combobox(frame, textvariable=condizione_selezionata, values=clienti,
+                                                font=font_size)
+                entry_condizione.configure(width=37)
+                entry_condizione.option_add('*TCombobox*Listbox*Font', font_size)
+                entry_condizione.grid(row=idx, column=1, padx=10, pady=2, sticky=tk.EW)
+                entry_condizione.insert(0, data)
+                entries[field.replace(" ", "_").lower()] = entry_condizione
+            else:
+                entry = tk.Entry(frame, width=entry_width, font=font_size)
+                entry.grid(row=idx, column=1, padx=10, pady=2, sticky=tk.EW)
+                entry.insert(0, data)
+                entries[field.replace(" ", "_").lower()] = entry
 
         save_button = ctk.CTkButton(frame, text="Salva Fattura", command=save_invoice, font=font_size)
         save_button.grid(row=len(fields), columnspan=2, pady=20)
