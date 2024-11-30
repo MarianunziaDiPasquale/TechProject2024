@@ -14,8 +14,12 @@ from Database_Utilities.crud_andria import transfer_quantity_from_andria_to_pari
 from Database_Utilities.crud_clienti import get_all_clienti_names
 # Import CRUD functions for Parigi
 from Database_Utilities.crud_parigi import read_records_parigi, update_record_parigi, delete_record_parigi
+from Database_Utilities.connection import _connection
+
+
 
 dashboard_font_size = 14  # Default font size
+
 
 def aggiungi_prodotto():
     dialog = tk.Toplevel()
@@ -28,29 +32,46 @@ def aggiungi_prodotto():
     label_prodotto = tk.Label(dialog, text="Scegli Prodotto:", font=("Arial", dashboard_font_size))
     label_prodotto.pack(pady=10)
 
+    # Funzione per ottenere la composizione cartone e il codice del prodotto
+    def get_product_info(prodotto):
+        codice = prodotto.split(" - ")[0]  # Estrai il codice dal formato "Codice - Descrizione"
+        conn = _connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT COMPOSIZIONE_CARTONE FROM prodotti WHERE Codice = ?", (codice,))
+        result = cursor.fetchone()
+        conn.close()
+        return (codice, result[0]) if result else (None, None)
+
     # Funzione per aggiornare il menu a tendina in base al testo digitato
     def update_combobox(event):
         prodotti_aggiornati = get_all_prodotti()
-        typed_text = combobox_prodotto.get()
-        prodotti_filtrati = [prod for prod in prodotti_aggiornati if typed_text.lower() in prod.lower()]
+        typed_text = combobox_prodotto.get().lower()
+
+        # Filtra i prodotti per codice o descrizione
+        prodotti_filtrati = [prod for prod in prodotti_aggiornati if typed_text in prod.lower()]
+
+        # Mantieni la posizione del cursore
         cursor_position = combobox_prodotto.index(tk.INSERT)
         combobox_prodotto['values'] = prodotti_filtrati
         combobox_prodotto.set(typed_text)
         combobox_prodotto.icursor(cursor_position)
         combobox_prodotto.event_generate('<Down>')
 
-    # Funzione per ottenere la composizione cartone e il codice del prodotto
-    def get_product_info(prodotto_descrizione):
-        conn = sqlite3.connect("Database_Utilities/Database/MergedDatabase.db")
-        cursor = conn.cursor()
-        cursor.execute("SELECT Codice, COMPOSIZIONE_CARTONE FROM prodotti WHERE Descrizione = ?", (prodotto_descrizione,))
-        result = cursor.fetchone()
-        conn.close()
-        return result if result else (None, None)
+    # Creazione del menu a tendina per selezionare il prodotto
+    prodotti = get_all_prodotti()
+    prodotto_selezionato = tk.StringVar()
+    combobox_prodotto = ttk.Combobox(dialog, textvariable=prodotto_selezionato, values=prodotti,
+                                     font=("Arial", dashboard_font_size))
+    combobox_prodotto.configure(width=35)
+    combobox_prodotto.option_add('*TCombobox*Listbox*Font', ('Arial', dashboard_font_size))
+    combobox_prodotto.pack(pady=5)
+    combobox_prodotto.bind("<KeyRelease>", update_combobox)
+
+    # Resto del codice nella funzione `aggiungi_prodotto`...
 
     # Funzione per inserire o aggiornare il prodotto nella tabella Andria o Parigi
     def update_or_insert_in_table(codice, quantita, cartoni, tabella):
-        conn = sqlite3.connect("Database_Utilities/Database/MergedDatabase.db")
+        conn = _connection()
         cursor = conn.cursor()
 
         # Verifica se il prodotto esiste già nella tabella
@@ -62,22 +83,15 @@ def aggiungi_prodotto():
             esistenze_correnti, cartoni_correnti = result
             nuove_esistenze = esistenze_correnti + quantita
             nuovi_cartoni = nuove_esistenze // cartoni if cartoni > 0 else 0
-            cursor.execute(f"UPDATE {tabella} SET Esistenze = ?, Cartoni = ? WHERE Codice = ?", (nuove_esistenze, nuovi_cartoni, codice))
+            cursor.execute(f"UPDATE `{tabella}` SET Esistenze = %s, Cartoni = %s WHERE Codice = %s", (nuove_esistenze, nuovi_cartoni, codice))
+
         else:
             # Inserisci una nuova riga
-            cursor.execute(f"INSERT INTO {tabella} (Codice, Esistenze, Cartoni) VALUES (?, ?, ?)", (codice, quantita, cartoni))
+            cursor.execute(f"INSERT INTO `{tabella}` (Codice, Esistenze, Cartoni) VALUES (%s, %s, %s)", (codice, quantita, cartoni))
+
 
         conn.commit()
         conn.close()
-
-    # Creazione del menu a tendina per selezionare il prodotto
-    prodotti = get_all_prodotti()
-    prodotto_selezionato = tk.StringVar()
-    combobox_prodotto = ttk.Combobox(dialog, textvariable=prodotto_selezionato, values=prodotti, font=("Arial",dashboard_font_size))
-    combobox_prodotto.configure(width=35)
-    combobox_prodotto.option_add('*TCombobox*Listbox*Font', ('Arial', dashboard_font_size))
-    combobox_prodotto.pack(pady=5)
-    combobox_prodotto.bind("<KeyRelease>", update_combobox)
 
     # Selettore per "Andria" o "Parigi"
     label_selezione = tk.Label(dialog, text="Seleziona la sede:", font=("Arial", dashboard_font_size))
@@ -148,36 +162,36 @@ def get_city_info(city):
 
 def show_info(city, tree, table_frame):
     # Connect to the merged database
-    conn = sqlite3.connect('Database_Utilities/Database/MergedDatabase.db')
+    conn = _connection()
     c = conn.cursor()
 
     # Fetch data based on the selected city
     if city == "andria":
         c.execute("""
-                SELECT 
-                    p.Codice, 
-                    p.Descrizione, 
-                    p.COMPOSIZIONE_CARTONE, 
-                    f.Nome, 
-                    e.Esistenze, 
-                    e.Cartoni
-                FROM prodotti p
-                JOIN fornitori f ON p.ID_FORNITORE = f.id
-                JOIN andria e ON p.Codice = e.Codice
-            """)
+            SELECT 
+                p.Codice, 
+                p.Descrizione, 
+                p.COMPOSIZIONE_CARTONE, 
+                f.Nome, 
+                e.Esistenze, 
+                e.Cartoni
+            FROM `prodotti` p
+            JOIN `fornitori` f ON p.ID_FORNITORE = f.id
+            JOIN `andria` e ON p.Codice = e.Codice
+        """)
     elif city == "parigi":
         c.execute("""
-                SELECT 
-                    p.codice, 
-                    p.descrizione, 
-                    p.composizione_cartone, 
-                    f.nome, 
-                    e.esistenze, 
-                    e.cartoni
-                FROM prodotti p
-                JOIN fornitori f ON p.id_fornitore = f.id
-                JOIN parigi e ON p.codice = e.codice
-            """)
+            SELECT 
+                p.Codice, 
+                p.Descrizione, 
+                p.COMPOSIZIONE_CARTONE, 
+                f.Nome, 
+                e.Esistenze, 
+                e.Cartoni
+            FROM `prodotti` p
+            JOIN `fornitori` f ON p.ID_FORNITORE = f.id
+            JOIN `parigi` e ON p.Codice = e.Codice
+        """)
 
     data = c.fetchall()
     conn.close()
@@ -383,34 +397,34 @@ def generate_excel():
 
 def export_data_to_excel(city):
     # Connect to the merged database
-    conn = sqlite3.connect('dashboards/Database_Utilities/MergedDatabase.db')
+    conn = _connection()
     c = conn.cursor()
 
     # SQL query to fetch data based on the selected city (andria or parigi)
     if city == "andria":
         c.execute("""
             SELECT 
-                p.codice, 
-                p.descrizione, 
-                p.composizione_cartone, 
-                f.nome, 
-                e.esistenze, 
-                e.cartoni
-            FROM prodotti p
-            JOIN fornitori f ON p.id_fornitore = f.id
-            JOIN andria e ON p.codice = e.codice
+                p.Codice, 
+                p.Descrizione, 
+                p.COMPOSIZIONE_CARTONE, 
+                f.Nome, 
+                e.Esistenze, 
+                e.Cartoni
+            FROM `prodotti` p
+            JOIN `fornitori` f ON p.ID_FORNITORE = f.id
+            JOIN `andria` e ON p.Codice = e.Codice
         """)
     elif city == "parigi":
         c.execute("""
             SELECT 
-                p.codice, 
-                p.descrizione, 
-                p.composizione_cartone, 
-                f.nome, 
-                e.esistenze, 
-                e.cartoni
-            FROM prodotti p
-            JOIN fornitori f ON p.id_fornitore = f.id
+                p.Codice, 
+                p.Descrizione, 
+                p.COMPOSIZIONE_CARTONE, 
+                f.Nome, 
+                e.Esistenze, 
+                e.Cartoni
+            FROM `prodotti` p
+            JOIN `fornitori` f ON p.ID_FORNITORE = f.id
         """)
 
     # Fetch the data

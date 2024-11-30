@@ -1,7 +1,7 @@
 from tkinter import ttk, messagebox ,filedialog
 import tkinter as tk
 import customtkinter as ctk
-import sqlite3
+
 import os
 import datetime
 from datetime import datetime
@@ -9,10 +9,11 @@ from fpdf import FPDF
 from PIL import Image, ImageTk
 import fitz
 from Database_Utilities.crud_clienti import get_all_clienti_names
-import sqlite3
 
-# Path to the SQLite database
-db_path = 'Database_Utilities/Database/Magazzino.db'
+from Database_Utilities.connection import _connection
+
+
+
 class PDFSigarette(FPDF):
     def header_top(self, current_stringa):
         self.set_font('Arial', 'B', 14)
@@ -356,9 +357,9 @@ def generate_pdf_sigaretta():
 
         def fetch_description_for_article(article):
             """Fetches the description (Indirizzo) for the selected article from the database."""
-            conn = sqlite3.connect(db_path)
+            conn = _connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT `Indirizzo` FROM clienti WHERE `Ragione Sociale` = ?;", (article,))
+            cursor.execute("SELECT `Indirizzo` FROM `clienti` WHERE `Ragione Sociale` = %s;", (article,))
             result = cursor.fetchone()
             conn.close()
             description = result[0] if result else ""
@@ -366,9 +367,9 @@ def generate_pdf_sigaretta():
 
         def fetch_price_for_article(article):
             """Fetches the price (CAP) for the selected article from the database."""
-            conn = sqlite3.connect(db_path)
+            conn = _connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT `CAP` FROM clienti WHERE `Ragione Sociale` = ?;", (article,))
+            cursor.execute("SELECT `CAP` FROM `clienti` WHERE `Ragione Sociale` = %s;", (article,))
             result = cursor.fetchone()
             conn.close()
             price = result[0] if result else ""

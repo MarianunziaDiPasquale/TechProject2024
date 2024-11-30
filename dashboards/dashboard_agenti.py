@@ -1,5 +1,5 @@
 import os
-import sqlite3
+
 from tkinter.filedialog import asksaveasfilename
 import customtkinter as ctk
 from tkinter import ttk, Menu, filedialog
@@ -14,20 +14,20 @@ from Database_Utilities.crud_agenti import get_all_clienti_names, get_cliente_in
 import openpyxl
 from tkinter import messagebox
 
-from dashboards.dashboard_clienti import get_lista_info
+
 #from dashboards.dashboard_clienti import get_lista_info
 from db_prova_lista_personalizzata import get_prodotti_by_cliente
 from popup_functions import open_add_popup
 
+from Database_Utilities.connection import _connection
 
 def get_clienti_by_agente(selected_agente):
     """Fetch all clients associated with the selected agent."""
     #print("check1")
-    conn = sqlite3.connect('Database_Utilities/Database/Magazzino.db')  # Update this with your database path
+    conn = _connection() # Update this with your database path
     cursor = conn.cursor()
 
-    query = '''SELECT "Ragione sociale" FROM clienti WHERE "Agente 1" = ?'''
-
+    query = "SELECT `Ragione sociale` FROM `clienti` WHERE `Agente 1` = %s"
     cursor.execute(query, (selected_agente,))
 
     clienti = cursor.fetchall()
@@ -644,7 +644,7 @@ def ask_details(agente, prompt,nome, id):
             self.cell(0, 8, 'Thank you for choosing our products!', 0, 1, 'R')
 
     def fetch_invoice_data(invoice_number):
-        conn = sqlite3.connect('resources/orders_fattura_1.db')
+        conn = _connection()
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM orders_fattura WHERE id = '{invoice_number}'")
         column_names = [description[0] for description in cursor.description]
@@ -656,7 +656,7 @@ def ask_details(agente, prompt,nome, id):
         return None
 
     def fetch_invoice_products(invoice_number):
-        conn = sqlite3.connect('resources/orders_fattura_1.db')
+        conn = _connection()
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM orders_fattura WHERE id = '{invoice_number}'")
         column_names = [description[0] for description in cursor.description]
@@ -1127,7 +1127,7 @@ def show_dashboard4(parent_frame):
     tree_1.bind("<Double-1>", lambda event: on_double_click_1(event, tree_1))
 
     def fetch_orders():
-        conn = sqlite3.connect('Database_Utilities/Database/storico_database.db')
+        conn = _connection()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM orders")
         orders = cursor.fetchall()
@@ -1271,9 +1271,9 @@ def show_dashboard4(parent_frame):
             self.cell(0, 8, 'Thank you for choosing our products!', 0, 1, 'R')
 
     def fetch_invoice_data(invoice_number):
-        conn = sqlite3.connect('resources/orders_fattura_1.db')
+        conn = _connection()
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM orders_fattura WHERE id = '{invoice_number}'")
+        cursor.execute("SELECT * FROM `orders_fattura` WHERE `id` = %s", (invoice_number,))
         column_names = [description[0] for description in cursor.description]
         invoice_tuple = cursor.fetchone()
         conn.close()
@@ -1283,9 +1283,9 @@ def show_dashboard4(parent_frame):
         return None
 
     def fetch_invoice_products(invoice_number):
-        conn = sqlite3.connect('resources/orders_fattura_1.db')
+        conn = _connection()
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM orders_fattura WHERE id = '{invoice_number}'")
+        cursor.execute("SELECT * FROM `orders_fattura` WHERE `id` = %s", (invoice_number,))
         column_names = [description[0] for description in cursor.description]
         product_rows = cursor.fetchall()
         conn.close()

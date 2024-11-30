@@ -1,11 +1,8 @@
 
-import sqlite3
-
-# Path to the SQLite database
-db_path = 'Database_Utilities/Database/MergedDatabase.db'
+from Database_Utilities.connection import _connection
 
 def create_record_andria(codice_prodotto, esistenze, cartoni):
-    conn = sqlite3.connect(db_path)
+    conn = _connection()
     cursor = conn.cursor()
     cursor.execute("INSERT INTO andria (Codice, Esistenze, Cartoni) VALUES (?, ?, ?)",
                    (codice_prodotto, esistenze, cartoni))
@@ -14,7 +11,7 @@ def create_record_andria(codice_prodotto, esistenze, cartoni):
     print("Record inserted into andria.")
 
 def read_records_andria():
-    conn = sqlite3.connect(db_path)
+    conn = _connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM andria")
     rows = cursor.fetchall()
@@ -22,7 +19,7 @@ def read_records_andria():
     return rows
 
 def update_record_andria(codice_prodotto, new_esistenze, new_cartoni):
-    conn = sqlite3.connect(db_path)
+    conn = _connection()
     cursor = conn.cursor()
     cursor.execute("UPDATE andria SET Esistenze = ?, Cartoni = ? WHERE Codice = ?",
                    (new_esistenze, new_cartoni, codice_prodotto))
@@ -31,7 +28,7 @@ def update_record_andria(codice_prodotto, new_esistenze, new_cartoni):
     print("Record updated in andria.")
 
 def delete_record_andria(codice_prodotto):
-    conn = sqlite3.connect(db_path)
+    conn = _connection()
     cursor = conn.cursor()
     cursor.execute("DELETE FROM andria WHERE Codice = ?", (codice_prodotto,))
     conn.commit()
@@ -40,7 +37,7 @@ def delete_record_andria(codice_prodotto):
 
 
 def transfer_quantity_from_andria_to_parigi(codice_prodotto, quantity_to_transfer):
-    conn = sqlite3.connect(db_path)
+    conn = _connection()
     cursor = conn.cursor()
 
     # Check if the product exists in andria

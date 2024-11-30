@@ -1,6 +1,6 @@
 import os
 from tkinter.filedialog import asksaveasfilename
-import sqlite3
+
 import customtkinter as ctk
 from tkinter import ttk, Menu
 import tkinter as tk
@@ -10,11 +10,29 @@ from tkcalendar import Calendar
 from Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_info_by_name
 import openpyxl
 from tkinter import messagebox
-import sqlite3
+
 import openpyxl
 from openpyxl.styles import Border, Side, PatternFill, Font, Alignment, Protection
 from popup_functions import open_add_popup
+from Database_Utilities.crud_fornitori import get_all_prodotti
+from Database_Utilities.connection import _connection
 
+def get_client_id_by_ragione_sociale(ragione_sociale):
+    # Connect to the database
+    db_path = 'Database_Utilities/Database/Magazzino.db'
+    connection = sqlite3.connect(db_path)
+    cursor = connection.cursor()
+
+    # Query to fetch the ID based on the "Ragione sociale"
+    query = "SELECT ID FROM clienti WHERE `Ragione sociale` = ?"
+    cursor.execute(query, (ragione_sociale,))
+    result = cursor.fetchone()
+
+    # Close the connection
+    connection.close()
+
+    # Return the ID if found, else return a message indicating no match
+    return result[0] if result else "No client found with the given Ragione sociale."
 
 def pick_date(event,popup, entry):  #
     global cal, date_window
@@ -35,11 +53,11 @@ def grab_date(entry):
     date_window.destroy()
 # Add this function to dashboard_clienti.py or an appropriate module
 def get_prodotti_by_cliente(cliente_id):
-    conn = sqlite3.connect('Database_Utilities/Database/liste_personalizzate.db')
+    conn = _connection()
     cursor = conn.cursor()
 
     # Querying a table named after the cliente_id
-    query = f"SELECT col1 FROM '{cliente_id}'"
+    query = f"SELECT `col1` FROM `{cliente_id}`"
     cursor.execute(query)
     prodotti = cursor.fetchall()
     conn.close()
@@ -51,27 +69,22 @@ def get_prodotti_by_cliente(cliente_id):
 
 def get_product_descriptions(prodotti):
     risultato = {}
-    conn = sqlite3.connect('Database_Utilities/Database/MergedDatabase.db')
+    conn = _connection()
     cursor = conn.cursor()
-    query = "SELECT Codice, Descrizione FROM prodotti WHERE Codice = ?"
-    print(prodotti)
+    query = "SELECT `Codice`, `Descrizione` FROM `prodotti` WHERE `Codice` = %s"
+
+
     for codice in prodotti:
-        # Esegui la query per ogni elemento della lista
-        print(codice, str(codice))
         cursor.execute(query, (str(codice),))
         risultato_db = cursor.fetchone()
 
         if risultato_db:
-            # Se l'elemento è trovato, aggiungilo al dizionario
-            risultato[codice] = risultato_db[1]
+            # Formatta ogni prodotto come "Codice - Descrizione"
+            risultato[codice] = f"{risultato_db[0]} - {risultato_db[1]}"
         else:
-            # Se l'elemento non è trovato, puoi decidere cosa fare (es. None o un altro valore)
             risultato[codice] = None
 
-
     conn.close()
-
-    # Create a dictionary mapping product_id to description
     return risultato
 
 
@@ -129,7 +142,7 @@ def export_liste_prsn_to_excel(selected_lista):
         messagebox.showwarning("Nessun Dato", "Non ci sono clienti selezionati da esportare.")
         return
 
-    if len(selected_lista) == 1:
+    if len(selected_lista.get()) == 1:
         default_filename = f"Info_Lista_Cliente_{selected_lista[0]}.xlsx"
     else:
         default_filename = f"Info_Lista_Clienti.xlsx"
@@ -143,25 +156,27 @@ def export_liste_prsn_to_excel(selected_lista):
 
     workbook = openpyxl.Workbook()
 
-    for cliente in selected_lista:
+    cliente = get_client_id_by_ragione_sociale(selected_lista.get())
+    # modificare con funzione per recuperare info lista
+    info = get_lista_info(cliente)
 
-        # modificare con funzione per recuperare info lista
-        info = get_lista_info(cliente)
+    # Crea un nuovo foglio per ogni cliente
+    sheet = workbook.create_sheet(title=cliente)
 
-        # Crea un nuovo foglio per ogni cliente
-        sheet = workbook.create_sheet(title=cliente)
+    # modificare con colonne lista personalizzata
+    headers = ["Ragione sociale", "ID", "Prodotto", "Quantità"]
+    sheet.append(headers)
 
-        # modificare con colonne lista personalizzata
-        headers = ["Ragione sociale", "ID", "Prodotto", "Quantità"]
-        sheet.append(headers)
+    # Aggiungi i dati del cliente se esistono, altrimenti lascia solo le intestazioni
+    if info:
+        for row in info:
+            sheet.append(row)
+    else:
+        # Aggiungi una riga vuota se non ci sono dati, lasciando solo l'intestazione
+        sheet.append(["Nessun dato disponibile"])
 
-        # Aggiungi i dati del cliente se esistono, altrimenti lascia solo le intestazioni
-        if info:
-            for row in info:
-                sheet.append(row)
-        else:
-            # Aggiungi una riga vuota se non ci sono dati, lasciando solo l'intestazione
-            sheet.append(["Nessun dato disponibile"])
+
+
 
     # Rimuove il foglio predefinito solo se ci sono altri fogli visibili
     if "Sheet" in workbook.sheetnames and len(workbook.sheetnames) > 1:
@@ -171,8 +186,7 @@ def export_liste_prsn_to_excel(selected_lista):
     messagebox.showinfo("Excel Generato", f"Il file Excel è stato salvato come {os.path.basename(file_path)}")
 
 def crea_file_excel_con_estetica(lista_codici, sconti, nome_tabella, db_path="database.db", output_file="output.xlsx"):
-    # Connessione al database SQLite
-    conn = sqlite3.connect(db_path)
+    conn = _connection()
     cursor = conn.cursor()
 
     # Crea una nuova cartella di lavoro (workbook) per Excel
@@ -212,7 +226,7 @@ def crea_file_excel_con_estetica(lista_codici, sconti, nome_tabella, db_path="da
     # Aggiungi dati per ogni codice nella lista
     for idx, codice in enumerate(lista_codici):
         # Recupera i dati dal database
-        query = f"SELECT descrizione, prezzo FROM {nome_tabella} WHERE codice = ?"
+        query = f"SELECT `descrizione`, `prezzo` FROM `{nome_tabella}` WHERE `codice` = %s"
         cursor.execute(query, (codice,))
         risultato_db = cursor.fetchone()
 
@@ -463,6 +477,21 @@ def update_combobox():
         data = [item for item in clienti if value in item.lower()]
         combobox['values'] = data
         combobox.event_generate('<Down>')
+
+
+def update_combobox_prs(event, combobox_prodotto):
+    prodotti_aggiornati = get_all_prodotti()
+    typed_text = combobox_prodotto.get().lower()
+
+    # Filtra i prodotti sia per codice che per descrizione
+    prodotti_filtrati = [prod for prod in prodotti_aggiornati if typed_text in prod.lower()]
+
+    cursor_position = combobox_prodotto.index(tk.INSERT)
+    combobox_prodotto['values'] = prodotti_filtrati
+    combobox_prodotto.set(typed_text)
+    combobox_prodotto.icursor(cursor_position)
+    combobox_prodotto.event_generate('<Down>')
+
 
 def on_keyrelease(event):
     combobox.after(2000, update_combobox)
@@ -815,7 +844,7 @@ def show_dashboard3(parent_frame):
     style = ttk.Style()
     style.configure("TCombobox", font=('Arial', 16))  # Adjust font size as needed
     style.configure("TCombobox*Listbox*Font", font=('Arial', 16))  # Ensure larger font size for dropdown menu items
-    
+
     # Creazione del menù a tendina con ricerca incrementale
     combobox = ttk.Combobox(search_frame, textvariable=selected_cliente, values=clienti, font=('Arial', 16))
     combobox.configure(width=30)
@@ -903,10 +932,8 @@ def show_dashboard3(parent_frame):
     add_cliente_button = ctk.CTkButton(search_frame, text="Aggiungi Cliente",command = lambda:open_add_popup("Cliente"), font=('Arial', 14))
     add_cliente_button.pack(side="left", padx=10)
 
-    modifica_lista_button = ctk.CTkButton(search_frame, text="Aggiungi a lista prs", command=lambda:open_add_popup("Lista"), font=('Arial', 14))
+    modifica_lista_button = ctk.CTkButton(search_frame, text="Aggiungi a lista prs", command=lambda: open_add_popup("Lista"), font=('Arial', 14))
     modifica_lista_button.pack(side="left", padx=10)
-
-
 
     global table_frame, table_frame_1
     table_frame = ctk.CTkFrame(parent_frame, corner_radius=5)
