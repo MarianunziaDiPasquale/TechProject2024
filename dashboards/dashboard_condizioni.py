@@ -2,6 +2,7 @@ import customtkinter as ctk
 from tkinter import Toplevel, Listbox, Scrollbar, Entry, Button, Label, messagebox
 import tkinter as tk
 
+dashboard_font_size = 14
 # Simuliamo le due tabelle con delle liste (puoi sostituire con le tue query al database)
 table1_data = [{"id": 1, "nome": "Prelevement le 17 mois suivant"}, {"id": 2, "nome": "Prelevement le 20 mois suivant"}]
 table2_data = [{"id": 1, "nome": "MP20 SEPA Direct Debit CORE"}, {"id": 2, "nome": "MP05"}]

@@ -9,6 +9,8 @@ from datetime import datetime
 
 from fpdf import FPDF
 
+dashboard_font_size = 14  # Default font size
+
 #da cambiare in funzioni per agenti
 from Database_Utilities.crud_agenti import get_all_clienti_names, get_cliente_info_by_name
 import openpyxl
@@ -139,7 +141,7 @@ def open_clienti_conn_popup():
     popup.title("Seleziona la lista ")
     popup.geometry("700x700")  # Dimensioni compatte
 
-    instruction_label = ctk.CTkLabel(popup, text="Seleziona gli agenti di cui vuoi esportare i clienti connessi :", font=('Arial', 14), text_color="black")
+    instruction_label = ctk.CTkLabel(popup, text="Seleziona gli agenti di cui vuoi esportare i clienti connessi :", font=('Arial', dashboard_font_size), text_color="black")
     instruction_label.pack(pady=10)
 
     container_frame = tk.Frame(popup)
@@ -182,7 +184,7 @@ def open_clienti_conn_popup():
                 selected_agente_conn.append(agente)
 
     # Aggiungi il pulsante Seleziona/Deseleziona tutto
-    select_all_button = ctk.CTkButton(popup, text="Seleziona Tutto", command=toggle_select_all, width=120, height=30)
+    select_all_button = ctk.CTkButton(popup, text="Seleziona Tutto", font=('Arial', dashboard_font_size), command=toggle_select_all, width=120, height=30)
     select_all_button.pack(pady=5)
 
     # Dizionario per tracciare le variabili di stato dei checkbutton
@@ -194,12 +196,12 @@ def open_clienti_conn_popup():
     for agente in agenti:
         var = tk.BooleanVar()
         selections[agente] = var
-        check = tk.Checkbutton(scrollable_frame, text=agente, variable=var,font=('Arial', 14),
+        check = tk.Checkbutton(scrollable_frame, text=agente, variable=var,font=('Arial', dashboard_font_size),
                                command=lambda c=agente, v=var: on_checkbutton_toggle(c, v))
         check.pack(anchor="w")
 
     # Pulsante di conferma
-    confirm_button = ctk.CTkButton(popup, text="Conferma", command=lambda: [popup.destroy(), export_clienti_conn_to_excel(selected_agente_conn)], width=120, height=30)
+    confirm_button = ctk.CTkButton(popup, text="Conferma", font=('Arial', dashboard_font_size),command=lambda: [popup.destroy(), export_clienti_conn_to_excel(selected_agente_conn)], width=120, height=30)
     confirm_button.pack(pady=10)
 
     popup.mainloop()
@@ -209,7 +211,7 @@ def open_agenti_selection_popup():
     popup.title("Seleziona Agenti da Esportare")
     popup.geometry("700x700")  # Dimensioni compatte
 
-    instruction_label = ctk.CTkLabel(popup, text="Seleziona gli agenti che vuoi esportare:", font=('Arial', 14), text_color="black")
+    instruction_label = ctk.CTkLabel(popup, text="Seleziona gli agenti che vuoi esportare:", font=('Arial', dashboard_font_size), text_color="black")
     instruction_label.pack(pady=10)
 
     container_frame = tk.Frame(popup)
@@ -252,7 +254,7 @@ def open_agenti_selection_popup():
                 selected_agenti.append(agente)
 
     # Aggiungi il pulsante Seleziona/Deseleziona tutto
-    select_all_button = ctk.CTkButton(popup, text="Seleziona Tutto", command=toggle_select_all, width=120, height=30)
+    select_all_button = ctk.CTkButton(popup, text="Seleziona Tutto",font=('Arial', dashboard_font_size), command=toggle_select_all, width=120, height=30)
     select_all_button.pack(pady=5)
 
     # Dizionario per tracciare le variabili di stato dei checkbutton
@@ -263,12 +265,12 @@ def open_agenti_selection_popup():
     for agente in agenti:
         var = tk.BooleanVar()
         selections[agente] = var
-        check = tk.Checkbutton(scrollable_frame, text=agente, variable=var,font=('Arial', 14),
+        check = tk.Checkbutton(scrollable_frame, text=agente, variable=var,font=('Arial', dashboard_font_size),
                                command=lambda c=agente, v=var: on_checkbutton_toggle(c, v))
         check.pack(anchor="w")
 
     # Pulsante di conferma
-    confirm_button = ctk.CTkButton(popup, text="Conferma", command=lambda: [popup.destroy(), export_agenti_to_excel(selected_agenti)], width=120, height=30)
+    confirm_button = ctk.CTkButton(popup, text="Conferma",font=('Arial', dashboard_font_size), command=lambda: [popup.destroy(), export_agenti_to_excel(selected_agenti)], width=120, height=30)
     confirm_button.pack(pady=10)
 
     popup.mainloop()
@@ -335,7 +337,7 @@ def copy_selection(tree):
 def setup_context_menu(tree):
     # Creare un menu contestuale
     context_menu = Menu(tree, tearoff=0)
-    context_menu.add_command(label="Copia", command=lambda: copy_selection(tree), font=('Arial', 14))
+    context_menu.add_command(label="Copia", command=lambda: copy_selection(tree), font=('Arial', dashboard_font_size))
 
     def on_right_click(event):
         # Mostrare il menu contestuale
@@ -387,7 +389,7 @@ def on_double_click_1(event, tree_1):
         current_quantita = values[3]
         show_action_dialog_1(current_cliente_connesso, lambda action: handle_action_1(action, current_agente,current_id,current_cliente_connesso,current_quantita, tree))
 
-button_font = ("Arial", 12)  # Font più grande per i pulsanti
+button_font = ("Arial", dashboard_font_size)  # Font più grande per i pulsanti
 button_width = 15  # Larghezza maggiore per i pulsanti
 button_height = 2  # Altezza maggiore per i pulsanti
 
@@ -398,7 +400,7 @@ def show_action_dialog(agente, callback):
     dialog.transient()  # Rendi la finestra di dialogo modale
 
     label = tk.Label(dialog, text=f"Vuoi modificare o eliminare '{agente}'?",
-                         font=("Arial", 16))
+                         font=("Arial", dashboard_font_size))
     label.pack(pady=10)
 
     button_frame = tk.Frame(dialog)
@@ -429,7 +431,7 @@ def show_action_dialog_1(current_cliente_connesso, callback):
     dialog.grab_set()  # Ottieni il focus sulla finestra di dialogo
     dialog.transient()  # Rendi la finestra di dialogo modale
 
-    label = tk.Label(dialog, text=f"Vuoi modificare o eliminare '{current_cliente_connesso}'?",font=("Arial", 16))
+    label = tk.Label(dialog, text=f"Vuoi modificare o eliminare '{current_cliente_connesso}'?",font=("Arial", dashboard_font_size))
     label.pack(pady=10)
 
     button_frame = tk.Frame(dialog)
@@ -474,7 +476,7 @@ def ask_details(agente, prompt,nome, id):
     dialog.grab_set()
     dialog.transient()
 
-    label = tk.Label(dialog, text=prompt, font=("Arial", 14))
+    label = tk.Label(dialog, text=prompt, font=("Arial", dashboard_font_size))
     label.pack(pady=10)
 
     entry_width = 40
@@ -501,16 +503,16 @@ def ask_details(agente, prompt,nome, id):
 
     # Crea le entry per ciascun campo
     for label_text, var in input_vars.items():
-        label = tk.Label(scrollable_frame, text=label_text.capitalize() + ":", font=("Arial", 14))
+        label = tk.Label(scrollable_frame, text=label_text.capitalize() + ":", font=("Arial", dashboard_font_size))
         label.pack(pady=5)
-        entry = tk.Entry(scrollable_frame, width=entry_width, textvariable=var, font=("Arial", 14))
+        entry = tk.Entry(scrollable_frame, width=entry_width, textvariable=var, font=("Arial", dashboard_font_size))
         entry.pack(pady=5)
 
     def on_confirm():
         dialog.destroy()
         dialog.details = {label: var.get() for label, var in input_vars.items()}
 
-    confirm_button = ctk.CTkButton(dialog, text="Conferma",  font=("Arial", 12) , command=on_confirm, width=120, height=30)
+    confirm_button = ctk.CTkButton(dialog, text="Conferma",  font=("Arial", dashboard_font_size) , command=on_confirm, width=120, height=30)
     confirm_button.pack(pady=10)
 
     center_window(dialog,700,700)
@@ -736,7 +738,7 @@ def ask_details(agente, prompt,nome, id):
             padding = {'padx': 10, 'pady': 5}
             # Set the width of entry fields and the font size
             entry_width = 40
-            font_size = ("Arial", 14)  # Font family Arial, size 14
+            font_size = ("Arial", dashboard_font_size)  # Font family Arial, size 14
 
             # Create and grid labels and entries for each invoice field with larger font
             tk.Label(popup, text="Numero:", font=font_size).grid(row=0, column=0, **padding)
@@ -882,7 +884,7 @@ def ask_details_1(current_agente, prompt,current_id,current_cliente_connesso,cur
     dialog.grab_set()
     dialog.transient()
 
-    label = tk.Label(dialog, text=prompt, font=("Arial", 14))
+    label = tk.Label(dialog, text=prompt, font=("Arial", dashboard_font_size))
     label.pack(pady=10)
 
     # Inizializza i campi con i valori correnti
@@ -890,26 +892,26 @@ def ask_details_1(current_agente, prompt,current_id,current_cliente_connesso,cur
     cliente_connesso_var = tk.IntVar(value=current_cliente_connesso)
     quantity_var = tk.IntVar(value=current_quantita)
 
-    id_label = tk.Label(dialog, text=f"Id di '{current_cliente_connesso}':", font=("Arial", 14))
+    id_label = tk.Label(dialog, text=f"Id di '{current_cliente_connesso}':", font=("Arial", dashboard_font_size))
     id_label.pack(pady=5)
-    id_entry = tk.Entry(dialog, textvariable=id_var, font=("Arial", 14))
+    id_entry = tk.Entry(dialog, textvariable=id_var, font=("Arial", dashboard_font_size))
     id_entry.pack(pady=5)
 
-    cliente_conn_label = tk.Label(dialog, text=f"Descrizione di '{current_cliente_connesso}':", font=("Arial", 14))
+    cliente_conn_label = tk.Label(dialog, text=f"Descrizione di '{current_cliente_connesso}':", font=("Arial", dashboard_font_size))
     cliente_conn_label.pack(pady=5)
-    cliente_conn_entry = tk.Entry(dialog, textvariable=cliente_connesso_var, font=("Arial", 14))
+    cliente_conn_entry = tk.Entry(dialog, textvariable=cliente_connesso_var, font=("Arial", dashboard_font_size))
     cliente_conn_entry.pack(pady=5)
 
-    quantity_label = tk.Label(dialog, text=f"Quantità di '{current_quantita}':",  font= ("Arial", 14))
+    quantity_label = tk.Label(dialog, text=f"Quantità di '{current_quantita}':",  font= ("Arial", dashboard_font_size))
     quantity_label.pack(pady=5)
-    quantity_entry = tk.Entry(dialog, textvariable=quantity_var, font=("Arial", 14))
+    quantity_entry = tk.Entry(dialog, textvariable=quantity_var, font=("Arial", dashboard_font_size))
     quantity_entry.pack(pady=5)
 
     def on_confirm():
         dialog.destroy()
         dialog.details = {'id': id_var.get(), 'cliente connesso': cliente_connesso_var.get(), 'quantity': quantity_var.get()}
 
-    confirm_button = tk.Button(dialog, text="Conferma",  font=("Arial", 12) , command=on_confirm)
+    confirm_button = tk.Button(dialog, text="Conferma",  font=("Arial", dashboard_font_size) , command=on_confirm)
     confirm_button.pack(pady=10)
 
     center_window(dialog,600,400)
@@ -924,6 +926,58 @@ def show_dashboard4(parent_frame):
     for widget in parent_frame.winfo_children():
         widget.destroy()
 
+    def open_font_size_popup():
+        """Open a popup to choose the font size and reload the dashboard with the new size."""
+        popup = tk.Toplevel()
+        popup.title("Scegli la dimensione del font")
+        popup.geometry("300x150")
+        popup.transient()  # Make it modal
+
+        # Label for font size selection
+        label = tk.Label(popup, text="Seleziona la dimensione del font:", font=("Arial", dashboard_font_size))
+        label.pack(pady=10)
+
+        # Scale widget to select font size
+        font_size_var = tk.IntVar(value=dashboard_font_size)
+        # Label to display the current slider value on top of the slider handle
+        value_display = ctk.CTkLabel(popup, text=str(dashboard_font_size), font=("Arial", 12))
+        value_display.place(relx=0.5, rely=0.35, anchor="center")  # Initial position
+        # CTkSlider to select font size with inverted color appearance
+        font_slider = ctk.CTkSlider(
+            popup,
+            from_=10,
+            to=30,
+            number_of_steps=20,
+            fg_color="white",
+            progress_color= parent_frame_color,
+            command=lambda value: update_slider_value(value) # Sync slider value to font_size_var
+        )
+        font_slider.set(dashboard_font_size)  # Set initial slider position
+        font_slider.pack(pady=10)
+
+        def update_slider_value(value):
+            """Update the label text and position to follow the slider handle."""
+            font_size_var.set(int(value))  # Update the IntVar with the new slider value
+            value_display.configure(text=str(int(value)))  # Update the display label text
+            # Position the display label above the slider handle
+            slider_pos = font_slider.get()
+            display_x = 20 + (slider_pos - font_slider.cget("from")) / (
+                        font_slider.cget("to") - font_slider.cget("from")) * 240
+            value_display.place(x=display_x, y=60)
+
+        def apply_font_size():
+            global dashboard_font_size
+            dashboard_font_size = int(font_slider.get())
+            popup.destroy()
+            # Clear the existing dashboard and reload it with the new font size
+            for widget in parent_frame.winfo_children():
+                widget.destroy()  # Remove all existing widgets from parent_frame
+            show_dashboard4(parent_frame)
+
+        # Button to confirm font size selection
+        apply_button = ctk.CTkButton(popup, text="Applica", font=("Arial", dashboard_font_size), command=apply_font_size)
+        apply_button.pack(pady=10)
+
     parent_frame_color = parent_frame.cget("fg_color")
 
     # Crea un frame per contenere sia il titolo che la legenda
@@ -934,7 +988,7 @@ def show_dashboard4(parent_frame):
     top_frame.columnconfigure(0, weight=0)  # La colonna 0 non si espande
     top_frame.columnconfigure(1, weight=1)  # La colonna 1 si espande
 
-    instruction_label = ctk.CTkLabel(top_frame, text="Scegliere Agente:", font=('Arial', 14))
+    instruction_label = ctk.CTkLabel(top_frame, text="Scegliere Agente:", font=('Arial', dashboard_font_size))
     instruction_label.grid(row=0, column=1, padx=10)
 
     #cambiare funzione per agenti
@@ -948,10 +1002,10 @@ def show_dashboard4(parent_frame):
     # Style for larger font in Combobox
     style = ttk.Style()
     style.configure("TCombobox", font=('Arial', 16))  # Adjust font size as needed
-    style.configure("TCombobox*Listbox*Font", font=('Arial', 16))  # Ensure larger font size for dropdown menu items
+    style.configure("TCombobox*Listbox*Font", font=('Arial', dashboard_font_size))  # Ensure larger font size for dropdown menu items
 
     # Creazione del menù a tendina con ricerca incrementale
-    combobox = ttk.Combobox(search_frame, textvariable=selected_agente, values=agenti, font=('Arial', 16))
+    combobox = ttk.Combobox(search_frame, textvariable=selected_agente, values=agenti, font=('Arial', dashboard_font_size))
     combobox.configure(width=20)
     combobox.pack(side="left", padx=10)
 
@@ -968,7 +1022,7 @@ def show_dashboard4(parent_frame):
     combobox.bind("<<ComboboxSelected>>", on_agente_selected)
 
     # Create a style for the Listbox within the Combobox dropdown
-    combobox.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+    combobox.option_add('*TCombobox*Listbox*Font', ('Arial', dashboard_font_size))
     '''
     def on_agente_selected(event):
         if listbox.curselection():  # Controlla se c'è una selezione
@@ -1029,17 +1083,21 @@ def show_dashboard4(parent_frame):
         table_frame_1.pack(side="left", pady=10, fill="both", expand=True)  # Mostra il secondo frame affiancato
 
     # Pulsante "Esporta Excel Fornitori" accanto al pulsante prodotti
-    export_fornitori_button = ctk.CTkButton(search_frame, text="Esporta Excel Agenti", command=open_agenti_selection_popup, font=('Arial', 14))
+    export_fornitori_button = ctk.CTkButton(search_frame, text="Esporta Excel Agenti", command=open_agenti_selection_popup, font=('Arial', dashboard_font_size))
     export_fornitori_button.pack(side="left", padx=10)
 
-    export_lista_button = ctk.CTkButton(search_frame, text="Esporta Excel Clienti Connessi", command=open_clienti_conn_popup, font=('Arial', 14))
+    export_lista_button = ctk.CTkButton(search_frame, text="Esporta Excel Clienti Connessi", command=open_clienti_conn_popup, font=('Arial', dashboard_font_size))
     export_lista_button.pack(side="left", padx=10)
 
-    export_lista_button = ctk.CTkButton(search_frame, text="Aggiungi Agente",command = lambda:open_add_popup("Agente"), font=('Arial', 14))
+    export_lista_button = ctk.CTkButton(search_frame, text="Aggiungi Agente",command = lambda:open_add_popup("Agente"), font=('Arial', dashboard_font_size))
     export_lista_button.pack(side="left", padx=10)
 
-    provvigioni_button = ctk.CTkButton(search_frame, text="Calcola Provvigioni", command = lambda:open_add_popup("Provvigioni"), font=('Arial', 14))
+    provvigioni_button = ctk.CTkButton(search_frame, text="Calcola Provvigioni", command = lambda:open_add_popup("Provvigioni"), font=('Arial', dashboard_font_size))
     provvigioni_button.pack(side="left", padx=10)
+
+    font_size_button = ctk.CTkButton(search_frame, text="Cambia Dimensione Font", font=("Arial", dashboard_font_size),
+                                     command=open_font_size_popup, corner_radius=5)
+    font_size_button.pack(side="left", padx=10)
 
     global table_frame, table_frame_1
     table_frame = ctk.CTkFrame(parent_frame, corner_radius=5)
@@ -1050,10 +1108,10 @@ def show_dashboard4(parent_frame):
     table_frame_1.pack(side="left", pady=10, fill="both", expand=True)
     table_frame_1.pack_forget()
 
-    table_title = ctk.CTkLabel(table_frame, text="Dati Agente:", font=('Arial', 14, 'bold'))
+    table_title = ctk.CTkLabel(table_frame, text="Dati Agente:", font=('Arial', dashboard_font_size, 'bold'))
     table_title.pack(pady=10)
 
-    table_title_1 = ctk.CTkLabel(table_frame_1, text="Clienti connessi:", font=('Arial', 14, 'bold'))
+    table_title_1 = ctk.CTkLabel(table_frame_1, text="Clienti connessi:", font=('Arial', dashboard_font_size, 'bold'))
     table_title_1.pack(pady=10)
 
     # Create a frame to hold the table and scrollbars
@@ -1088,7 +1146,7 @@ def show_dashboard4(parent_frame):
     style = ttk.Style()
     style.configure("Treeview",
                     rowheight=30,
-                    font=('Arial', 14),
+                    font=('Arial', dashboard_font_size),
                     background="#f1f8e9",
                     foreground="#004d40",
                     fieldbackground="#f1f8e9",
@@ -1096,7 +1154,7 @@ def show_dashboard4(parent_frame):
                     relief="solid",
                     borderwidth=1)
     style.configure("Treeview.Heading",
-                    font=('Arial', 16, 'bold'),
+                    font=('Arial', dashboard_font_size, 'bold'),
                     background="#a5d6a7",
                     foreground="#004d40")
     style.map("Treeview",
