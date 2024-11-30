@@ -223,7 +223,7 @@ def main():
     global main_frame, open_dashboards, side_panel, toggle_button, bottom_frame, background_canvas
 
     root = ctk.CTk()
-    root.title("AppTechProject")
+    root.title("App_TechProject")
     root.geometry("{}x{}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
 
     # Carica l'immagine di sfondo

@@ -76,15 +76,15 @@ def open_popup(listbox, data):
     popup.title(f"Modifica/Elimina {item['nome']}")
 
     # Campi precompilati per ID e Nome
-    label_id = Label(popup, text="ID:", font=('Arial', 14))
+    label_id = Label(popup, text="ID:", font=('Arial', 14), )
     label_id.pack(pady=5)
-    entry_id = Entry(popup, font=('Arial', 14))
+    entry_id = Entry(popup, font=('Arial', 14),  width=120, height=30)
     entry_id.pack(pady=5)
     entry_id.insert(0, item['id'])
 
     label_nome = Label(popup, text="Nome:", font=('Arial', 14))
     label_nome.pack(pady=5)
-    entry_nome = Entry(popup, font=('Arial', 14))
+    entry_nome = Entry(popup, font=('Arial', 14),  width=120, height=30)
     entry_nome.pack(pady=5)
     entry_nome.insert(0, item['nome'])
 
@@ -111,10 +111,10 @@ def open_popup(listbox, data):
             popup.destroy()
 
     # Pulsanti per salvare le modifiche o eliminare
-    save_button =ctk.CTkButton(popup, text="Salva Modifiche", command=save_changes, width=120, height=30)
+    save_button =ctk.CTkButton(popup, text="Salva Modifiche", command=save_changes, font=('Arial', 12), width=120, height=30)
     save_button.pack(pady=10)
 
-    delete_button = ctk.CtkButton(popup, text="Elimina Elemento", command=delete_item, width=120, height=30)
+    delete_button = ctk.CTkButton(popup, text="Elimina Elemento", command=delete_item, font=('Arial', 12),  width=120, height=30)
     delete_button.pack(pady=10)
 
 
@@ -146,6 +146,5 @@ def open_add_popup(tabella, data, listbox):
         else:
             messagebox.showerror("Errore", "L'ID deve essere un numero!")
 
-    add_button = ctk.CtkButton(popup, text="Aggiungi Elemento", command=add_new_item, width=120, height=30)
+    add_button = ctk.CTkButton(popup, text="Aggiungi Elemento", command=add_new_item, font=('Arial', 12),  width=120, height=30)
     add_button.pack(pady=10)
-
