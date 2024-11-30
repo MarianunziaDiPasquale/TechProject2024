@@ -22,6 +22,7 @@ from xml.dom import minidom
 db_path = 'Database_Utilities/Database/Magazzino.db'
 # Import CRUD functions for Parigi
 
+dashboard_font_size = 14
 
 def show_pdf_preview(pdf_path):
     # Apri il PDF con PyMuPDF
@@ -60,10 +61,63 @@ def show_pdf_preview(pdf_path):
     window.mainloop()
 
 def show_dashboard8(parent_frame):
+    parent_frame_color = parent_frame.cget("fg_color")
 
     filter_frame = ctk.CTkFrame(parent_frame, corner_radius=5)
     filter_frame.pack(pady=5, padx=5, fill="x")
     global combobox
+
+    def open_font_size_popup():
+        """Open a popup to choose the font size and reload the dashboard with the new size."""
+        popup = tk.Toplevel()
+        popup.title("Scegli la dimensione del font")
+        popup.geometry("300x150")
+        popup.transient()  # Make it modal
+
+        # Label for font size selection
+        label = tk.Label(popup, text="Seleziona la dimensione del font:", font=("Arial", dashboard_font_size))
+        label.pack(pady=10)
+
+        # Scale widget to select font size
+        font_size_var = tk.IntVar(value=dashboard_font_size)
+        # Label to display the current slider value on top of the slider handle
+        value_display = ctk.CTkLabel(popup, text=str(dashboard_font_size), font=("Arial", dashboard_font_size))
+        value_display.place(relx=0.5, rely=0.35, anchor="center")  # Initial position
+        # CTkSlider to select font size with inverted color appearance
+        font_slider = ctk.CTkSlider(
+            popup,
+            from_=10,
+            to=30,
+            number_of_steps=20,
+            fg_color="white",
+            progress_color= parent_frame_color,
+            command=lambda value: update_slider_value(value) # Sync slider value to font_size_var
+        )
+        font_slider.set(dashboard_font_size)  # Set initial slider position
+        font_slider.pack(pady=10)
+
+        def update_slider_value(value):
+            """Update the label text and position to follow the slider handle."""
+            font_size_var.set(int(value))  # Update the IntVar with the new slider value
+            value_display.configure(text=str(int(value)))  # Update the display label text
+            # Position the display label above the slider handle
+            slider_pos = font_slider.get()
+            display_x = 20 + (slider_pos - font_slider.cget("from")) / (
+                        font_slider.cget("to") - font_slider.cget("from")) * 240
+            value_display.place(x=display_x, y=60)
+
+        def apply_font_size():
+            global dashboard_font_size
+            dashboard_font_size = int(font_slider.get())
+            popup.destroy()
+            # Clear the existing dashboard and reload it with the new font size
+            for widget in parent_frame.winfo_children():
+                widget.destroy()  # Remove all existing widgets from parent_frame
+            show_dashboard8(parent_frame)
+
+        # Button to confirm font size selection
+        apply_button = ctk.CTkButton(popup, text="Applica", font=("Arial", dashboard_font_size), command=apply_font_size)
+        apply_button.pack(pady=10)
 
     #selected_cliente = tk.StringVar()
 
@@ -123,38 +177,38 @@ def show_dashboard8(parent_frame):
     totale = get_unique_values('totale')
     prodotti = get_unique_values('prodotti')
 
-    ctk.CTkLabel(filter_frame, text="Cliente:", font=('Arial', 14)).grid(row=0, column=0, padx=5, pady=5, sticky="w")
-    cliente_combobox = ttk.Combobox(filter_frame, values=clienti, width=15, font=('Arial', 14))
+    ctk.CTkLabel(filter_frame, text="Cliente:", font=('Arial', dashboard_font_size)).grid(row=0, column=0, padx=5, pady=5, sticky="w")
+    cliente_combobox = ttk.Combobox(filter_frame, values=clienti, width=15, font=('Arial', dashboard_font_size))
     cliente_combobox.grid(row=0, column=1, padx=5, pady=5)
-    cliente_combobox.option_add('*TCombobox*Listbox*Font', ('Arial', 14))
+    cliente_combobox.option_add('*TCombobox*Listbox*Font', ('Arial', dashboard_font_size))
     setup_incremental_search(cliente_combobox, clienti)
 
-    ctk.CTkLabel(filter_frame, text="Prodotti:", font=('Arial', 14)).grid(row=0, column=4, padx=5, pady=5, sticky="w")
-    prodotti_combobox = ttk.Combobox(filter_frame, values=prodotti, width=15, font=('Arial', 14))
+    ctk.CTkLabel(filter_frame, text="Prodotti:", font=('Arial', dashboard_font_size)).grid(row=0, column=4, padx=5, pady=5, sticky="w")
+    prodotti_combobox = ttk.Combobox(filter_frame, values=prodotti, width=15, font=('Arial', dashboard_font_size))
     prodotti_combobox.grid(row=0, column=5, padx=5, pady=5)
-    prodotti_combobox.option_add('*TCombobox*Listbox*Font', ('Arial', 14))
+    prodotti_combobox.option_add('*TCombobox*Listbox*Font', ('Arial', dashboard_font_size))
     setup_incremental_search(prodotti_combobox, prodotti)
 
-    ctk.CTkLabel(filter_frame, text="Movimenti:", font=('Arial', 14)).grid(row=1, column=0, padx=5, pady=5, sticky="w")
-    movimenti_combobox = ttk.Combobox(filter_frame, values=totale, width=15, font=('Arial', 14))
+    ctk.CTkLabel(filter_frame, text="Movimenti:", font=('Arial', dashboard_font_size)).grid(row=1, column=0, padx=5, pady=5, sticky="w")
+    movimenti_combobox = ttk.Combobox(filter_frame, values=totale, width=15, font=('Arial', dashboard_font_size))
     movimenti_combobox.grid(row=1, column=1, padx=5, pady=5)
-    movimenti_combobox.option_add('*TCombobox*Listbox*Font', ('Arial', 14))
+    movimenti_combobox.option_add('*TCombobox*Listbox*Font', ('Arial', dashboard_font_size))
     setup_incremental_search(movimenti_combobox, totale)
 
     ctk.CTkLabel(filter_frame, text="ID Ordine:", font=('Arial', 14)).grid(row=0, column=2, padx=5, pady=5, sticky="w")
-    id_ordine_combobox = ttk.Combobox(filter_frame, values=id_ordine,width=15, font=('Arial', 14))
+    id_ordine_combobox = ttk.Combobox(filter_frame, values=id_ordine,width=15, font=('Arial', dashboard_font_size))
     id_ordine_combobox.grid(row=0, column=3, padx=5, pady=5)
-    id_ordine_combobox.option_add('*TCombobox*Listbox*Font', ('Arial', 14))
+    id_ordine_combobox.option_add('*TCombobox*Listbox*Font', ('Arial', dashboard_font_size))
     setup_incremental_search(id_ordine_combobox, id_ordine)
 
-    ctk.CTkLabel(filter_frame, text="Start Date (dd/mm/yy):", font=('Arial', 14)).grid(row=0, column=6, padx=5, pady=5,sticky="w")
-    start_date_entry = tk.Entry(filter_frame, width=12, font=('Arial', 14))
+    ctk.CTkLabel(filter_frame, text="Start Date (dd/mm/yy):", font=('Arial', dashboard_font_size)).grid(row=0, column=6, padx=5, pady=5,sticky="w")
+    start_date_entry = tk.Entry(filter_frame, width=12, font=('Arial', dashboard_font_size))
     start_date_entry.insert(0, "dd/mm/yy")
     start_date_entry.bind("<1>", lambda event: pick_date(event, start_date_entry))
     start_date_entry.grid(row=0, column=7, padx=5, pady=5)
 
-    ctk.CTkLabel(filter_frame, text="End Date (dd/mm/yy):", font=('Arial', 14)).grid(row=1, column=6, padx=5, pady=5,sticky="w")
-    end_date_entry = tk.Entry(filter_frame, width=12, font=('Arial', 14))
+    ctk.CTkLabel(filter_frame, text="End Date (dd/mm/yy):", font=('Arial', dashboard_font_size)).grid(row=1, column=6, padx=5, pady=5,sticky="w")
+    end_date_entry = tk.Entry(filter_frame, width=12, font=('Arial', dashboard_font_size))
     end_date_entry.insert(0, "dd/mm/yy")
     end_date_entry.bind("<1>", lambda event: pick_date(event, end_date_entry))
     end_date_entry.grid(row=1, column=7, padx=5, pady=5)
@@ -195,6 +249,7 @@ def show_dashboard8(parent_frame):
 
     ctk.CTkButton(filter_frame, text="Rimuovi Filtri", command=clear_filters).grid(row=1, column=8, padx=10, pady=5)
 
+
     def copy_selection(tree):
         selected_items = tree.selection()  # Ottiene tutti gli elementi selezionati
         copied_data = []
@@ -209,7 +264,7 @@ def show_dashboard8(parent_frame):
     def setup_context_menu(tree):
         # Creare un menu contestuale
         context_menu = Menu(tree, tearoff=0)
-        context_menu.add_command(label="Copia", command=lambda: copy_selection(tree), font=('Arial', 14))
+        context_menu.add_command(label="Copia", command=lambda: copy_selection(tree), font=('Arial', dashboard_font_size))
 
         def on_right_click(event):
             # Mostrare il menu contestuale
@@ -237,7 +292,7 @@ def show_dashboard8(parent_frame):
     style = ttk.Style()
     style.configure("Treeview",
                     rowheight=30,
-                    font=('Arial', 14),
+                    font=('Arial', dashboard_font_size),
                     background="#f1f8e9",
                     foreground="#004d40",
                     fieldbackground="#f1f8e9",
@@ -245,7 +300,7 @@ def show_dashboard8(parent_frame):
                     relief="solid",
                     borderwidth=1)
     style.configure("Treeview.Heading",
-                    font=('Arial', 16, 'bold'),
+                    font=('Arial', dashboard_font_size, 'bold'),
                     background="#a5d6a7",
                     foreground="#004d40")
     style.map("Treeview",
@@ -329,10 +384,10 @@ def show_dashboard8(parent_frame):
     parent_frame.grid_columnconfigure(0, weight=1)
     parent_frame.grid_columnconfigure(1, weight=1)
 
-    button = ctk.CTkButton(parent_frame, text="Stampa Fattura", command=print_invoice)
+    button = ctk.CTkButton(parent_frame, text="Stampa Fattura", command=print_invoice ,font=("Arial", dashboard_font_size))
     button.pack(side="left", padx=10, pady=20)
 
-    button_non_sold = ctk.CTkButton(parent_frame, text="Stampa Bolla di non venduto", command=print_non_sold_document)
+    button_non_sold = ctk.CTkButton(parent_frame, text="Stampa Bolla Non Venduto", command=print_non_sold_document ,font=("Arial", dashboard_font_size))
     button_non_sold.pack(side="left", padx=10, pady=20)
 
     def print_return_document():
@@ -344,7 +399,7 @@ def show_dashboard8(parent_frame):
             messagebox.showwarning("Seleziona Ordine",
                                    "Per favore, seleziona un ordine per stampare la bolla di reso.")
 
-    button_return = ctk.CTkButton(parent_frame, text="Stampa Bolla di reso", command=print_return_document)
+    button_return = ctk.CTkButton(parent_frame, text="Stampa Bolla Reso", command=print_return_document ,font=("Arial", dashboard_font_size))
     button_return.pack(side="left", padx=10, pady=20)
 
     def format_decimal(value):
@@ -565,8 +620,13 @@ def show_dashboard8(parent_frame):
         canvas.config(scrollregion=canvas.bbox("all"))  # Aggiorna la regione dello scroll nel canvas
 
 
-    button_xml = ctk.CTkButton(parent_frame, text="Stampa Fattura XML", command=show_invoice_form)
+    button_xml = ctk.CTkButton(parent_frame, text="Stampa XML", command=show_invoice_form, font=("Arial", dashboard_font_size))
     button_xml.pack(side="left", padx=10, pady=20)
 
-    button_sigaretta = ctk.CTkButton(parent_frame, text="Stampa Fattura Sigaretta", command=generate_pdf_sigaretta)
+    button_sigaretta = ctk.CTkButton(parent_frame, text="Stampa Sigaretta", command=generate_pdf_sigaretta ,font=("Arial", dashboard_font_size))
     button_sigaretta.pack(side="left", padx=10, pady=20)
+
+    # Add a button to open the font size selection popup
+    font_size_button = ctk.CTkButton(parent_frame, text="Cambia Dimensione Font", font=("Arial", dashboard_font_size),
+                                     command=open_font_size_popup, corner_radius=5)
+    font_size_button.pack(side="left", padx=10, pady=20)
