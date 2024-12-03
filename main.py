@@ -14,7 +14,7 @@ from dashboards.dashboard_storico_ordini import show_dashboard8
 from dashboards.dashboard_consiglio import show_dashboard9
 from dashboards.dashboard_condizioni import show_dashboard10
 
-from side_panel import create_side_panel_buttons
+from side_panel import create_side_panel_buttons, load_icons
 
 # Imposta il locale in italiano
 locale.setlocale(locale.LC_TIME, 'Italian_Italy.1252')
@@ -185,7 +185,18 @@ def hide_all_buttons():
 def hide_frames():
     bottom_frame.place_forget()
 
-def open_settings_popup():
+def open_settings_popup(update_ui_callback):
+    """
+    Apre un popup per cambiare il tema grafico e aggiorna anche le icone.
+
+    Args:
+        update_ui_callback (function): Funzione per aggiornare l'interfaccia utente.
+    """
+    # Evita che l'utente apra più popup contemporaneamente
+    for widget in tk._default_root.winfo_children():
+        if isinstance(widget, tk.Toplevel) and widget.title() == "Impostazioni":
+            return  # Popup già aperto, ignora la richiesta
+
     popup = tk.Toplevel()
     popup.title("Impostazioni")
 
@@ -202,14 +213,38 @@ def open_settings_popup():
     label.pack(pady=10)
 
     def change_appearance_mode(new_mode):
-        ctk.set_appearance_mode(new_mode)
-        popup.destroy()
+        if popup.winfo_exists():  # Verifica che il popup esista ancora
+            try:
+                # Cambia il tema grafico
+                ctk.set_appearance_mode(new_mode)
+                # Aggiorna l'interfaccia utente
+                update_ui_callback(new_mode)
+            except Exception as e:
+                print(f"Errore durante il cambio tema: {e}")
+            finally:
+                if popup.winfo_exists():  # Distruggi solo se esiste
+                    popup.destroy()
 
-    light_mode_button = tk.Button(popup, text="Chiaro", command=lambda: change_appearance_mode("light"), font=('Arial', 12))
+    # Pulsanti per scegliere il tema
+    light_mode_button = tk.Button(
+        popup,
+        text="Chiaro",
+        command=lambda: change_appearance_mode("light"),
+        font=('Arial', 12)
+    )
     light_mode_button.pack(pady=5)
 
-    dark_mode_button = tk.Button(popup, text="Scuro", command=lambda: change_appearance_mode("dark"), font=('Arial', 12))
+    dark_mode_button = tk.Button(
+        popup,
+        text="Scuro",
+        command=lambda: change_appearance_mode("dark"),
+        font=('Arial', 12)
+    )
     dark_mode_button.pack(pady=5)
+
+    # Blocca la chiusura forzata del popup con Alt+F4 o X senza crash
+    popup.protocol("WM_DELETE_WINDOW", lambda: popup.destroy())
+
 
 
 #splash = ctk.CTk()
@@ -219,11 +254,34 @@ def open_settings_popup():
 #y = (splash.winfo_screenheight()//2 - (height/2))
 #splash.geometry('{}x{}+{}+{}'.format(width, height, x, y))
 
+def update_ui(new_mode, side_panel, update_dashboard):
+    """
+    Aggiorna l'interfaccia utente (icone e tema) in base al tema scelto.
+
+    Args:
+        new_mode (str): "light" o "dark".
+        side_panel (tk.Frame): Pannello laterale.
+        update_dashboard (function): Funzione per aggiornare i dati del dashboard.
+    """
+    try:
+        # Ricarica le icone in base al nuovo tema
+        icons = load_icons(new_mode)
+
+        # Rimuovi i pulsanti esistenti
+        for widget in side_panel.winfo_children():
+            widget.destroy()
+
+        # Ricrea i pulsanti con le nuove icone
+        create_side_panel_buttons(side_panel, None, new_mode,lambda dashboards: add_dashboards(dashboards))
+    except Exception as e:
+        print(f"Errore durante l'aggiornamento delle icone: {e}")
+
+
 def main():
     global main_frame, open_dashboards, side_panel, toggle_button, bottom_frame, background_canvas
 
     root = ctk.CTk()
-    root.title("App_TechProject")
+    root.title("AppTechProject")
     root.geometry("{}x{}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
 
     # Carica l'immagine di sfondo
@@ -268,11 +326,20 @@ def main():
     toggle_button.place(relx=0.01, rely=0.008, anchor="nw")
 
     # Crea i pulsanti nel pannello orizzontale (disposti uno accanto all'altro)
-    create_side_panel_buttons(side_panel, toggle_side_panel, lambda dashboards: add_dashboards(dashboards))
+    create_side_panel_buttons(side_panel, toggle_side_panel, "dark", lambda dashboards: add_dashboards(dashboards))
 
+    settings_button = ctk.CTkButton(
+        root,
+        text="Impostazioni",
+        command=lambda: open_settings_popup(
+            lambda mode: update_ui(mode, side_panel, lambda dashboards: add_dashboards(dashboards))
+        ),  corner_radius=5,font=('Arial', 11), height=15, width=90
+    )
+    settings_button.place(relx=0.99, rely=0.96, anchor="ne")
+    '''
     settings_button = ctk.CTkButton(root, text="Impostazioni", corner_radius=5,command=open_settings_popup, font=('Arial', 11), height=15, width=90)
     settings_button.place(relx=0.99, rely=0.96, anchor="ne")
-
+    '''
     #hide_all_buttons()
     #hide_frames()
     main_frame.place_forget()  # Nasconde il PanedWindow se non ci sono dashboard
