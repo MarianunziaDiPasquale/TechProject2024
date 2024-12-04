@@ -2,58 +2,34 @@ import tkinter as tk
 import customtkinter as ctk
 from PIL import Image, ImageTk,  ImageOps, ImageEnhance,  ImageFilter
 
-def load_icons(mode):
+def load_icons():
 
-    if mode == "dark":
-        icon1 = Image.open("resources/home_white.png").resize((20, 20), Image.LANCZOS)
-        icon2 = Image.open("resources/shopping-cart_white.png").resize((20, 20), Image.LANCZOS)
-        icon3 = Image.open("resources/users-alt_white.png").resize((20, 20), Image.LANCZOS)
-        icon4 = Image.open("resources/briefcase_white.png").resize((20, 20), Image.LANCZOS)
-        icon5 = Image.open("resources/truck-side_white.png").resize((20, 20), Image.LANCZOS)
-        icon6 = Image.open("resources/boxes_white.png").resize((20, 20), Image.LANCZOS)
-        icon7 = Image.open("resources/apps_white.png").resize((20, 20), Image.LANCZOS)
-        icon8 = Image.open("resources/money-check-edit_white.png").resize((20, 20), Image.LANCZOS)
-        icon9 = Image.open("resources/lightbulb-on_white.png").resize((20, 20), Image.LANCZOS)
-        icon10 = Image.open("resources/insert-credit-card_white.png").resize((20, 20), Image.LANCZOS)
+    icon1 = Image.open("resources/home_white.png").resize((20, 20), Image.LANCZOS)
+    icon2 = Image.open("resources/shopping-cart_white.png").resize((20, 20), Image.LANCZOS)
+    icon3 = Image.open("resources/users-alt_white.png").resize((20, 20), Image.LANCZOS)
+    icon4 = Image.open("resources/briefcase_white.png").resize((20, 20), Image.LANCZOS)
+    icon5 = Image.open("resources/truck-side_white.png").resize((20, 20), Image.LANCZOS)
+    icon6 = Image.open("resources/boxes_white.png").resize((20, 20), Image.LANCZOS)
+    icon7 = Image.open("resources/apps_white.png").resize((20, 20), Image.LANCZOS)
+    icon8 = Image.open("resources/money-check-edit_white.png").resize((20, 20), Image.LANCZOS)
+    icon9 = Image.open("resources/lightbulb-on_white.png").resize((20, 20), Image.LANCZOS)
+    icon10 = Image.open("resources/insert-credit-card_white.png").resize((20, 20), Image.LANCZOS)
 
-        icon1 = ImageTk.PhotoImage(icon1)
-        icon2 = ImageTk.PhotoImage(icon2)
-        icon3 = ImageTk.PhotoImage(icon3)
-        icon4 = ImageTk.PhotoImage(icon4)
-        icon5 = ImageTk.PhotoImage(icon5)
-        icon6 = ImageTk.PhotoImage(icon6)
-        icon7 = ImageTk.PhotoImage(icon7)
-        icon8 = ImageTk.PhotoImage(icon8)
-        icon9 = ImageTk.PhotoImage(icon9)
-        icon10 = ImageTk.PhotoImage(icon10)
-
-    else:
-        icon1 = Image.open("resources/home.png").resize((20, 20), Image.LANCZOS)
-        icon2 = Image.open("resources/shopping-cart.png").resize((20, 20), Image.LANCZOS)
-        icon3 = Image.open("resources/users-alt.png").resize((20, 20), Image.LANCZOS)
-        icon4 = Image.open("resources/briefcase.png").resize((20, 20), Image.LANCZOS)
-        icon5 = Image.open("resources/truck-side.png").resize((20, 20), Image.LANCZOS)
-        icon6 = Image.open("resources/boxes.png").resize((20, 20), Image.LANCZOS)
-        icon7 = Image.open("resources/apps.png").resize((20, 20), Image.LANCZOS)
-        icon8 = Image.open("resources/money-check-edit.png").resize((20, 20), Image.LANCZOS)
-        icon9 = Image.open("resources/lightbulb-on.png").resize((20, 20), Image.LANCZOS)
-        icon10 = Image.open("resources/insert-credit-card.png").resize((20, 20), Image.LANCZOS)
-
-        icon1 = ImageTk.PhotoImage(icon1)
-        icon2 = ImageTk.PhotoImage(icon2)
-        icon3 = ImageTk.PhotoImage(icon3)
-        icon4 = ImageTk.PhotoImage(icon4)
-        icon5 = ImageTk.PhotoImage(icon5)
-        icon6 = ImageTk.PhotoImage(icon6)
-        icon7 = ImageTk.PhotoImage(icon7)
-        icon8 = ImageTk.PhotoImage(icon8)
-        icon9 = ImageTk.PhotoImage(icon9)
-        icon10 = ImageTk.PhotoImage(icon10)
+    icon1 = ImageTk.PhotoImage(icon1)
+    icon2 = ImageTk.PhotoImage(icon2)
+    icon3 = ImageTk.PhotoImage(icon3)
+    icon4 = ImageTk.PhotoImage(icon4)
+    icon5 = ImageTk.PhotoImage(icon5)
+    icon6 = ImageTk.PhotoImage(icon6)
+    icon7 = ImageTk.PhotoImage(icon7)
+    icon8 = ImageTk.PhotoImage(icon8)
+    icon9 = ImageTk.PhotoImage(icon9)
+    icon10 = ImageTk.PhotoImage(icon10)
 
     return icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, icon9, icon10
 
-def create_side_panel_buttons(side_panel, toggle_side_panel,mode, update_dashboard):
-    icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, icon9, icon10 = load_icons(mode)
+def create_side_panel_buttons(side_panel, toggle_side_panel, update_dashboard):
+    icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, icon9, icon10 = load_icons()
 
     button_width = 150  # Set a fixed width for all buttons
     button_padding_x = 3 # Set the padding for both sides of the button

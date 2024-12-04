@@ -94,8 +94,8 @@ def generate_pdf_sigaretta():
             # Recupera i dati dei prodotti
             products = []
             for row_entries in entries:
-                print("Riga raccolta:")
-                print([widget.get() for widget in row_entries])
+                #print("Riga raccolta:")
+                #print([widget.get() for widget in row_entries])
                 codice = row_entries[0].get()
                 descrizione = row_entries[1].get()
                 quantita = row_entries[2].get()

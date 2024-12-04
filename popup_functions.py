@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkcalendar import *
 import customtkinter as ctk
+
+from dashboards.create_pdf_provvigioni import generate_pdf_provvigione
 from data_retrieval import get_existing_names, delete_records_by_name, create_record_clienti, create_fornitore, create_record_prodotti
 from Database_Utilities.crud_fornitori import get_all_fornitori
 from Database_Utilities.crud_clienti import get_all_clienti_names
@@ -228,7 +230,7 @@ def open_add_popup(item_type):
             entry.pack(pady=5)
             entries[field] = entry
     elif item_type == "Provvigioni":
-        fields = [ "Agente", "Provvigione", "Start Date", "End Date" ]
+        fields = ["Agente", "Provvigione %", "Start Date", "End Date"]
         for i, field in enumerate(fields):
             label = tk.Label(popup, text=field, font=font_size)
             label.pack(pady=5)
@@ -245,11 +247,13 @@ def open_add_popup(item_type):
                 start_date_entry.insert(0, "dd/mm/yy")
                 start_date_entry.bind("<1>", lambda event: pick_date(event,popup, start_date_entry))
                 start_date_entry.pack(pady=5)
+                entries[field] = start_date_entry
             elif field == "End Date":
                 end_date_entry = tk.Entry(popup, width=12, font=('Arial', 14))
                 end_date_entry.insert(0, "dd/mm/yy")
                 end_date_entry.bind("<1>", lambda event: pick_date(event,popup,end_date_entry))
                 end_date_entry.pack(pady=5)
+                entries[field] = end_date_entry
             else:
                 entry = tk.Entry(popup, width=entry_width, font=font_size)
                 entry.pack(pady=5)
@@ -287,13 +291,13 @@ def open_add_popup(item_type):
             """Aggiorna la lista dei fornitori in base all'agente selezionato."""
             # Ottieni l'agente selezionato
             agente = Agente_selezionato.get()
-            print(agente)
+            #print(agente)
             if not agente:
                 return
 
             # Ottieni i fornitori per l'agente selezionato (modifica `get_fornitori_by_agente` con la tua funzione)
             fornitori = get_clienti_by_agente(agente)
-            print(fornitori)
+            #print(fornitori)
 
             # Svuota la lista corrente
             for widget in scrollable_frame.winfo_children():
@@ -335,8 +339,9 @@ def open_add_popup(item_type):
         elif item_type == "Cliente Connesso":
             #aggiungi per cliente connesso
             print("hello")
-        elif item_type == "Provvigione":
-            #aggiungi per cliente connesso
+        elif item_type == "Provvigioni":
+            print(*values)
+            generate_pdf_provvigione(values, selected_fornitori)
             print("hello")
         print(f"Aggiungi - Selezionato {item_type}: {values}")
         popup.destroy()
