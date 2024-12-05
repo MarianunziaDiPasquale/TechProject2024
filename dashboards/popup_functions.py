@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
+
+from dashboards.dashboard_clienti import update_combobox_prs
 from data_retrieval import get_existing_names, delete_records_by_name, create_record_clienti, create_fornitore, create_record_prodotti
 from Database_Utilities.crud_fornitori import get_all_fornitori
 from Database_Utilities.crud_clienti import get_all_clienti_names
@@ -14,7 +16,7 @@ def open_remove_popup(item_type):
     popup.title(f"Rimuovi {item_type}")
 
     # Center the popup
-    window_width = 400
+    window_width = 500
     window_height = 200
     screen_width = popup.winfo_screenwidth()
     screen_height = popup.winfo_screenheight()
@@ -34,7 +36,7 @@ def open_remove_popup(item_type):
     style.configure("TCombobox", font=('Arial', 14))  # Adjust font size as needed
     style.configure("TCombobox*Listbox*Font", font=('Arial', 14))  # Ensure larger font size for dropdown menu items
 
-    combobox = ttk.Combobox(popup, textvariable=selected_name, values=names, font=('Arial', 14))
+    combobox = ttk.Combobox(popup,textvariable=selected_name, values=names, font=('Arial', 14))
     combobox.pack(pady=10)
 
     # Create a style for the Listbox within the Combobox dropdown
@@ -62,6 +64,7 @@ def open_add_popup(item_type):
     label.pack(pady=10)
 
     entry_width = 40
+    entry_width_fornitori = 70
     font_size = ("Arial", 14)  # Font family Arial, size 14
 
     entries = {}
@@ -81,9 +84,9 @@ def open_add_popup(item_type):
     elif item_type == "Fornitore":
         fields = ["Nome", "ID Fornitore"]
         for field in fields:
-            label = tk.Label(popup, text=field,width=entry_width, font=font_size)
+            label = tk.Label(popup, text=field,width=entry_width_fornitori, font=font_size)
             label.pack(pady=5)
-            entry = tk.Entry(popup, font=font_size)
+            entry = tk.Entry(popup, width=entry_width_fornitori,font=font_size)
             entry.pack(pady=5)
             entries[field] = entry
     elif item_type == "Prodotto":
@@ -105,7 +108,7 @@ def open_add_popup(item_type):
                 entry = tk.Entry(popup, font=font_size)
                 entry.pack(pady=5)
                 entries[field] = entry
-    elif popup_type == "Lista":
+    elif item_type == "Lista":
         label = tk.Label(popup, text="Seleziona Prodotto:", font=("Arial", 14))
         label.pack(pady=10)
 

@@ -23,7 +23,6 @@ dashboard_font_size = 14  # Default font size
 
 def aggiungi_prodotto():
     dialog = tk.Toplevel()
-    dialog.geometry('500x400')
     dialog.title("Aggiunta prodotto al magazzino")
     dialog.grab_set()
     dialog.transient()
@@ -140,6 +139,10 @@ def aggiungi_prodotto():
     button_confirm = ctk.CTkButton(dialog, text="Conferma", font=("Arial", dashboard_font_size), command=on_confirm, width=120, height=30)
     button_confirm.pack(pady=10)
 
+    window_width = 500
+    window_height = 500
+    center_window(dialog,window_width, window_height)
+
 
 def center_window(window, width, height):
     window.update_idletasks()
@@ -213,6 +216,7 @@ def show_action_dialog(product_name, city, callback):
     dialog.title("Scegli Azione")
     dialog.grab_set()  # Ottieni il focus sulla finestra di dialogo
     dialog.transient()  # Rendi la finestra di dialogo modale
+    dialog.geometry("600x250")
 
     if city == 'andria':
         label = tk.Label(dialog, text=f"Vuoi inserire una nuova quantità, eliminare o spostare '{product_name}'?",
@@ -243,22 +247,19 @@ def show_action_dialog(product_name, city, callback):
         dialog.destroy()
         callback("sold")
 
-    modify_button = tk.Button(button_frame, text="Nuova quantità", font=button_font, width=button_width,
-                              height=button_height, command=on_modify)
+    modify_button = ctk.CTkButton(button_frame, text="Nuova quantità", font=button_font, width=100, height=30, command=on_modify)
     modify_button.grid(row=0, column=0, padx=10, pady=10)
 
-    delete_button = tk.Button(button_frame, text="Elimina", font=button_font, width=button_width, height=button_height,
+    delete_button = ctk.CTkButton(button_frame, text="Elimina", font=button_font,width=100, height=30,
                               command=on_delete)
     delete_button.grid(row=0, column=1, padx=10, pady=10)
 
     if city == 'andria':
-        move_button = tk.Button(button_frame, text="Sposta a Parigi", font=button_font, width=button_width,
-                                height=button_height, command=on_move)
+        move_button = ctk.CTkButton(button_frame, text="Sposta a Parigi", font=button_font, width=100, height=30, command=on_move)
         move_button.grid(row=0, column=2, padx=10, pady=10)
 
     elif city == 'parigi':
-        move_button = tk.Button(button_frame, text="Venduto", font=button_font, width=button_width,
-                                height=button_height, command=on_sold)
+        move_button = ctk.CTkButton(button_frame, text="Venduto", font=button_font,width=100, height=30, command=on_sold)
         move_button.grid(row=0, column=2, padx=10, pady=10)
 
     center_window(dialog,600,300)

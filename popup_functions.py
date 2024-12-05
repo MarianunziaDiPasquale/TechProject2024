@@ -60,7 +60,7 @@ def open_remove_popup(item_type):
     popup.title(f"Rimuovi {item_type}")
 
     # Center the popup
-    window_width = 400
+    window_width = 500
     window_height = 200
     screen_width = popup.winfo_screenwidth()
     screen_height = popup.winfo_screenheight()
@@ -81,6 +81,7 @@ def open_remove_popup(item_type):
     style.configure("TCombobox*Listbox*Font", font=('Arial', 14))  # Ensure larger font size for dropdown menu items
 
     combobox = ttk.Combobox(popup, textvariable=selected_name, values=names, font=('Arial', 14))
+    combobox.configure(width=30)
     combobox.pack(pady=10)
 
     # Create a style for the Listbox within the Combobox dropdown
@@ -93,8 +94,16 @@ def open_remove_popup(item_type):
             print(f"Rimuovi - Selezionato {item_type}: {selected}")
         popup.destroy()
 
-    confirm_button = tk.Button(popup, text="Conferma", command=on_confirm, font=('Arial', 12))
+    confirm_button = ctk.CTkButton(popup, text="Conferma", command=on_confirm, font=('Arial', 12), width=120, height=30)
     confirm_button.pack(pady=10)
+
+def center_window(window, width, height):
+    window.update_idletasks()
+    width = width
+    height = height
+    x = (window.winfo_screenwidth() // 2) - (width // 2)
+    y = (window.winfo_screenheight() // 2) - (height // 2)
+    window.geometry(f'{width}x{height}+{x}+{y}')
 
 def open_add_popup(item_type):
     popup = tk.Toplevel()
@@ -112,6 +121,7 @@ def open_add_popup(item_type):
         label.pack(pady=10)
 
     entry_width = 40
+    entry_width_fornitori = 70
     font_size = ("Arial", 14)  # Font family Arial, size 14
 
     entries = {}
@@ -160,9 +170,9 @@ def open_add_popup(item_type):
     elif item_type == "Fornitore":
         fields = ["Nome", "ID Fornitore"]
         for field in fields:
-            label = tk.Label(popup, text=field,width=entry_width, font=font_size)
+            label = tk.Label(popup, text=field,width=entry_width_fornitori, font=font_size)
             label.pack(pady=5)
-            entry = tk.Entry(popup, font=font_size)
+            entry = tk.Entry(popup, width= entry_width_fornitori, font=font_size)
             entry.pack(pady=5)
             entries[field] = entry
     elif item_type == "Prodotto":

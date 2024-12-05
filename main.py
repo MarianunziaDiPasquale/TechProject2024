@@ -20,7 +20,7 @@ from side_panel import create_side_panel_buttons
 locale.setlocale(locale.LC_TIME, 'Italian_Italy.1252')
 # Imposta la modalità di customtkinter e il tema
 ctk.set_appearance_mode("dark")
-#ctk.set_default_color_theme('resources/GhostTrain.json')
+ctk.set_default_color_theme('resources/GhostTrain.json')
 
 def add_title_and_frame(parent_frame, title, on_close_callback, on_extract_callback):
     """Helper function to create a labeled frame with close and extract buttons."""

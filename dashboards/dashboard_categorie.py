@@ -542,11 +542,14 @@ def show_dashboard2(parent_frame):
     export_fornitori_button.pack(side="left", padx=10)
 
 
-    add_product_button = ctk.CTkButton(search_frame, text="Aggiungi prodotto",command = lambda: open_add_popup("Prodotto"), font=("Arial", dashboard_font_size))
+    add_product_button = ctk.CTkButton(search_frame, text="Aggiungi Prodotto",command = lambda: open_add_popup("Prodotto"), font=("Arial", dashboard_font_size))
     add_product_button.pack(side="left", padx=10)
 
 
     add_fornitore_button = ctk.CTkButton(search_frame, text="Aggiungi Categoria",command = lambda:open_add_popup("Fornitore"), font=("Arial", dashboard_font_size))
+    add_fornitore_button.pack(side="left", padx=10)
+
+    add_fornitore_button = ctk.CTkButton(search_frame, text="Elimina Categoria",command=lambda: open_remove_popup("Fornitore"),font=("Arial", dashboard_font_size))
     add_fornitore_button.pack(side="left", padx=10)
 
     font_size_button = ctk.CTkButton(search_frame, text="Cambia Dimensione Font", font=("Arial", dashboard_font_size), command=open_font_size_popup, corner_radius=5)
