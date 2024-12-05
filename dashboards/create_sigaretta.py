@@ -1,7 +1,6 @@
 from tkinter import ttk, messagebox ,filedialog
 import tkinter as tk
 import customtkinter as ctk
-
 import os
 import datetime
 from datetime import datetime
@@ -9,7 +8,6 @@ from fpdf import FPDF
 from PIL import Image, ImageTk
 import fitz
 from Database_Utilities.crud_clienti import get_all_clienti_names
-
 from Database_Utilities.connection import _connection
 
 
