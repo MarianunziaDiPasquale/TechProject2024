@@ -8,7 +8,7 @@ from Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_i
 import openpyxl
 from tkinter import messagebox
 
-from popup_functions import open_add_popup
+from dashboards.popup_functions import open_add_popup
 
 dashboard_font_size = 14  # Default font size
 def center_window(window, width, height):

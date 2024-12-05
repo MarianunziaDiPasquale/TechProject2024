@@ -1,14 +1,72 @@
 import tkinter as tk
 from tkinter import ttk
+from tkcalendar import *
 import customtkinter as ctk
-
-from dashboards.dashboard_clienti import update_combobox_prs
+from dashboards.create_pdf_provvigioni import generate_pdf_provvigione
 from data_retrieval import get_existing_names, delete_records_by_name, create_record_clienti, create_fornitore, create_record_prodotti
 from Database_Utilities.crud_fornitori import get_all_fornitori
 from Database_Utilities.crud_clienti import get_all_clienti_names
+from Database_Utilities.connection import _connection
 from Database_Utilities.crud_fornitori import get_all_prodotti
 
 
+def update_combobox_prs(event, combobox_prodotto):
+    prodotti_aggiornati = get_all_prodotti()
+    typed_text = combobox_prodotto.get().lower()
+
+    # Filtra i prodotti sia per codice che per descrizione
+    prodotti_filtrati = [prod for prod in prodotti_aggiornati if typed_text in prod.lower()]
+
+    cursor_position = combobox_prodotto.index(tk.INSERT)
+    combobox_prodotto['values'] = prodotti_filtrati
+    combobox_prodotto.set(typed_text)
+    combobox_prodotto.icursor(cursor_position)
+    combobox_prodotto.event_generate('<Down>')
+
+def get_all_agenti_names():
+    """ Get the names of all clienti from the 'clienti' table """
+    conn = _connection()
+    cur = conn.cursor()
+    query = "SELECT `nome` FROM agenti;"
+    cur.execute(query)
+
+    clienti = cur.fetchall()
+    conn.close()
+    return [cliente[0] for cliente in clienti]
+
+def get_clienti_by_agente(selected_agente):
+    """Fetch all clients associated with the selected agent."""
+    #print("check1")
+    conn = _connection()  # Update this with your database path
+    cursor = conn.cursor()
+
+    query = '''SELECT `Ragione sociale` FROM clienti WHERE `Agente 1` = %s'''
+
+    cursor.execute(query, (selected_agente,))
+
+    clienti = cursor.fetchall()
+    #print(clienti)
+    conn.close()
+
+    return [cliente[0] for cliente in clienti]  # Returns a list of customer names
+
+def pick_date(event,popup, entry):  #
+    global cal, date_window
+    date_window = tk.Toplevel()
+    date_window.grab_set()
+    date_window.title("Scegli una data")
+    date_window.geometry(
+        f"260x230+{popup.winfo_x() + entry.winfo_x() + 128 * 3}+{popup.winfo_y() + entry.winfo_y() + entry.winfo_height() - 70}")
+    cal = Calendar(date_window, selectmode="day", date_pattern="dd/mm/yy")
+    cal.place(x=0, y=0)
+    submit_button = tk.Button(date_window, text="Submit", command=lambda: grab_date(entry))
+    submit_button.place(x=80, y=200)
+
+
+def grab_date(entry):
+    entry.delete(0, 'end')
+    entry.insert(0, cal.get_date())
+    date_window.destroy()
 
 
 def open_remove_popup(item_type):
@@ -36,7 +94,8 @@ def open_remove_popup(item_type):
     style.configure("TCombobox", font=('Arial', 14))  # Adjust font size as needed
     style.configure("TCombobox*Listbox*Font", font=('Arial', 14))  # Ensure larger font size for dropdown menu items
 
-    combobox = ttk.Combobox(popup,textvariable=selected_name, values=names, font=('Arial', 14))
+    combobox = ttk.Combobox(popup, textvariable=selected_name, values=names, font=('Arial', 14))
+    combobox.configure(width=30)
     combobox.pack(pady=10)
 
     # Create a style for the Listbox within the Combobox dropdown
@@ -49,8 +108,16 @@ def open_remove_popup(item_type):
             print(f"Rimuovi - Selezionato {item_type}: {selected}")
         popup.destroy()
 
-    confirm_button = tk.Button(popup, text="Conferma", command=on_confirm, font=('Arial', 12))
+    confirm_button = ctk.CTkButton(popup, text="Conferma", command=on_confirm, font=('Arial', 12), width=120, height=30)
     confirm_button.pack(pady=10)
+
+def center_window(window, width, height):
+    window.update_idletasks()
+    width = width
+    height = height
+    x = (window.winfo_screenwidth() // 2) - (width // 2)
+    y = (window.winfo_screenheight() // 2) - (height // 2)
+    window.geometry(f'{width}x{height}+{x}+{y}')
 
 def open_add_popup(item_type):
     popup = tk.Toplevel()
@@ -60,8 +127,12 @@ def open_add_popup(item_type):
     window_width = 800
     window_height = 600
 
-    label = tk.Label(popup, text=f"Inserisci i dettagli del nuovo {item_type}", font=('Arial', 14))
-    label.pack(pady=10)
+    if item_type == 'Provvigioni':
+        label = tk.Label(popup, text=f"Inserisci i dettagli della provvigione e seleziona i clienti ", font=('Arial', 14))
+        label.pack(pady=10)
+    else:
+        label = tk.Label(popup, text=f"Inserisci i dettagli del nuovo {item_type}", font=('Arial', 14))
+        label.pack(pady=10)
 
     entry_width = 40
     entry_width_fornitori = 70
@@ -78,15 +149,44 @@ def open_add_popup(item_type):
         for i, field in enumerate(fields):
             label = tk.Label(form_frame, text=field, font=font_size)
             label.grid(row=i//2, column=(i%2)*2, padx=5, pady=5, sticky='e')
-            entry = tk.Entry(form_frame, width=entry_width, font=font_size)
-            entry.grid(row=i//2, column=(i%2)*2+1, padx=5, pady=5, sticky='w')
-            entries[field] = entry
+            if field == "Condizioni di pagamento":
+                clienti = get_all_clienti_names()  # Da modificare
+                condizione_selezionata = tk.StringVar()
+                condizione = ttk.Combobox(form_frame, textvariable=condizione_selezionata, values=clienti,
+                                          font=("Arial", 14))
+                condizione.configure(width=40)
+                condizione.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+                condizione.grid(row=i//2, column=(i%2)*2+1, padx=5, pady=5, sticky='w')
+                entries[field] = condizione_selezionata
+            elif field == "Esente IVA":
+                esenzioni = ["si", "no"]  # Da modificare
+                esente_selezionata = tk.StringVar()
+                esenzione = ttk.Combobox(form_frame, textvariable=esente_selezionata, values=esenzioni,
+                                         font=("Arial", 14))
+                esenzione.configure(width=40)
+                esenzione.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+                esenzione.grid(row=i//2, column=(i%2)*2+1, padx=5, pady=5, sticky='w')
+                entries[field] = esente_selezionata
+            elif field == "Agente 1":
+                agenti = get_all_clienti_names()  # Da modificare
+                agente_selezionato = tk.StringVar()
+                agente = ttk.Combobox(form_frame, textvariable=agente_selezionato, values=agenti,
+                                      font=("Arial", 14))
+                agente.configure(width=40)
+                agente.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+                agente.grid(row=i//2, column=(i%2)*2+1, padx=5, pady=5, sticky='w')
+                entries[field] = agente_selezionato
+            else:
+                entry = tk.Entry(form_frame, width=entry_width, font=font_size)
+                entry.grid(row=i//2, column=(i%2)*2+1, padx=5, pady=5, sticky='w')
+                entries[field] = entry
+
     elif item_type == "Fornitore":
         fields = ["Nome", "ID Fornitore"]
         for field in fields:
             label = tk.Label(popup, text=field,width=entry_width_fornitori, font=font_size)
             label.pack(pady=5)
-            entry = tk.Entry(popup, width=entry_width_fornitori,font=font_size)
+            entry = tk.Entry(popup, width= entry_width_fornitori, font=font_size)
             entry.pack(pady=5)
             entries[field] = entry
     elif item_type == "Prodotto":
@@ -102,6 +202,7 @@ def open_add_popup(item_type):
                 combobox.configure(width=25)
                 combobox.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
                 combobox.pack(pady=5)
+                entries[field] = combobox
             else:
                 label = tk.Label(popup, text=field, width=entry_width, font=font_size)
                 label.pack(pady=5)
@@ -109,29 +210,34 @@ def open_add_popup(item_type):
                 entry.pack(pady=5)
                 entries[field] = entry
     elif item_type == "Lista":
-        label = tk.Label(popup, text="Seleziona Prodotto:", font=("Arial", 14))
-        label.pack(pady=10)
+        fields = ["Prodotto","Quantità"]
+        for field in fields:
+            if field == "Prodotto":
+                label = tk.Label(popup, text="Seleziona Prodotto:", font=("Arial", 14))
+                label.pack(pady=10)
 
-        # Recupera i prodotti in formato "Codice - Descrizione"
-        prodotti = get_all_prodotti()  # Usa la funzione aggiornata per avere prodotti in formato "Codice - Descrizione"
+                 # Recupera i prodotti in formato "Codice - Descrizione"
+                prodotti = get_all_prodotti()  # Usa la funzione aggiornata per avere prodotti in formato "Codice - Descrizione"
 
-        # Configura la combobox per selezionare il prodotto
-        prodotto_selezionato = tk.StringVar()
-        combobox_prodotto = ttk.Combobox(popup, textvariable=prodotto_selezionato, values=prodotti, font=("Arial", 14))
-        combobox_prodotto.configure(width=35)
-        combobox_prodotto.option_add('*TCombobox*Listbox*Font', ('Arial', 14))
-        combobox_prodotto.pack(pady=5)
+                # Configura la combobox per selezionare il prodotto
+                prodotto_selezionato = tk.StringVar()
+                combobox_prodotto = ttk.Combobox(popup, textvariable=prodotto_selezionato, values=prodotti, font=("Arial", 14))
+                combobox_prodotto.configure(width=35)
+                combobox_prodotto.option_add('*TCombobox*Listbox*Font', ('Arial', 14))
+                combobox_prodotto.pack(pady=5)
 
-        # Abilita la ricerca incrementale in base a codice o descrizione
-        combobox_prodotto.bind("<KeyRelease>", lambda event: update_combobox_prs(event, combobox_prodotto))
-
-        # Altri campi specifici del pop-up...
-        quantity_label = tk.Label(popup, text="Quantità:", font=("Arial", 14))
-        quantity_label.pack(pady=5)
-        quantity_entry = tk.Entry(popup, font=("Arial", 14))
-        quantity_entry.pack(pady=5)
+                # Abilita la ricerca incrementale in base a codice o descrizione
+                combobox_prodotto.bind("<KeyRelease>", lambda event: update_combobox_prs(event, combobox_prodotto))
+                entries[field] = prodotto_selezionato
+            if field == "Quantità":
+                # Altri campi specifici del pop-up...
+                quantity_label = tk.Label(popup, text="Quantità:", font=("Arial", 14))
+                quantity_label.pack(pady=5)
+                quantity_entry = tk.Entry(popup, font=("Arial", 14))
+                quantity_entry.pack(pady=5)
+                entries[field] = quantity_entry
     elif item_type == "Vettore":
-        fields = ["Nome", "ID Vettore","Trasporto","Prezzo Mezzo","Prezzo Trasporto"]
+        fields = ["Nome", "ID Vettore", "Trasporto", "Prezzo Mezzo", "Prezzo Trasporto"]
         for field in fields:
             label = tk.Label(popup, text=field,width=entry_width, font=font_size)
             label.pack(pady=5)
@@ -154,6 +260,93 @@ def open_add_popup(item_type):
             entry = tk.Entry(popup, font=font_size)
             entry.pack(pady=5)
             entries[field] = entry
+    elif item_type == "Provvigioni":
+        fields = ["Agente", "Provvigione %", "Start Date", "End Date"]
+        for i, field in enumerate(fields):
+            label = tk.Label(popup, text=field, font=font_size)
+            label.pack(pady=5)
+            if field == "Agente":
+                clienti = get_all_agenti_names()  # Da modificare
+                Agente_selezionato = tk.StringVar()
+                Agente = ttk.Combobox(popup, textvariable=Agente_selezionato, values=clienti,font=("Arial", 14))
+                Agente.configure(width=30)
+                Agente.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
+                Agente.pack(pady=5)
+                entries[field] = Agente_selezionato
+            elif field == "Start Date":
+                start_date_entry = tk.Entry(popup, width=12, font=('Arial', 14))
+                start_date_entry.insert(0, "dd/mm/yy")
+                start_date_entry.bind("<1>", lambda event: pick_date(event,popup, start_date_entry))
+                start_date_entry.pack(pady=5)
+                entries[field] = start_date_entry
+            elif field == "End Date":
+                end_date_entry = tk.Entry(popup, width=12, font=('Arial', 14))
+                end_date_entry.insert(0, "dd/mm/yy")
+                end_date_entry.bind("<1>", lambda event: pick_date(event,popup,end_date_entry))
+                end_date_entry.pack(pady=5)
+                entries[field] = end_date_entry
+            else:
+                entry = tk.Entry(popup, width=entry_width, font=font_size)
+                entry.pack(pady=5)
+                entries[field] = entry
+
+        container_frame = tk.Frame(popup)
+        container_frame.pack(fill="both", expand=True, padx=60)
+
+        canvas = tk.Canvas(container_frame)
+        canvas.pack(side="left", fill="both", expand=True)
+
+        scrollbar = ttk.Scrollbar(container_frame, orient="vertical", command=canvas.yview)
+        scrollbar.pack(side="right", fill="y")
+
+        scrollable_frame = tk.Frame(canvas)
+        scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="n")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Variabile per tenere traccia dei fornitori selezionati
+        selected_fornitori = []
+
+        def on_checkbutton_toggle(fornitore, var):
+            if var.get():
+                if fornitore not in selected_fornitori:
+                    selected_fornitori.append(fornitore)
+            else:
+                if fornitore in selected_fornitori:
+                    selected_fornitori.remove(fornitore)
+
+        selections = {}
+
+        def update_fornitori_list():
+            """Aggiorna la lista dei fornitori in base all'agente selezionato."""
+            # Ottieni l'agente selezionato
+            agente = Agente_selezionato.get()
+            #print(agente)
+            if not agente:
+                return
+
+            # Ottieni i fornitori per l'agente selezionato (modifica `get_fornitori_by_agente` con la tua funzione)
+            fornitori = get_clienti_by_agente(agente)
+            #print(fornitori)
+
+            # Svuota la lista corrente
+            for widget in scrollable_frame.winfo_children():
+                widget.destroy()
+
+            # Ricrea i Checkbutton per i fornitori aggiornati
+            fornitore_selezionato = []
+            selections.clear()
+
+            for fornitore in fornitori:
+                var = tk.BooleanVar()
+                selections[fornitore] = var
+                check = tk.Checkbutton(scrollable_frame, text=fornitore, variable=var, font=("Arial", 14),
+                                       command=lambda f=fornitore, v=var: on_checkbutton_toggle(f, v))
+                check.pack(anchor="w")
+
+        # Collegare il callback all'evento di cambio dell'agente
+        Agente.bind("<<ComboboxSelected>>", lambda event: update_fornitori_list())
 
 
 
@@ -177,6 +370,10 @@ def open_add_popup(item_type):
         elif item_type == "Cliente Connesso":
             #aggiungi per cliente connesso
             print("hello")
+        elif item_type == "Provvigioni":
+            print(*values)
+            generate_pdf_provvigione(values, selected_fornitori)
+            print("hello")
         print(f"Aggiungi - Selezionato {item_type}: {values}")
         popup.destroy()
 
@@ -186,5 +383,5 @@ def open_add_popup(item_type):
     position_top = int(screen_height / 2 - window_height / 2)
     position_right = int(screen_width / 2 - window_width / 2)
     popup.geometry(f'{window_width}x{window_height}+{position_right}+{position_top}')
-    confirm_button = tk.Button(popup, text="Conferma", command=on_confirm, font=('Arial', 12))
+    confirm_button = ctk.CTkButton(popup, text="Conferma", command=on_confirm, font=('Arial', 12), width=120, height=30)
     confirm_button.pack(pady=10)

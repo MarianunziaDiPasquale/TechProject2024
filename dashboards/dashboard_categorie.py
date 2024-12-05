@@ -6,7 +6,7 @@ import tkinter as tk
 from Database_Utilities.crud_fornitori import get_all_fornitori, get_prodotti_by_fornitore_name, modify_prodotto, delete_prodotto
 import openpyxl
 from tkinter import messagebox
-from popup_functions import open_remove_popup, open_add_popup
+from dashboards.popup_functions import open_remove_popup, open_add_popup
 
 dashboard_font_size = 14  # Default font size
 def center_window(window, width, height):

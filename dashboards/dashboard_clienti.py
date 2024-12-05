@@ -7,12 +7,11 @@ import tkinter as tk
 from tkcalendar import Calendar
 
 from Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_info_by_name
-import openpyxl
 from tkinter import messagebox
 
 import openpyxl
 from openpyxl.styles import Border, Side, PatternFill, Font, Alignment, Protection
-from popup_functions import open_add_popup
+from dashboards.popup_functions import open_add_popup
 from Database_Utilities.crud_fornitori import get_all_prodotti
 from Database_Utilities.connection import _connection
 

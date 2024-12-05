@@ -7,6 +7,9 @@ import datetime
 from datetime import datetime
 from fpdf import FPDF
 
+from dashboards.dashboard_clienti import get_lista_info
+from dashboards.popup_functions import open_add_popup
+
 dashboard_font_size = 14  # Default font size
 
 #da cambiare in funzioni per agenti
@@ -16,8 +19,7 @@ from tkinter import messagebox
 
 
 #from dashboards.dashboard_clienti import get_lista_info
-from db_prova_lista_personalizzata import get_prodotti_by_cliente
-from popup_functions import open_add_popup
+from dashboards.db_prova_lista_personalizzata import get_prodotti_by_cliente
 
 from Database_Utilities.connection import _connection
 
