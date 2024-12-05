@@ -24,7 +24,7 @@ dashboard_font_size = 14  # Default font size
 def aggiungi_prodotto():
     dialog = tk.Toplevel()
     dialog.geometry('500x400')
-    dialog.title("Scegli Azione")
+    dialog.title("Aggiunta prodotto al magazzino")
     dialog.grab_set()
     dialog.transient()
 
