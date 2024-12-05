@@ -267,7 +267,7 @@ class PDF(FPDF):
 def fetch_invoice_data(invoice_number):
     conn = _connection()
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM orders_fattura_newfields WHERE id = '{invoice_number}'")
+    cursor.execute("SELECT * FROM orders_fattura_newfields WHERE id = %s", (invoice_number,))
     column_names = [description[0] for description in cursor.description]
     invoice_tuple = cursor.fetchone()
     conn.close()
@@ -281,7 +281,10 @@ def fetch_invoice_products(invoice_number):
     conn = _connection()
     cursor = conn.cursor()
     cursor.execute(
-        f"SELECT article, product_description, product_quantity,product_price, product_discount,product_discount_2,product_discount_3, product_amount FROM orders_fattura_newfields WHERE id = '{invoice_number}'")
+        "SELECT article, product_description, product_quantity, product_price, product_discount, product_discount_2, product_discount_3, product_amount "
+        "FROM orders_fattura_newfields WHERE id = %s",
+        (invoice_number,)
+    )
     column_names = [description[0] for description in cursor.description]
     product_rows = cursor.fetchall()
     conn.close()
@@ -790,7 +793,8 @@ def generate_invoice_pdf(order):
             """ Get the names of all clienti from the 'clienti' table """
             conn = _connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT `Indirizzo` FROM clienti WHERE `Ragione Sociale` = ?;", (article,))
+            cursor.execute("SELECT `Indirizzo` FROM clienti WHERE `Ragione Sociale` = %s;", (article,))
+
             # Check if result is not None and access the first element of the tuple
             result = cursor.fetchone()  # Use fetchone() to get a single result directly
             conn.close()

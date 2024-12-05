@@ -601,9 +601,10 @@ def generate_non_sold_pdf(order):
             entry_price.insert(0, price)
 
         def fetch_price_for_article(article):
-            conn = sqlite3.connect(db_path)
+            conn = _connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT `CAP` FROM clienti WHERE `Ragione Sociale` = ?;", (article,))
+            cursor.execute("SELECT `CAP` FROM clienti WHERE `Ragione Sociale` = %s;", (article,))
+
             # Check if result is not None and access the first element of the tuple
             result = cursor.fetchone()  # Use fetchone() to get a single result directly
             conn.close()
@@ -612,9 +613,9 @@ def generate_non_sold_pdf(order):
 
         def fetch_description_for_article(article):
             """ Get the names of all clienti from the 'clienti' table """
-            conn = sqlite3.connect(db_path)
+            conn = _connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT `Indirizzo` FROM clienti WHERE `Ragione Sociale` = ?;", (article,))
+            cursor.execute("SELECT `Indirizzo` FROM clienti WHERE `Ragione Sociale` = %s;", (article,))
             # Check if result is not None and access the first element of the tuple
             result = cursor.fetchone()  # Use fetchone() to get a single result directly
             conn.close()
