@@ -37,7 +37,7 @@ def aggiungi_prodotto():
         codice = prodotto.split(" - ")[0]  # Estrai il codice dal formato "Codice - Descrizione"
         conn = _connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT COMPOSIZIONE_CARTONE FROM prodotti WHERE Codice = ?", (codice,))
+        cursor.execute("SELECT COMPOSIZIONE_CARTONE FROM prodotti WHERE Codice = %s", (codice,))
         result = cursor.fetchone()
         conn.close()
         return (codice, result[0]) if result else (None, None)
@@ -75,7 +75,7 @@ def aggiungi_prodotto():
         cursor = conn.cursor()
 
         # Verifica se il prodotto esiste già nella tabella
-        cursor.execute(f"SELECT Esistenze, Cartoni FROM {tabella} WHERE Codice = ?", (codice,))
+        cursor.execute(f"SELECT Esistenze, Cartoni FROM {tabella} WHERE Codice = %s", (codice,))
         result = cursor.fetchone()
 
         if result:

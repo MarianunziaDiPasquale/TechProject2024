@@ -1,10 +1,8 @@
-import sqlite3
+
 from Database_Utilities.connection import _connection
 
 
 
-
-db_path = 'Database_Utilities/Database/MergedDatabase.db'
 
 
 def get_all_fornitori():
@@ -22,7 +20,7 @@ def get_all_fornitori():
 
 # Modifica nella funzione `get_all_prodotti` in `crud_fornitori`
 def get_all_prodotti():
-    conn = sqlite3.connect("Database_Utilities/Database/MergedDatabase.db")
+    conn = _connection()
     cursor = conn.cursor()
     cursor.execute("SELECT Codice, Descrizione FROM prodotti")
     prodotti = cursor.fetchall()
@@ -42,10 +40,11 @@ def get_prodotti_by_fornitore_name(fornitore_name):
                prodotti.COMPOSIZIONE_CARTONE, prodotti.PREZZO_VENDITA, prodotti.PREZZO_ACQUISTO
         FROM prodotti
         JOIN fornitori ON prodotti.ID_FORNITORE = fornitori.id
-        WHERE fornitori.Nome = ?
+        WHERE fornitori.Nome = %s
     '''
 
     cursor.execute(query, (fornitore_name,))
+
     prodotti = [{'Codice': row[0], 'Descrizione': row[1], 'ID_FORNITORE': row[2],
                  'COMPOSIZIONE CARTONE': row[3], 'PREZZO VENDITA': row[4], 'PREZZO ACQUISTO': row[5]}
                 for row in cursor.fetchall()]
@@ -61,8 +60,8 @@ def modify_prodotto(codice, descrizione, composizione_cartone, prezzo_vendita, p
 
     query = '''
         UPDATE prodotti
-        SET Descrizione = ?, COMPOSIZIONE_CARTONE = ?, PREZZO_VENDITA = ?, PREZZO_ACQUISTO = ?
-        WHERE Codice = ?
+        SET Descrizione = %s, COMPOSIZIONE_CARTONE = %s, PREZZO_VENDITA = %s, PREZZO_ACQUISTO = %s
+        WHERE Codice = %s
     '''
     cursor.execute(query, (descrizione, composizione_cartone, prezzo_vendita, prezzo_acquisto, codice))
 

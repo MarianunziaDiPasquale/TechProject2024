@@ -21,7 +21,7 @@ def read_records_andria():
 def update_record_andria(codice_prodotto, new_esistenze, new_cartoni):
     conn = _connection()
     cursor = conn.cursor()
-    cursor.execute("UPDATE andria SET Esistenze = ?, Cartoni = ? WHERE Codice = ?",
+    cursor.execute("UPDATE andria SET Esistenze = %s, Cartoni =%s WHERE Codice =%s",
                    (new_esistenze, new_cartoni, codice_prodotto))
     conn.commit()
     conn.close()
@@ -30,7 +30,7 @@ def update_record_andria(codice_prodotto, new_esistenze, new_cartoni):
 def delete_record_andria(codice_prodotto):
     conn = _connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM andria WHERE Codice = ?", (codice_prodotto,))
+    cursor.execute("DELETE FROM andria WHERE Codice = %s", (codice_prodotto,))
     conn.commit()
     conn.close()
     print("Record deleted from andria.")
@@ -41,7 +41,7 @@ def transfer_quantity_from_andria_to_parigi(codice_prodotto, quantity_to_transfe
     cursor = conn.cursor()
 
     # Check if the product exists in andria
-    cursor.execute("SELECT * FROM andria WHERE Codice = ?", (codice_prodotto,))
+    cursor.execute("SELECT * FROM andria WHERE Codice = %s", (codice_prodotto,))
     record_andria = cursor.fetchone()
 
     if not record_andria or record_andria[1] < quantity_to_transfer:
@@ -49,25 +49,25 @@ def transfer_quantity_from_andria_to_parigi(codice_prodotto, quantity_to_transfe
         return
 
     # Check if the product already exists in parigi
-    cursor.execute("SELECT * FROM parigi WHERE Codice = ?", (codice_prodotto,))
+    cursor.execute("SELECT * FROM parigi WHERE Codice = %s", (codice_prodotto,))
     record_parigi = cursor.fetchone()
 
     if record_parigi:
         # Update the existing record in parigi (only the quantity 'Esistenze')
         cursor.execute(
-            "UPDATE parigi SET Esistenze = Esistenze + ? WHERE Codice = ?",
+            "UPDATE parigi SET Esistenze = Esistenze + %s WHERE Codice = %s",
             (quantity_to_transfer, codice_prodotto)
         )
     else:
         # Create a new record in parigi with the transferred quantity
         cursor.execute(
-            "INSERT INTO parigi (Codice, Esistenze, Cartoni) VALUES (?, ?, 0)",
+            "INSERT INTO parigi (Codice, Esistenze, Cartoni) VALUES (%s, %s, 0)",
             (codice_prodotto, quantity_to_transfer)
         )
 
     # Subtract the transferred quantity from andria (only 'Esistenze')
     cursor.execute(
-        "UPDATE andria SET Esistenze = Esistenze - ? WHERE Codice = ?",
+        "UPDATE andria SET Esistenze = Esistenze - %s WHERE Codice = %s",
         (quantity_to_transfer, codice_prodotto)
     )
 
