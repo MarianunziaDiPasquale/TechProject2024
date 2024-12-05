@@ -1,8 +1,39 @@
 from cx_Freeze import setup, Executable
 
-# Specifica i file di risorse
 include_files = [
-    ("resources", "resources")  # Include la cartella "resources"
+    ("resources/document.png", "resources/"),
+    ("resources/edit.png", "resources/"),
+    ("resources/home.png", "resources/"),
+    ("resources/home_white.png", "resources/"),
+    ("resources/insert-credit-card.png", "resources/"),
+    ("resources/insert-credit-card_white.png", "resources/"),
+    ("resources/lightbulb-on.png", "resources/"),
+    ("resources/lightbulb-on_white.png", "resources/"),
+    ("resources/money-check-edit.png", "resources/"),
+    ("resources/money-check-edit_white.png", "resources/"),
+    ("resources/shopping-cart.png", "resources/"),
+    ("resources/shopping-cart_white.png", "resources/"),
+    ("resources/truck-side.png", "resources/"),
+    ("resources/truck-side_white.png", "resources/"),
+    ("resources/users-alt.png", "resources/"),
+    ("resources/users-alt_white.png", "resources/"),
+    ("resources/create_table_insert.py", "resources/"),
+    ("resources/Andria_data.xlsx", "resources/"),
+    ("resources/requirements.txt", "resources/"),
+    ("resources/geometric.jpg", "resources/"),
+    ("resources/Geometry_Texture.jpg", "resources/"),
+    ("resources/LogoCINCOTTI.jpg", "resources/"),
+    ("resources/LOGOjpeg.jpg", "resources/"),
+    ("resources/LOGOMOZZABELLAECINCOTTI SRLS.jpg", "resources/"),
+    ("resources/LOGOMOZZABELLAECINCOTTI.jpg", "resources/"),
+    ("resources/GhostTrain.json", "resources/"),
+    ("resources/A_professional_sleek_abstract_background_16_9.png", "resources/"),
+    ("resources/apps.png", "resources/"),
+    ("resources/apps_white.png", "resources/"),
+    ("resources/boxes.png", "resources/"),
+    ("resources/boxes_white.png", "resources/"),
+    ("resources/briefcase.png", "resources/"),
+    ("resources/briefcase_white.png", "resources/"),
 ]
 
 setup(
