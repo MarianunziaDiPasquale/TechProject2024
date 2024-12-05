@@ -1,10 +1,9 @@
-import sqlite3
 
-# Percorso del database
-db_path = 'dashboards/Database_Utilities/liste_personalizzata.db'
+
+from Database_Utilities.connection import _connection
 
 # Creazione della connessione al database
-conn = sqlite3.connect(db_path)
+conn = _connection()
 c = conn.cursor()
 
 # Creazione della tabella per i prodotti
@@ -37,9 +36,10 @@ prodotti_clienti_data = [
 
 # Inserimento dei dati di esempio nella tabella "prodotti_clienti"
 c.executemany('''
-INSERT INTO prodotti_clienti (RAGIONE_SOCIALE, ID, PRODOTTO, QUANTITA)
-VALUES (?, ?, ?, ?)
+INSERT INTO `prodotti_clienti` (`RAGIONE_SOCIALE`, `ID`, `PRODOTTO`, `QUANTITA`)
+VALUES (%s, %s, %s, %s)
 ''', prodotti_clienti_data)
+
 
 # Commit delle modifiche e chiusura della connessione
 conn.commit()
@@ -48,9 +48,9 @@ conn.close()
 print("Dati inseriti nella tabella prodotti_clienti con successo!")
 
 def get_prodotti_by_cliente(cliente_name):
-    conn = sqlite3.connect(db_path)
+    conn = _connection()
     cur = conn.cursor()
-    query = "SELECT RAGIONE_SOCIALE,ID,PRODOTTO,QUANTITA FROM prodotti_clienti WHERE `RAGIONE_SOCIALE` LIKE ?"
+    query = "SELECT `RAGIONE_SOCIALE`, `ID`, `PRODOTTO`, `QUANTITA` FROM `prodotti_clienti` WHERE `RAGIONE_SOCIALE` LIKE %s"
     cur.execute(query, ('%' + cliente_name + '%',))
     rows = cur.fetchall()
     conn.close()
@@ -58,9 +58,9 @@ def get_prodotti_by_cliente(cliente_name):
 
 def get_prodotti_by_cliente_1(cliente_name):
     """ Get all products and quantities for a cliente from the 'prodotti_clienti' table """
-    conn = sqlite3.connect(db_path)
+    conn = _connection()
     cur = conn.cursor()
-    query = "SELECT * FROM prodotti_clienti WHERE `RAGIONE_SOCIALE` LIKE ?"
+    query = "SELECT * FROM `prodotti_clienti` WHERE `RAGIONE_SOCIALE` LIKE %s"
     cur.execute(query, ('%' + cliente_name + '%',))
     prodotti_info = cur.fetchall()
     conn.close()

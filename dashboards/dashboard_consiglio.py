@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from tkinter import ttk, messagebox , Menu
 import tkinter as tk
-import sqlite3
+from Database_Utilities.connection import _connection
 import os
 import datetime
 from datetime import datetime
@@ -37,9 +37,9 @@ def show_dashboard9(parent_frame):
         combobox.bind('<KeyRelease>', on_keyrelease)
 
     def get_unique_values(column_name):
-        conn = sqlite3.connect('Database_Utilities/Database/MergedDatabase.db')
+        conn = _connection()
         cursor = conn.cursor()
-        cursor.execute(f"SELECT DISTINCT {column_name} FROM storico_ordini")
+        cursor.execute(f"SELECT DISTINCT `{column_name}` FROM `storico_ordini`")
         values = [row[0] for row in cursor.fetchall()]
         conn.close()
         return values
@@ -195,7 +195,7 @@ def show_dashboard9(parent_frame):
     tree.pack(side="left", fill="both", expand=True)
 
     def fetch_orders():
-        conn = sqlite3.connect('Database_Utilities/Database/MergedDatabase.db')
+        conn = _connection()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM storico_ordini")
         orders = cursor.fetchall()

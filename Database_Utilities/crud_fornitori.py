@@ -1,11 +1,13 @@
-import sqlite3
 
-db_path = 'Database_Utilities/Database/MergedDatabase.db'
+from Database_Utilities.connection import _connection
+
+
+
 
 
 def get_all_fornitori():
     '''Restituisce tutti i fornitori presenti nel database.'''
-    conn = sqlite3.connect(db_path)
+    conn = _connection()
     cursor = conn.cursor()
 
     query = 'SELECT DISTINCT Nome FROM fornitori'
@@ -15,26 +17,22 @@ def get_all_fornitori():
     conn.close()
     return fornitori
 
+
+# Modifica nella funzione `get_all_prodotti` in `crud_fornitori`
 def get_all_prodotti():
-    conn = sqlite3.connect(db_path)
+    conn = _connection()
     cursor = conn.cursor()
-
-    # Eseguire la query per ottenere i nomi dei prodotti dalla colonna 'Descrizione'
-    cursor.execute("SELECT Descrizione FROM prodotti;")
-    product_names = cursor.fetchall()
-
-    # Chiudere la connessione
+    cursor.execute("SELECT Codice, Descrizione FROM prodotti")
+    prodotti = cursor.fetchall()
     conn.close()
 
-    # Restituire solo i nomi dei prodotti come una lista
-    return [name[0] for name in product_names]
-
-
+    # Formatta ciascun prodotto come "Codice - Descrizione"
+    return [f"{codice} - {descrizione}" for codice, descrizione in prodotti]
 
 
 def get_prodotti_by_fornitore_name(fornitore_name):
     '''Restituisce i prodotti associati a un determinato fornitore.'''
-    conn = sqlite3.connect(db_path)
+    conn = _connection()
     cursor = conn.cursor()
 
     query = '''
@@ -42,10 +40,11 @@ def get_prodotti_by_fornitore_name(fornitore_name):
                prodotti.COMPOSIZIONE_CARTONE, prodotti.PREZZO_VENDITA, prodotti.PREZZO_ACQUISTO
         FROM prodotti
         JOIN fornitori ON prodotti.ID_FORNITORE = fornitori.id
-        WHERE fornitori.Nome = ?
+        WHERE fornitori.Nome = %s
     '''
 
     cursor.execute(query, (fornitore_name,))
+
     prodotti = [{'Codice': row[0], 'Descrizione': row[1], 'ID_FORNITORE': row[2],
                  'COMPOSIZIONE CARTONE': row[3], 'PREZZO VENDITA': row[4], 'PREZZO ACQUISTO': row[5]}
                 for row in cursor.fetchall()]
@@ -56,13 +55,13 @@ def get_prodotti_by_fornitore_name(fornitore_name):
 
 def modify_prodotto(codice, descrizione, composizione_cartone, prezzo_vendita, prezzo_acquisto):
     '''Modifica i dati di un prodotto specifico nel database.'''
-    conn = sqlite3.connect(db_path)
+    conn = _connection()
     cursor = conn.cursor()
 
     query = '''
         UPDATE prodotti
-        SET Descrizione = ?, COMPOSIZIONE_CARTONE = ?, PREZZO_VENDITA = ?, PREZZO_ACQUISTO = ?
-        WHERE Codice = ?
+        SET Descrizione = %s, COMPOSIZIONE_CARTONE = %s, PREZZO_VENDITA = %s, PREZZO_ACQUISTO = %s
+        WHERE Codice = %s
     '''
     cursor.execute(query, (descrizione, composizione_cartone, prezzo_vendita, prezzo_acquisto, codice))
 
@@ -72,7 +71,7 @@ def modify_prodotto(codice, descrizione, composizione_cartone, prezzo_vendita, p
 
 def delete_prodotto(codice):
     '''Elimina un prodotto specifico dal database.'''
-    conn = sqlite3.connect(db_path)
+    conn = _connection()
     cursor = conn.cursor()
 
     query = 'DELETE FROM prodotti WHERE Codice = ?'

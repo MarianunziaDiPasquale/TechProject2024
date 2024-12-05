@@ -1,15 +1,13 @@
 from tkinter import ttk, messagebox ,filedialog
 import tkinter as tk
 import customtkinter as ctk
-import sqlite3
+from Database_Utilities.connection import _connection
 import os
 import datetime
 from datetime import datetime
 from fpdf import FPDF
 from PIL import Image, ImageTk
 import fitz
-from Database_Utilities.crud_clienti import get_all_clienti_names
-db_path = 'Database_Utilities/Database/Magazzino.db'
 
 def show_pdf_preview(pdf_path):
     # Apri il PDF con PyMuPDF
@@ -48,9 +46,9 @@ def show_pdf_preview(pdf_path):
     window.mainloop()
 
 def fetch_invoice_data(invoice_number):
-    conn = sqlite3.connect('resources/orders_fattura_1.db')
+    conn = _connection()
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM orders_fattura_newfields WHERE id = '{invoice_number}'")
+    cursor.execute(f"SELECT * FROM `orders_fattura_newfields` WHERE `id` = %s", (invoice_number,))
     column_names = [description[0] for description in cursor.description]
     invoice_tuple = cursor.fetchone()
     conn.close()
@@ -61,10 +59,12 @@ def fetch_invoice_data(invoice_number):
 
 
 def fetch_invoice_products(invoice_number):
-    conn = sqlite3.connect('resources/orders_fattura_1.db')
+    conn = _connection()
     cursor = conn.cursor()
     cursor.execute(
-        f"SELECT article, product_description, product_quantity,product_price, product_discount,product_discount_2,product_discount_3, product_amount FROM orders_fattura_newfields WHERE id = '{invoice_number}'")
+        f"SELECT `article`, `product_description`, `product_quantity`, `product_price`, `product_discount`, `product_discount_2`, `product_discount_3`, `product_amount` FROM `orders_fattura_newfields` WHERE `id` = %s",
+        (invoice_number,)
+    )
     column_names = [description[0] for description in cursor.description]
     product_rows = cursor.fetchall()
     conn.close()
@@ -375,11 +375,6 @@ def generate_non_sold_pdf(order):
         # padding = {'padx': 5, 'pady': 1}
         product_frame = tk.Frame(popup)
         product_frame.grid(row=0, column=2, columnspan=5)
-        '''
-        popup.grid_rowconfigure(0, weight=1)
-        popup.grid_columnconfigure(0, weight=1)
-        popup.grid_columnconfigure(2, weight=1)
-        '''
 
         # Add padding and spacing between elements
         padding = {'padx': 10, 'pady': 5}

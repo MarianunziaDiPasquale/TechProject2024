@@ -1,7 +1,6 @@
 from tkinter import ttk, messagebox ,filedialog
 import tkinter as tk
 import customtkinter as ctk
-import sqlite3
 import os
 import datetime
 from datetime import datetime
@@ -9,10 +8,8 @@ from fpdf import FPDF
 from PIL import Image, ImageTk
 import fitz
 from Database_Utilities.crud_clienti import get_all_clienti_names
-import sqlite3
 
-# Path to the SQLite database
-db_path = 'Database_Utilities/Database/Magazzino.db'
+from Database_Utilities.connection import _connection
 # Import CRUD functions for Parigi
 def show_pdf_preview(pdf_path):
     # Apri il PDF con PyMuPDF
@@ -268,7 +265,7 @@ class PDF(FPDF):
 
 
 def fetch_invoice_data(invoice_number):
-    conn = sqlite3.connect('resources/orders_fattura_1.db')
+    conn = _connection()
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM orders_fattura_newfields WHERE id = '{invoice_number}'")
     column_names = [description[0] for description in cursor.description]
@@ -281,7 +278,7 @@ def fetch_invoice_data(invoice_number):
 
 
 def fetch_invoice_products(invoice_number):
-    conn = sqlite3.connect('resources/orders_fattura_1.db')
+    conn = _connection()
     cursor = conn.cursor()
     cursor.execute(
         f"SELECT article, product_description, product_quantity,product_price, product_discount,product_discount_2,product_discount_3, product_amount FROM orders_fattura_newfields WHERE id = '{invoice_number}'")
@@ -780,7 +777,7 @@ def generate_invoice_pdf(order):
             entry_price.insert(0, price)
 
         def fetch_price_for_article(article):
-            conn = sqlite3.connect(db_path)
+            conn = _connection()
             cursor = conn.cursor()
             cursor.execute("SELECT `CAP` FROM clienti WHERE `Ragione Sociale` = ?;", (article,))
             # Check if result is not None and access the first element of the tuple
@@ -791,7 +788,7 @@ def generate_invoice_pdf(order):
 
         def fetch_description_for_article(article):
             """ Get the names of all clienti from the 'clienti' table """
-            conn = sqlite3.connect(db_path)
+            conn = _connection()
             cursor = conn.cursor()
             cursor.execute("SELECT `Indirizzo` FROM clienti WHERE `Ragione Sociale` = ?;", (article,))
             # Check if result is not None and access the first element of the tuple

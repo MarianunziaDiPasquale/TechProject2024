@@ -1,55 +1,10 @@
 import sqlite3
-
-# Percorso del database
-db_path = 'Database_Utilities/Database/liste_personalizzata.db'
-
-# Creazione della connessione al database
-conn = sqlite3.connect(db_path)
-c = conn.cursor()
-
-# Creazione della tabella per i prodotti
-
-"""c.execute('''
-CREATE TABLE IF NOT EXISTS prodotti_clienti (
-    RAGIONE_SOCIALE TEXT,
-    ID TEXT,
-    PRODOTTO TEXT,
-    QUANTITA INTEGER
-)
-''')"""
-
-# Dati di esempio da inserire per la tabella "prodotti_clienti"
-prodotti_clienti_data = [
-    ('18 SALE & PEPE - ITALFOODING', '796CQ', 'Prodotto A', 10),
-    ('18 SALE & PEPE - ITALFOODING', '796CQ', 'Prodotto B', 20),
-    ('18 SALE & PEPE - ITALFOODING', '796CQ', 'Prodotto C', 30),
-    ('19 SALE & PEPE - ITALFOODING', '424VX', 'Prodotto A', 10),
-    ('19 SALE & PEPE - ITALFOODING', '424VX', 'Prodotto C', 30),
-    ('AMALFI - MOIRA RST', '716AB', 'Prodotto A', 10),
-    ('AMALFI - MOIRA RST', '716AB', 'Prodotto B', 20),
-    ('AMALFI - MOIRA RST', '716AB', 'Prodotto C', 30),
-    ('AMORE DI FRANCESCA - I GEMELLI', '592EV', 'Prodotto A', 10),
-    ('AMORE DI FRANCESCA - I GEMELLI', '592EV', 'Prodotto B', 20),
-    ('AMORE DI FRANCESCA - I GEMELLI', '592EV', 'Prodotto C', 30),
-    ('AMORVINO', '227JP', 'Prodotto A', 10),
-    ('AMORVINO', '227JP', 'Prodotto B', 20),
-    ('AMORVINO', '227JP', 'Prodotto C', 30)
-]
-
-# Inserimento dei dati di esempio nella tabella "prodotti_clienti"
-"""c.executemany('''
-INSERT INTO prodotti_clienti (RAGIONE_SOCIALE, ID, PRODOTTO, QUANTITA)
-VALUES (?, ?, ?, ?)
-''', prodotti_clienti_data)"""
-
-# Commit delle modifiche e chiusura della connessione
-conn.commit()
-conn.close()
+from Database_Utilities.connection import _connection
 
 #print("Dati inseriti nella tabella prodotti_clienti con successo!")
 
 def get_prodotti_by_cliente(cliente_name):
-    conn = sqlite3.connect(db_path)
+    conn = _connection()
     cur = conn.cursor()
     query = "SELECT RAGIONE_SOCIALE,ID,PRODOTTO,QUANTITA FROM prodotti_clienti WHERE `RAGIONE_SOCIALE` LIKE ?"
     cur.execute(query, ('%' + cliente_name + '%',))

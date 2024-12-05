@@ -4,6 +4,11 @@ import customtkinter as ctk
 from data_retrieval import get_existing_names, delete_records_by_name, create_record_clienti, create_fornitore, create_record_prodotti
 from Database_Utilities.crud_fornitori import get_all_fornitori
 from Database_Utilities.crud_clienti import get_all_clienti_names
+from Database_Utilities.crud_fornitori import get_all_prodotti
+
+
+
+
 def open_remove_popup(item_type):
     popup = tk.Toplevel()
     popup.title(f"Rimuovi {item_type}")
@@ -100,25 +105,28 @@ def open_add_popup(item_type):
                 entry = tk.Entry(popup, font=font_size)
                 entry.pack(pady=5)
                 entries[field] = entry
-    elif item_type == "Lista":
-        fields = ["Ragione sociale","ID","Prodotto","Quantita"]
-        for field in fields:
-            if field == "Ragione sociale":
-                label = tk.Label(popup, text="Ragione sociale",width=entry_width, font=font_size)
-                label.pack(pady=5)
-                clienti = get_all_clienti_names() # Da modificare
-                selected_cliente = tk.StringVar()
-                combobox = ttk.Combobox(popup, textvariable=selected_cliente, values=clienti,
-                                        font=('Arial', 16))
-                combobox.configure(width=35)
-                combobox.option_add('*TCombobox*Listbox*Font', ('Arial', 16))
-                combobox.pack(pady=5)
-            else:
-                label = tk.Label(popup, text=field, width=entry_width, font=font_size)
-                label.pack(pady=5)
-                entry = tk.Entry(popup, font=font_size)
-                entry.pack(pady=5)
-                entries[field] = entry
+    elif popup_type == "Lista":
+        label = tk.Label(popup, text="Seleziona Prodotto:", font=("Arial", 14))
+        label.pack(pady=10)
+
+        # Recupera i prodotti in formato "Codice - Descrizione"
+        prodotti = get_all_prodotti()  # Usa la funzione aggiornata per avere prodotti in formato "Codice - Descrizione"
+
+        # Configura la combobox per selezionare il prodotto
+        prodotto_selezionato = tk.StringVar()
+        combobox_prodotto = ttk.Combobox(popup, textvariable=prodotto_selezionato, values=prodotti, font=("Arial", 14))
+        combobox_prodotto.configure(width=35)
+        combobox_prodotto.option_add('*TCombobox*Listbox*Font', ('Arial', 14))
+        combobox_prodotto.pack(pady=5)
+
+        # Abilita la ricerca incrementale in base a codice o descrizione
+        combobox_prodotto.bind("<KeyRelease>", lambda event: update_combobox_prs(event, combobox_prodotto))
+
+        # Altri campi specifici del pop-up...
+        quantity_label = tk.Label(popup, text="Quantità:", font=("Arial", 14))
+        quantity_label.pack(pady=5)
+        quantity_entry = tk.Entry(popup, font=("Arial", 14))
+        quantity_entry.pack(pady=5)
     elif item_type == "Vettore":
         fields = ["Nome", "ID Vettore","Trasporto","Prezzo Mezzo","Prezzo Trasporto"]
         for field in fields:

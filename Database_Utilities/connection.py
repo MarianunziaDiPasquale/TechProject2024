@@ -27,3 +27,8 @@ finally:
     if 'cnx' in locals() and cnx.is_connected():
         cnx.close()
         print("Connessione chiusa.")
+
+
+def _connection():
+    cnx = mysql.connector.connect(**config)
+    return cnx

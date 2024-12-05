@@ -1,7 +1,7 @@
 import math
 from tkinter import ttk, messagebox ,filedialog
 import tkinter as tk
-import sqlite3
+from Database_Utilities.connection import _connection
 import customtkinter as ctk
 import os
 import datetime
@@ -9,9 +9,6 @@ from datetime import datetime
 from fpdf import FPDF
 from PIL import Image, ImageTk
 import fitz
-
-from Database_Utilities.crud_clienti import get_all_clienti_names
-db_path = 'Database_Utilities/Database/Magazzino.db'
 
 def show_pdf_preview(pdf_path):
     # Apri il PDF con PyMuPDF
@@ -49,9 +46,12 @@ def show_pdf_preview(pdf_path):
 
     window.mainloop()
 def fetch_invoice_data(invoice_number):
-    conn = sqlite3.connect('resources/orders_fattura_1.db')
+    conn = _connection()
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM orders_fattura_newfields WHERE id = '{invoice_number}'")
+    cursor.execute(
+        "SELECT * FROM `orders_fattura_newfields` WHERE `id` = %s",
+        (invoice_number,)
+    )
     column_names = [description[0] for description in cursor.description]
     invoice_tuple = cursor.fetchone()
     conn.close()
@@ -62,10 +62,12 @@ def fetch_invoice_data(invoice_number):
 
 
 def fetch_invoice_products(invoice_number):
-    conn = sqlite3.connect('resources/orders_fattura_1.db')
+    conn = _connection()
     cursor = conn.cursor()
     cursor.execute(
-        f"SELECT article, product_description, product_quantity,product_price, product_discount,product_discount_2,product_discount_3, product_amount FROM orders_fattura_newfields WHERE id = '{invoice_number}'")
+        "SELECT `article`, `product_description`, `product_quantity`, `product_price`, `product_discount`, `product_discount_2`, `product_discount_3`, `product_amount` FROM `orders_fattura_newfields` WHERE `id` = %s",
+        (invoice_number,)
+    )
     column_names = [description[0] for description in cursor.description]
     product_rows = cursor.fetchall()
     conn.close()

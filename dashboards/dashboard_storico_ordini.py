@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from tkinter import ttk, messagebox ,filedialog, Menu
 import tkinter as tk
-import sqlite3
+
 import os
 import datetime
 from datetime import datetime
@@ -15,12 +15,10 @@ from dashboards.create_pdf_return import generate_return_pdf
 from dashboards.create_sigaretta import generate_pdf_sigaretta
 from tkcalendar import *
 from Database_Utilities.crud_clienti import get_all_clienti_names
-import sqlite3
+from Database_Utilities.connection import _connection
 from xml.dom import minidom
 
-# Path to the SQLite database
-db_path = 'Database_Utilities/Database/Magazzino.db'
-# Import CRUD functions for Parigi
+
 
 dashboard_font_size = 14
 
@@ -141,9 +139,9 @@ def show_dashboard8(parent_frame):
         combobox.bind('<KeyRelease>', on_keyrelease)
 
     def get_unique_values(column_name):
-        conn = sqlite3.connect('Database_Utilities/Database/MergedDatabase.db')
+        conn = _connection()
         cursor = conn.cursor()
-        cursor.execute(f"SELECT DISTINCT {column_name} FROM storico_ordini")
+        cursor.execute(f"SELECT DISTINCT `{column_name}` FROM `storico_ordini`")
         values = [row[0] for row in cursor.fetchall()]
         conn.close()
         return values
@@ -324,9 +322,9 @@ def show_dashboard8(parent_frame):
     tree.pack(side="left", fill="both", expand=True)
 
     def fetch_orders():
-        conn = sqlite3.connect('Database_Utilities/Database/MergedDatabase.db')
+        conn = _connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM storico_ordini")
+        cursor.execute("SELECT * FROM `storico_ordini`")
         orders = cursor.fetchall()
         conn.close()
         return orders
@@ -350,9 +348,9 @@ def show_dashboard8(parent_frame):
             messagebox.showwarning("Seleziona Ordine", "Per favore, seleziona un ordine per stampare la fattura.")
 
     def fetch_invoice_data(invoice_number):
-        conn = sqlite3.connect('resources/orders_fattura_1.db')
+        conn = _connection()
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM orders_fattura_newfields WHERE id = '{invoice_number}'")
+        cursor.execute("SELECT * FROM `orders_fattura_newfields` WHERE `id` = %s", (invoice_number,))
         column_names = [description[0] for description in cursor.description]
         invoice_tuple = cursor.fetchone()
         conn.close()
@@ -362,9 +360,12 @@ def show_dashboard8(parent_frame):
         return None
 
     def fetch_invoice_products(invoice_number):
-        conn = sqlite3.connect('resources/orders_fattura_1.db')
+        conn = _connection()
         cursor = conn.cursor()
-        cursor.execute(f"SELECT article, product_description, product_quantity,product_price, product_discount,product_discount_2,product_discount_3, product_amount FROM orders_fattura_newfields WHERE id = '{invoice_number}'")
+        cursor.execute(
+            "SELECT `article`, `product_description`, `product_quantity`, `product_price`, `product_discount`, `product_discount_2`, `product_discount_3`, `product_amount` FROM `orders_fattura_newfields` WHERE `id` = %s",
+            (invoice_number,)
+        )
         column_names = [description[0] for description in cursor.description]
         product_rows = cursor.fetchall()
         conn.close()
