@@ -1,5 +1,10 @@
 from cx_Freeze import setup, Executable
 
+# Specifica i file di risorse
+include_files = [
+    ("resources", "resources")  # Include la cartella "resources"
+]
+
 setup(
     name="AppTech",
     version="1.0",
