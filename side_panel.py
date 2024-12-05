@@ -78,8 +78,9 @@ def create_side_panel_buttons(side_panel, toggle_side_panel, update_dashboard):
                                       command=lambda: [update_dashboard("8")],
                                       corner_radius=5,anchor="w",font=('Arial', 15), height=20, width=70)
     button_dashboard8.pack(side="left",pady=4, padx=button_padding_x, fill="x")
-
+    '''
     button_dashboard9 = ctk.CTkButton(side_panel, text="Consiglio Ordini", image=icon9, compound="left",
                                       command=lambda: [update_dashboard("9")],
                                       corner_radius=5, anchor="w",font=('Arial', 15), height=20, width=90)
     button_dashboard9.pack(side="left",pady=4, padx=button_padding_x, fill="x")
+    '''
