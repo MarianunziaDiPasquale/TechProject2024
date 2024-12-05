@@ -13,7 +13,7 @@ def crea_file_excel_con_estetica(lista_codici, sconti):
 
 
 
-    output_file = "output.xlsx"
+    output_file = "file_excel/output.xlsx"
     db_path = "Database_Utilities/Database/MergedDatabase.db"
     query = f"SELECT Descrizione, COMPOSIZIONE_CARTONE, PREZZO_VENDITA FROM prodotti WHERE Codice = ?"
 
