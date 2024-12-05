@@ -6,8 +6,9 @@ from Database_Utilities.connection import _connection
 def create_record_parigi(codice_prodotto, esistenze, cartoni):
     conn = _connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO parigi (Codice, Esistenze, Cartoni) VALUES (?, ?, ?)",
+    cursor.execute("INSERT INTO parigi (Codice, Esistenze, Cartoni) VALUES (%s, %s, %s)",
                    (codice_prodotto, esistenze, cartoni))
+
     conn.commit()
     conn.close()
     print("Record inserted into parigi.")
@@ -23,7 +24,7 @@ def read_records_parigi():
 def update_record_parigi(codice_prodotto, new_esistenze, new_cartoni):
     conn = _connection()
     cursor = conn.cursor()
-    cursor.execute("UPDATE parigi SET Esistenze = ?, Cartoni = ? WHERE Codice = ?",
+    cursor.execute("UPDATE parigi SET Esistenze = %s, Cartoni = %s WHERE Codice = %s",
                    (new_esistenze, new_cartoni, codice_prodotto))
     conn.commit()
     conn.close()
@@ -32,7 +33,7 @@ def update_record_parigi(codice_prodotto, new_esistenze, new_cartoni):
 def delete_record_parigi(codice_prodotto):
     conn = _connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM parigi WHERE Codice = ?", (codice_prodotto,))
+    cursor.execute("DELETE FROM parigi WHERE Codice = %s", (codice_prodotto,))
     conn.commit()
     conn.close()
     print("Record deleted from parigi.")

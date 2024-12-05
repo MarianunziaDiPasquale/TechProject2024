@@ -74,7 +74,7 @@ def delete_prodotto(codice):
     conn = _connection()
     cursor = conn.cursor()
 
-    query = 'DELETE FROM prodotti WHERE Codice = ?'
+    query = 'DELETE FROM prodotti WHERE Codice = %s'
     cursor.execute(query, (codice,))
 
     conn.commit()
