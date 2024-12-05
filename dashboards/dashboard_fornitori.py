@@ -2,16 +2,14 @@ import datetime
 import os
 import sqlite3
 from tkinter.filedialog import asksaveasfilename
-
 import customtkinter as ctk
 from tkinter import ttk, Menu, filedialog
 import tkinter as tk
-
 from fpdf import FPDF
-
 from Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_info_by_name
 import openpyxl
 from tkinter import messagebox
+from Database_Utilities.connection import _connection
 
 dashboard_font_size = 14
 def center_window(window, width, height):
@@ -553,7 +551,7 @@ def show_dashboard6(parent_frame):
     tree.pack(side="left", fill="both", expand=True)
     tree.bind("<Double-1>", lambda event: on_double_click(event, tree))
     def fetch_orders():
-        conn = sqlite3.connect('Database_Utilities/Database/MergedDatabase.db')
+        conn = _connection()
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM storico_ordini")
         orders = cursor.fetchall()
@@ -571,9 +569,10 @@ def show_dashboard6(parent_frame):
     update_treeview(orders)
 
     def fetch_invoice_data(invoice_number):
-        conn = sqlite3.connect('resources/orders_fattura_1.db')
+        conn = _connection()
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM orders_fattura WHERE id = '{invoice_number}'")
+        cursor.execute("SELECT * FROM orders_fattura WHERE id = %s", (invoice_number,))
+
         column_names = [description[0] for description in cursor.description]
         invoice_tuple = cursor.fetchone()
         conn.close()
@@ -583,9 +582,9 @@ def show_dashboard6(parent_frame):
         return None
 
     def fetch_invoice_products(invoice_number):
-        conn = sqlite3.connect('resources/orders_fattura_1.db')
+        conn = _connection()
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM orders_fattura WHERE id = '{invoice_number}'")
+        cursor.execute("SELECT * FROM orders_fattura WHERE id = %s", (invoice_number,))
         column_names = [description[0] for description in cursor.description]
         product_rows = cursor.fetchall()
         conn.close()
@@ -606,11 +605,11 @@ def show_dashboard6(parent_frame):
         def header(self):
 
             # Aggiungi il logo in alto a sinistra
-            self.image('C:/PROGETTO/myapp/resources/LogoCINCOTTI.jpg', 8, 2, 77, 44,
+            self.image('resources/LogoCINCOTTI.jpg', 8, 2, 77, 44,
                        'JPG')  # Modifica il percorso e le dimensioni
 
             # Aggiungi l'immagine in alto a destra
-            self.image('C:/PROGETTO/myapp/resources/Logojpeg.jpg', 120, 8, 77, 33,
+            self.image('resources/Logojpeg.jpg', 120, 8, 77, 33,
                        'JPG')  # Modifica il percorso e le dimensioni
 
             self.ln(35)
@@ -618,7 +617,7 @@ def show_dashboard6(parent_frame):
         def footer(self):
             # Aggiungi l'immagine in basso al centro
             self.set_y(-40)  # Posiziona a 30 mm dal fondo della pagina
-            self.image('C:/PROGETTO/myapp/resources/LOGOMOZZABELLAECINCOTTI.jpg', 75, self.get_y(), 70, 40,
+            self.image('resources/LOGOMOZZABELLAECINCOTTI.jpg', 75, self.get_y(), 70, 40,
                        'JPG')  # Modifica il percorso e le dimensioni
 
         def draw_table(self, data, col_widths, headers=None, bold_headers=False):

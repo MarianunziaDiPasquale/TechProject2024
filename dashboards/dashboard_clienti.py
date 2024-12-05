@@ -18,13 +18,14 @@ from Database_Utilities.connection import _connection
 
 def get_client_id_by_ragione_sociale(ragione_sociale):
     # Connect to the database
-    db_path = 'Database_Utilities/Database/Magazzino.db'
-    connection = sqlite3.connect(db_path)
+
+    connection = _connection()
     cursor = connection.cursor()
 
     # Query to fetch the ID based on the "Ragione sociale"
-    query = "SELECT ID FROM clienti WHERE `Ragione sociale` = ?"
+    query = "SELECT ID FROM clienti WHERE `Ragione sociale` = %s"
     cursor.execute(query, (ragione_sociale,))
+
     result = cursor.fetchone()
 
     # Close the connection
@@ -59,6 +60,7 @@ def get_prodotti_by_cliente(cliente_id):
     # Querying a table named after the cliente_id
     query = f"SELECT `col1` FROM `{cliente_id}`"
     cursor.execute(query)
+
     prodotti = cursor.fetchall()
     conn.close()
     lista = []

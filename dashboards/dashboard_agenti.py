@@ -1,12 +1,10 @@
 import os
-
 from tkinter.filedialog import asksaveasfilename
 import customtkinter as ctk
 from tkinter import ttk, Menu, filedialog
 import tkinter as tk
 import datetime
 from datetime import datetime
-
 from fpdf import FPDF
 
 dashboard_font_size = 14  # Default font size
@@ -648,7 +646,8 @@ def ask_details(agente, prompt,nome, id):
     def fetch_invoice_data(invoice_number):
         conn = _connection()
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM orders_fattura WHERE id = '{invoice_number}'")
+        cursor.execute("SELECT * FROM orders_fattura WHERE id = %s", (invoice_number,))
+
         column_names = [description[0] for description in cursor.description]
         invoice_tuple = cursor.fetchone()
         conn.close()
@@ -660,7 +659,7 @@ def ask_details(agente, prompt,nome, id):
     def fetch_invoice_products(invoice_number):
         conn = _connection()
         cursor = conn.cursor()
-        cursor.execute(f"SELECT * FROM orders_fattura WHERE id = '{invoice_number}'")
+        cursor.execute("SELECT * FROM orders_fattura WHERE id = %s", (invoice_number,))
         column_names = [description[0] for description in cursor.description]
         product_rows = cursor.fetchall()
         conn.close()
