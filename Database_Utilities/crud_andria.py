@@ -4,8 +4,9 @@ from Database_Utilities.connection import _connection
 def create_record_andria(codice_prodotto, esistenze, cartoni):
     conn = _connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO andria (Codice, Esistenze, Cartoni) VALUES (?, ?, ?)",
+    cursor.execute("INSERT INTO andria (Codice, Esistenze, Cartoni) VALUES (%s, %s, %s)",
                    (codice_prodotto, esistenze, cartoni))
+
     conn.commit()
     conn.close()
     print("Record inserted into andria.")
@@ -21,7 +22,7 @@ def read_records_andria():
 def update_record_andria(codice_prodotto, new_esistenze, new_cartoni):
     conn = _connection()
     cursor = conn.cursor()
-    cursor.execute("UPDATE andria SET Esistenze = %s, Cartoni =%s WHERE Codice =%s",
+    cursor.execute("UPDATE andria SET Esistenze = %s, Cartoni = %s WHERE Codice = %s",
                    (new_esistenze, new_cartoni, codice_prodotto))
     conn.commit()
     conn.close()

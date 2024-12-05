@@ -1,22 +1,21 @@
-import sqlite3
+
 import tkinter as tk
 from tkinter import ttk
 from tkcalendar import *
 import customtkinter as ctk
-
 from dashboards.create_pdf_provvigioni import generate_pdf_provvigione
 from data_retrieval import get_existing_names, delete_records_by_name, create_record_clienti, create_fornitore, create_record_prodotti
 from Database_Utilities.crud_fornitori import get_all_fornitori
 from Database_Utilities.crud_clienti import get_all_clienti_names
-# Path to the SQLite database
-db_path = 'Database_Utilities/Database/MergedDatabase.db'
+from Database_Utilities.connection import _connection
 
 def get_all_agenti_names():
     """ Get the names of all clienti from the 'clienti' table """
-    conn = sqlite3.connect(db_path)
+    conn = _connection()
     cur = conn.cursor()
     query = "SELECT `nome` FROM agenti;"
     cur.execute(query)
+
     clienti = cur.fetchall()
     conn.close()
     return [cliente[0] for cliente in clienti]
@@ -24,10 +23,10 @@ def get_all_agenti_names():
 def get_clienti_by_agente(selected_agente):
     """Fetch all clients associated with the selected agent."""
     #print("check1")
-    conn = sqlite3.connect('Database_Utilities/Database/Magazzino.db')  # Update this with your database path
+    conn = _connection()  # Update this with your database path
     cursor = conn.cursor()
 
-    query = '''SELECT "Ragione sociale" FROM clienti WHERE "Agente 1" = ?'''
+    query = '''SELECT `Ragione sociale` FROM clienti WHERE `Agente 1` = %s'''
 
     cursor.execute(query, (selected_agente,))
 
