@@ -248,7 +248,53 @@ def show_dashboard8(parent_frame):
 
     ctk.CTkButton(filter_frame, text="Rimuovi Filtri", command=clear_filters).grid(row=1, column=8, padx=10, pady=5)
 
+    def setup_treeview(tree):
+        columns = ("ID Ordine", "Data", "Cliente", "Prodotti", "Totale", "Ricavo")
+        tree['columns'] = columns
 
+        # Initialize sorting order tracking
+        sort_order = {col: False for col in columns}  # False = Ascending, True = Descending
+
+        # Set up column headings with sorting functionality
+        tree.heading("ID Ordine", text="ID Ordine", anchor="w",
+                     command=lambda: treeview_sort_column(tree, "ID Ordine", sort_order["ID Ordine"]))
+        tree.heading("Data", text="Data", anchor="w",
+                     command=lambda: treeview_sort_column(tree, "Data", sort_order["Data"]))
+        tree.heading("Cliente", text="Cliente", anchor="w",
+                     command=lambda: treeview_sort_column(tree, "Cliente",
+                                                          sort_order["Cliente"]))
+        tree.heading("Prodotti", text="Prodotti", anchor="w",
+                     command=lambda: treeview_sort_column(tree, "Prodotti", sort_order["Prodotti"]))
+        tree.heading("Totale", text="Totale", anchor="w",
+                     command=lambda: treeview_sort_column(tree, "Totale", sort_order["Totale"]))
+        tree.heading("Ricavo", text="Ricavo", anchor="w",
+                     command=lambda: treeview_sort_column(tree, "Ricavo", sort_order["Ricavo"]))
+
+        # Set up column widths and other configurations as before
+        tree.column("ID Ordine", width=120, anchor="center")
+        tree.column("Data", width=200, anchor="center")
+        tree.column("Cliente", width=150, anchor="center")
+        tree.column("Prodotti", width=150, anchor="center")
+        tree.column("Totale", width=150, anchor="center")
+        tree.column("Ricavo", width=150, anchor="center")
+        def treeview_sort_column(tree, col, col_type):
+            """Funzione per ordinare le colonne."""
+            nonlocal sort_order
+            reverse = sort_order[col]
+            # Determina il tipo di dato per corretta comparazione nel sort
+            if col_type == 'number':
+                converter = float
+            else:
+                converter = str
+
+            l = [(tree.set(k, col), k) for k in tree.get_children('')]
+            l.sort(reverse=reverse, key=lambda x: converter(x[0]))
+
+            for index, (val, k) in enumerate(l):
+                tree.move(k, '', index)
+
+            sort_order[col] = not reverse
+            tree.heading(col, text=col, command=lambda: treeview_sort_column(tree, col, col_type))
     def copy_selection(tree):
         selected_items = tree.selection()  # Ottiene tutti gli elementi selezionati
         copied_data = []
@@ -285,6 +331,7 @@ def show_dashboard8(parent_frame):
 
     columns = ("ID Ordine", "Data", "Cliente", "Prodotti", "Totale", "Ricavo")
     tree = ttk.Treeview(table_frame, columns=columns, show="headings")
+    setup_treeview(tree)
     setup_context_menu(tree)
     tree.bind("<B1-Motion>", on_mouse_drag)
 
