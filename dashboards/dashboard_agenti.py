@@ -19,9 +19,19 @@ from tkinter import messagebox
 
 
 #from dashboards.dashboard_clienti import get_lista_info
-from dashboards.db_prova_lista_personalizzata import get_prodotti_by_cliente
+
 
 from Database_Utilities.connection import _connection
+
+def get_prodotti_by_cliente(cliente_name):
+    conn = _connection()
+    cur = conn.cursor()
+    query = "SELECT `RAGIONE_SOCIALE`, `ID`, `PRODOTTO`, `QUANTITA` FROM `prodotti_clienti` WHERE `RAGIONE_SOCIALE` LIKE %s"
+    cur.execute(query, ('%' + cliente_name + '%',))
+    rows = cur.fetchall()
+    conn.close()
+    return rows
+
 
 def get_clienti_by_agente(selected_agente):
     """Fetch all clients associated with the selected agent."""
