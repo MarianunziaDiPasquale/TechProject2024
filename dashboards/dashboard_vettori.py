@@ -4,7 +4,8 @@ from tkinter.filedialog import asksaveasfilename
 import customtkinter as ctk
 from tkinter import ttk, Menu
 import tkinter as tk
-from Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_info_by_name
+from Database_Utilities.crud_vettori import get_all_vettori_names, get_vettore_info_by_name, update_record_vettori, \
+    delete_record_vettori
 import openpyxl
 from tkinter import messagebox
 
@@ -38,7 +39,7 @@ def export_vettori_to_excel(selected_vettori):
     workbook = openpyxl.Workbook()
 
     for vettore in selected_vettori:
-        info = get_cliente_info_by_name(vettore)  # Assume this function can be reused or similarly named for vettori
+        info = get_vettore_info_by_name(vettore)  # Assume this function can be reused or similarly named for vettori
 
         # Create a new sheet for each vettore
         sheet = workbook.create_sheet(title=vettore)
@@ -108,7 +109,7 @@ def open_vettori_selection_popup():
     select_all_button.pack(pady=5)
 
     selections = {}
-    vettori = get_all_clienti_names()  # Update or rename this function as necessary
+    vettori = get_all_vettori_names()  # Update or rename this function as necessary
     for vettore in vettori:
         var = tk.BooleanVar()
         selections[vettore] = var
@@ -120,7 +121,7 @@ def open_vettori_selection_popup():
     confirm_button.pack(pady=10)
 def get_vettore_info(vettore):
     # Presumiamo che `get_vettore_info_by_name` sia una funzione simile a quella dei clienti
-    info = get_cliente_info_by_name(vettore)
+    info = get_vettore_info_by_name(vettore)
     return info
 
 
@@ -198,22 +199,9 @@ def on_double_click(event, tree):
             #qui passare solo campi vettore
             show_action_dialog(vettore, lambda action: handle_action(
                 action, tree,
-                cliente_info.get("Ragione sociale", ""),
-                cliente_info.get("2° riga rag. sociale", ""),
-                cliente_info.get("Indirizzo", ""),
-                cliente_info.get("CAP", ""),
-                cliente_info.get("Città", ""),
-                cliente_info.get("Nazione", ""),
-                cliente_info.get("Partita iva estero", ""),
-                cliente_info.get("Telefono", ""),
-                cliente_info.get("Email", ""),
-                cliente_info.get("Zona", ""),
-                cliente_info.get("Giorni di chiusura ", ""),
-                cliente_info.get("Orari di scarico", ""),
-                cliente_info.get("Condizioni pagamamento", ""),
-                cliente_info.get("Sconto", ""),
-                cliente_info.get("Agente 1", ""),
-                cliente_info.get("ID", "")
+                cliente_info.get("id", ""),
+                cliente_info.get("nome", ""),
+                cliente_info.get("indirizzo", "")
             ))
         else:
             messagebox.showwarning("Attenzione", "Nessun dato disponibile per il vettore selezionato.")
@@ -254,21 +242,21 @@ def show_action_dialog(ragione_sociale, callback):
     center_window(dialog,800,400)
     dialog.wait_window()  # Attendi la chiusura della finestra di dialogo
 
-def handle_action(action,tree, ragione_sociale, seconda_riga, indirizzo, cap, citta, nazione, partita_iva, telefono, email, zona, giorni_chiusura, orari_scarico, condizioni_pagamento, sconto, agente, id_cliente):
+def handle_action(action, tree, id, nome, indirizzo):
     if action == "modify":
-        details = ask_details(ragione_sociale, f"Inserisci le nuove info di '{ragione_sociale}':",seconda_riga, indirizzo, cap, citta, nazione, partita_iva, telefono, email, zona, giorni_chiusura, orari_scarico, condizioni_pagamento, sconto, agente, id_cliente)
+        details = ask_details(id, f"Inserisci le nuove info di '{nome}':", nome, indirizzo)
         if details and details['quantity'] is not None:
-            #inserisci funzione per modificare a db il vettore
+            update_record_vettori(id, nome, indirizzo)
             show_vettore_info(tree, tree.table_frame)
-            messagebox.showinfo("Modifica Prodotto", f"Hai modificato '{ragione_sociale}'.")
+            messagebox.showinfo("Modifica Prodotto", f"Hai modificato '{nome}'.")
     elif action == "delete":
-        confirm = messagebox.askokcancel("Conferma Eliminazione", f"Sei sicuro di voler eliminare '{ragione_sociale}'?")
+        confirm = messagebox.askokcancel("Conferma Eliminazione", f"Sei sicuro di voler eliminare '{nome}'?")
         if confirm:
-            #inserisci funzione per far delete vettore
+            delete_record_vettori(id)
             show_vettore_info(tree.table_frame)
-            messagebox.showinfo("Eliminazione Prodotto", f"Il vettore '{ragione_sociale}' è stato eliminato.")
+            messagebox.showinfo("Eliminazione Prodotto", f"Il vettore '{nome}' è stato eliminato.")
 
-def ask_details(ragione_sociale, prompt,seconda_riga, indirizzo, cap, citta, nazione, partita_iva, telefono, email, zona, giorni_chiusura, orari_scarico, condizioni_pagamento, sconto, agente, id_cliente):
+def ask_details(id, prompt, nome, indirizzo):
     dialog = tk.Toplevel()
     dialog.title("Scegli le nuove info del vettore")
     dialog.grab_set()
@@ -280,22 +268,11 @@ def ask_details(ragione_sociale, prompt,seconda_riga, indirizzo, cap, citta, naz
     entry_width = 40
 
     input_vars = {
-        "ragione sociale": tk.StringVar(value=ragione_sociale),
-        "seconda riga": tk.StringVar(value=seconda_riga),
-        "indirizzo": tk.StringVar(value=indirizzo),
-        "cap": tk.StringVar(value=cap),
-        "citta": tk.StringVar(value=citta),
-        "nazione": tk.StringVar(value=nazione),
-        "partita iva": tk.StringVar(value=partita_iva),
-        "telefono": tk.StringVar(value=telefono),
-        "email": tk.StringVar(value=email),
-        "zona": tk.StringVar(value=zona),
-        "giorni chiusura": tk.StringVar(value=giorni_chiusura),
-        "orari scarico": tk.StringVar(value=orari_scarico),
-        "condizioni pagamento": tk.StringVar(value=condizioni_pagamento),
-        "sconto": tk.DoubleVar(value=sconto),
-        "agente": tk.StringVar(value=agente),
-        "id cliente": tk.IntVar(value=id_cliente),
+
+        "id": tk.StringVar(value=id),
+        "nome": tk.StringVar(value=nome),
+        "indirizzo": tk.StringVar(value=indirizzo)
+
     }
 
     container_frame = tk.Frame(dialog)
@@ -403,7 +380,7 @@ def show_dashboard5(parent_frame):
     instruction_label = ctk.CTkLabel(top_frame, text="Scegliere Vettore:", font=('Arial', dashboard_font_size))
     instruction_label.grid(row=0, column=1, padx=10)
 
-    vettori = get_all_clienti_names()
+    vettori = get_all_vettori_names()
     selected_vettore = tk.StringVar()
 
     # Frame per allineare il menù a tendina e i pulsanti "Esporta in Excel"

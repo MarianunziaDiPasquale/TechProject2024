@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkcalendar import *
 import customtkinter as ctk
+
+from Database_Utilities.crud_vettori import create_record_vettori
 from dashboards.create_pdf_provvigioni import generate_pdf_provvigione
 from data_retrieval import get_existing_names, delete_records_by_name, create_record_clienti, create_fornitore, create_record_prodotti
 from Database_Utilities.crud_fornitori import get_all_fornitori
@@ -237,7 +239,7 @@ def open_add_popup(item_type):
                 quantity_entry.pack(pady=5)
                 entries[field] = quantity_entry
     elif item_type == "Vettore":
-        fields = ["Nome", "ID Vettore", "Trasporto", "Prezzo Mezzo", "Prezzo Trasporto"]
+        fields = ["id", "nome", "indirizzo"]
         for field in fields:
             label = tk.Label(popup, text=field,width=entry_width, font=font_size)
             label.pack(pady=5)
@@ -362,8 +364,7 @@ def open_add_popup(item_type):
             #aggiungi per lista
             print("hello")
         elif item_type == "Vettore":
-            #aggiungi per vettore
-            print("hello")
+            create_record_vettori(*values)
         elif item_type == "Agente":
             #aggiunti per agente
             print("hello")

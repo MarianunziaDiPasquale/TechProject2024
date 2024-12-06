@@ -54,7 +54,7 @@ def update_record_clienti(ragione_sociale, new_seconda_riga, new_indirizzo, new_
 def delete_record_clienti(id_cliente):
     conn = _connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM clienti WHERE ID = %s", (id_cliente,))
+    cursor.execute("DELETE FROM clienti WHERE Ragione_sociale = %s", (id_cliente,))
 
     conn.commit()
     conn.close()

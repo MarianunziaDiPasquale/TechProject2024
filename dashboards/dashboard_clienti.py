@@ -8,7 +8,8 @@ from mysql.connector import Error
 from tkcalendar import Calendar
 import zlib
 import json
-from Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_info_by_name
+from Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_info_by_name, update_record_clienti, \
+    delete_record_clienti
 from tkinter import messagebox
 import mysql.connector
 import openpyxl
@@ -674,13 +675,13 @@ def handle_action(action,tree, ragione_sociale, seconda_riga, indirizzo, cap, ci
     if action == "modify":
         details = ask_details(ragione_sociale, f"Inserisci le nuove info di '{ragione_sociale}':",seconda_riga, indirizzo, cap, citta, nazione, partita_iva,esente_iva, telefono, email, zona, giorni_chiusura, orari_scarico, condizioni_pagamento, sconto, agente, id_cliente)
         if details and details['quantity'] is not None:
-            #inserisci funzione per modificare a db il cliente
+            update_record_clienti(ragione_sociale, seconda_riga, indirizzo, cap, citta, nazione, partita_iva,esente_iva, telefono, email, zona, giorni_chiusura, orari_scarico, condizioni_pagamento, sconto, agente, id_cliente)
             show_cliente_info(tree, tree.table_frame)
             messagebox.showinfo("Modifica Prodotto", f"Hai modificato '{ragione_sociale}'.")
     elif action == "delete":
         confirm = messagebox.askokcancel("Conferma Eliminazione", f"Sei sicuro di voler eliminare '{ragione_sociale}'?")
         if confirm:
-            #inserisci funzione per far delete cliente
+            delete_record_clienti(ragione_sociale)
             show_cliente_info(tree.table_frame)
             messagebox.showinfo("Eliminazione Prodotto", f"Il cliente '{ragione_sociale}' è stato eliminato.")
 
