@@ -66,7 +66,7 @@ def get_all_clienti_names():
     """ Get the names of all clienti from the 'clienti' table """
     conn = _connection()
     cur = conn.cursor()
-    query = "SELECT `Ragione sociale` FROM clienti;"
+    query = "SELECT `Ragione_sociale` FROM clienti;"
     cur.execute(query)
     clienti = cur.fetchall()
     conn.close()
@@ -78,7 +78,7 @@ def get_cliente_info_by_name(cliente_name):
     """ Get all information of a cliente by name from the 'clienti' table """
     conn = _connection()
     cur = conn.cursor()
-    query = "SELECT * FROM clienti WHERE `Ragione sociale` = %s"
+    query = "SELECT * FROM clienti WHERE `Ragione_sociale` = %s"
 
     cur.execute(query, (cliente_name,))
     cliente_info = cur.fetchone()

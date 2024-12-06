@@ -3,11 +3,20 @@ from tkinter.filedialog import asksaveasfilename
 import customtkinter as ctk
 from tkinter import ttk, Menu
 import tkinter as tk
-
+import mysql.connector
+from mysql.connector import Error
 from tkcalendar import Calendar
-
+import zlib
+import json
 from Database_Utilities.crud_clienti import get_all_clienti_names, get_cliente_info_by_name
 from tkinter import messagebox
+import mysql.connector
+import openpyxl
+from openpyxl.styles import Border, Side, PatternFill, Font, Alignment, Protection
+from openpyxl.drawing.image import Image
+from datetime import datetime
+import json
+from Database_Utilities.connection import _connection
 
 import openpyxl
 from openpyxl.styles import Border, Side, PatternFill, Font, Alignment, Protection
@@ -22,7 +31,7 @@ def get_client_id_by_ragione_sociale(ragione_sociale):
     cursor = connection.cursor()
 
     # Query to fetch the ID based on the "Ragione sociale"
-    query = "SELECT ID FROM clienti WHERE `Ragione sociale` = %s"
+    query = "SELECT ID FROM clienti WHERE `Ragione_sociale` = %s"
     cursor.execute(query, (ragione_sociale,))
 
     result = cursor.fetchone()
@@ -53,19 +62,31 @@ def grab_date(entry):
     date_window.destroy()
 # Add this function to dashboard_clienti.py or an appropriate module
 def get_prodotti_by_cliente(cliente_id):
-    conn = _connection()
-    cursor = conn.cursor()
+    try:
+        conn = _connection()
+        cursor = conn.cursor()
 
-    # Querying a table named after the cliente_id
-    query = f"SELECT `col1` FROM `{cliente_id}`"
-    cursor.execute(query)
+        # Recupera i dati compressi
+        cursor.execute(f"""
+                SELECT listapers
+                FROM clienti
+                WHERE ID = %s
+            """, (cliente_id,))
 
-    prodotti = cursor.fetchall()
-    conn.close()
-    lista = []
-    for x in prodotti:
-        lista.append(x[0])
-    return lista  # This returns a list of col1
+        result = cursor.fetchone()
+        if result:
+            data_list = json.loads(result[0])
+
+            return data_list
+        else:
+            print("Nessun dato trovato per l'ID specificato.")
+            return None
+
+    except mysql.connector.Error as err:
+        print(f"Errore: {err}")
+    finally:
+        cursor.close()
+        conn.close()
 
 
 def get_product_descriptions(prodotti):
@@ -138,55 +159,16 @@ def export_clienti_to_excel(selected_clienti):
     workbook.save(file_path)
     messagebox.showinfo("Excel Generato", f"Il file Excel è stato salvato come {os.path.basename(file_path)}")
 
-def export_liste_prsn_to_excel(selected_lista):
-    if not selected_lista:
-        messagebox.showwarning("Nessun Dato", "Non ci sono clienti selezionati da esportare.")
-        return
 
-    if len(selected_lista.get()) == 1:
-        default_filename = f"Info_Lista_Cliente_{selected_lista[0]}.xlsx"
-    else:
-        default_filename = f"Info_Lista_Clienti.xlsx"
-    file_path = asksaveasfilename(defaultextension=".xlsx",
-                                  filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
-                                  initialfile=default_filename)
-    # Verifica se l'utente ha scelto un percorso
-    if not file_path:
-        messagebox.showwarning("Salvataggio Annullato", "Salvataggio del file Excel annullato.")
-        return
+def crea_file_excel_con_estetica(lista_codici, sconto, file_path, nome_file):
+    """
+    Crea un file Excel utilizzando i codici presi dalla lista fornita
+    e confronta i dati con la tabella prodotti in un database MySQL, applicando uno sconto uniforme.
+    Aggiunge anche un titolo con il nome del file e uno spazio per un'immagine.
+    """
 
-    workbook = openpyxl.Workbook()
+    logo_path = 'resources/LogoCINCOTTI.jpg'
 
-    cliente = get_client_id_by_ragione_sociale(selected_lista.get())
-    # modificare con funzione per recuperare info lista
-    info = get_lista_info(cliente)
-
-    # Crea un nuovo foglio per ogni cliente
-    sheet = workbook.create_sheet(title=cliente)
-
-    # modificare con colonne lista personalizzata
-    headers = ["Ragione sociale", "ID", "Prodotto", "Quantità"]
-    sheet.append(headers)
-
-    # Aggiungi i dati del cliente se esistono, altrimenti lascia solo le intestazioni
-    if info:
-        for row in info:
-            sheet.append(row)
-    else:
-        # Aggiungi una riga vuota se non ci sono dati, lasciando solo l'intestazione
-        sheet.append(["Nessun dato disponibile"])
-
-
-
-
-    # Rimuove il foglio predefinito solo se ci sono altri fogli visibili
-    if "Sheet" in workbook.sheetnames and len(workbook.sheetnames) > 1:
-        del workbook["Sheet"]
-
-    workbook.save(file_path)
-    messagebox.showinfo("Excel Generato", f"Il file Excel è stato salvato come {os.path.basename(file_path)}")
-
-def crea_file_excel_con_estetica(lista_codici, sconti, nome_tabella, db_path="database.db", output_file="output.xlsx"):
     conn = _connection()
     cursor = conn.cursor()
 
@@ -195,79 +177,127 @@ def crea_file_excel_con_estetica(lista_codici, sconti, nome_tabella, db_path="da
     sheet = workbook.active
     sheet.title = "Ordine"
 
-    # Definisci i bordi e altri stili per l'esempio
+    # Imposta il titolo prima di unire le celle
+    titolo_cell = sheet.cell(row=1, column=1)
+    titolo_cell.value = str(nome_file)
+    titolo_cell.font = Font(bold=True, size=14)
+    titolo_cell.alignment = Alignment(horizontal="center", vertical="center")
+
+    # Unisci le celle per il titolo
+    sheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=8)
+
+    # Aggiungi l'immagine
+    logo = Image(logo_path)
+    logo.width = 535
+    logo.height = 135
+    sheet.add_image(logo, "A2")
+    sheet.merge_cells(start_row=2, start_column=1, end_row=8, end_column=7)
+
+    # Stile per le celle
     bordo_sottile = Border(left=Side(style='thin'),
                            right=Side(style='thin'),
                            top=Side(style='thin'),
                            bottom=Side(style='thin'))
-
-    # Definisci il riempimento e il font
     riempimento_celle_giallo = PatternFill(start_color="FFFF99", end_color="FFFF99", fill_type="solid")
+    riempimento_verde = PatternFill(start_color="CCFFCC", end_color="CCFFCC", fill_type="solid")
+    riempimento_bianco = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
+    riempimento_rosso = PatternFill(start_color="FFCCCC", end_color="FFCCCC", fill_type="solid")
     font_stile = Font(name="Calibri", size=12, bold=False)
     font_rosso = Font(name="Calibri", size=12, bold=False, color="FF0000")
+    font_blu = Font(name="Calibri", size=12, bold=True, color="0066CC", underline="single")
     alignment_center = Alignment(horizontal="center", vertical="center")
 
-    # Imposta l'intestazione delle colonne
-    intestazioni = ["Codice", "Descrizione", "Prezzo Unitario", "Sconto (%)", "Prezzo Scontato", "Quantità"]
-    sheet.append(intestazioni)
-
-    # Applica lo sfondo giallo alla prima riga (intestazioni)
-    for col in ['A', 'B', 'C', 'D', 'E', 'F']:
-        cell = sheet[f'{col}1']
+    # Intestazioni delle colonne
+    intestazioni = ["Codice", "Descrizione", "Composizione Cartone", "Prezzo Unitario", "Sconto (%)",
+                    "Prezzo Scontato (€)", "Quantità"]
+    for col_num, header in enumerate(intestazioni, start=1):
+        cell = sheet.cell(row=9, column=col_num)
+        cell.value = header
         cell.fill = riempimento_celle_giallo
         cell.border = bordo_sottile
         cell.alignment = alignment_center
+        cell.font = font_rosso if header in ["Sconto (%)", "Prezzo Scontato (€)"] else Font(bold=True)
 
-        # Imposta il font rosso per "Sconto (%)" e "Prezzo Scontato", altrimenti nero
-        if col in ['D', 'E']:  # Colonne "Sconto (%)" e "Prezzo Scontato"
-            cell.font = font_rosso
-        else:
-            cell.font = Font(bold=True)  # Font nero e in grassetto per altre intestazioni
+    # Query per recuperare i dati dal database MySQL
+    query_prodotti = "SELECT Descrizione, COMPOSIZIONE_CARTONE, PREZZO_VENDITA FROM prodotti WHERE Codice = %s"
 
-    # Aggiungi dati per ogni codice nella lista
+    # Imposta larghezza colonne per evitare che il testo venga tagliato
+    larghezze_colonne = [15, 40, 20, 15, 12, 18, 10, 15]  # Larghezze personalizzate per ciascuna colonna
+    for i, col_width in enumerate(larghezze_colonne, start=1):
+        col_lettera = openpyxl.utils.get_column_letter(i)
+        sheet.column_dimensions[col_lettera].width = col_width
+
+    # Aggiungi i dati dalla lista_codici
     for idx, codice in enumerate(lista_codici):
-        # Recupera i dati dal database
-        query = f"SELECT `descrizione`, `prezzo` FROM `{nome_tabella}` WHERE `codice` = %s"
-        cursor.execute(query, (codice,))
+        cursor.execute(query_prodotti, (codice,))
         risultato_db = cursor.fetchone()
 
         if risultato_db:
-            descrizione, prezzo_unitario = risultato_db
-            sconto = sconti[idx]
-            prezzo_scontato = prezzo_unitario * (1 - sconto / 100)
+            descrizione, composizione_cartone, prezzo_unitario = risultato_db
 
-            # Aggiungi una riga al foglio Excel con i dati
-            nuova_riga = [codice, descrizione, prezzo_unitario, sconto, prezzo_scontato, ""]  # Quantità vuota
+            # Aggiungi la riga con i dati
+            nuova_riga = [codice, descrizione, composizione_cartone, prezzo_unitario, sconto, "", "", ""]
             sheet.append(nuova_riga)
 
-            # Applica la formattazione estetica solo a queste nuove righe
-            for col in ['A', 'B', 'C', 'D', 'E', 'F']:
+            # Colore alternato della bandiera italiana
+            riempimento_riga = riempimento_verde if idx % 3 == 0 else (
+                riempimento_bianco if idx % 3 == 1 else riempimento_rosso)
+
+            # Applica la formattazione alle celle
+            for col in ['A', 'B', 'C', 'D', 'E', 'F', "G"]:
                 cell = sheet[f'{col}{sheet.max_row}']
                 cell.border = bordo_sottile
-                cell.fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")  # Bianco per le righe dei dati
+                cell.fill = riempimento_riga
                 cell.font = font_stile
                 cell.alignment = alignment_center
+                if col == 'D':
+                    cell.font = font_rosso
+                if col == 'F':
+                    cell.font = font_blu
+
+            # Colonna F (Prezzo Scontato) calcolata con lo sconto applicato al prezzo unitario
+            sheet[f'F{sheet.max_row}'] = f'=D{sheet.max_row}*(1 - E{sheet.max_row}/100)'
 
         else:
             print(f"Codice {codice} non trovato nel database.")
 
-    # Protezione delle colonne: blocca tutte le colonne tranne la colonna "Quantità"
-    for row in sheet.iter_rows(min_row=2, max_row=sheet.max_row):
+    # Protezione delle colonne
+    for row in sheet.iter_rows(min_row=9, max_row=sheet.max_row):
         for cell in row:
-            if cell.column != 6:  # La colonna "Quantità" è la sesta
-                cell.protection = Protection(locked=True)
-            else:
-                cell.protection = Protection(locked=False)
+            cell.protection = Protection(locked=cell.column != 7)
 
     # Protezione del foglio
     sheet.protection.set_password('password')
-
-    # Salva il file Excel
-    workbook.save(output_file)
-    print(f"File Excel salvato come {output_file}")
+    workbook.save(file_path)
 
     # Chiude la connessione al database
     conn.close()
+    print(f"File Excel salvato come {nome_file}")
+
+
+def export_liste_prsn_to_excel(selected_lista, sconto):
+    if not selected_lista:
+        messagebox.showwarning("Nessun Dato", "Non ci sono clienti selezionati da esportare.")
+        return
+
+    # Nome del file con la data di oggi
+    data_oggi = datetime.now().strftime("%Y-%m-%d")
+    output_file = f"{selected_lista.get()}_{data_oggi}.xlsx"
+    file_path = asksaveasfilename(defaultextension=".xlsx",
+                                  filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
+                                  initialfile=output_file)
+    # Verifica se l'utente ha scelto un percorso
+    if not file_path:
+        messagebox.showwarning("Salvataggio Annullato", "Salvataggio del file Excel annullato.")
+        return
+
+
+    cliente = get_client_id_by_ragione_sociale(selected_lista.get())
+    # modificare con funzione per recuperare info lista
+    info = get_lista_info(cliente)
+
+    # Crea un nuovo foglio per ogni cliente
+    crea_file_excel_con_estetica(info, sconto.get(), file_path, output_file)
 
 def open_lista_selection_popup():
     popup = tk.Toplevel()
@@ -350,7 +380,7 @@ def open_lista_selection_popup():
 
 
     # Pulsante di conferma
-    confirm_button = ctk.CTkButton(popup, text="Conferma", command=lambda: [popup.destroy(), export_liste_prsn_to_excel(selected_cliente)], width=120, height=30, font = ('Arial', dashboard_font_size))
+    confirm_button = ctk.CTkButton(popup, text="Conferma", command=lambda: [popup.destroy(), export_liste_prsn_to_excel(selected_cliente, sconto_var)], width=120, height=30, font = ('Arial', dashboard_font_size))
     confirm_button.pack(pady=10)
 
     popup.mainloop()
