@@ -674,7 +674,7 @@ def show_action_dialog_1(current_prodotto, callback):
 def handle_action(action,tree, ragione_sociale, seconda_riga, indirizzo, cap, citta, nazione, partita_iva,esente_iva, telefono, email, zona, giorni_chiusura, orari_scarico, condizioni_pagamento, sconto, agente, id_cliente):
     if action == "modify":
         details = ask_details(ragione_sociale, f"Inserisci le nuove info di '{ragione_sociale}':",seconda_riga, indirizzo, cap, citta, nazione, partita_iva,esente_iva, telefono, email, zona, giorni_chiusura, orari_scarico, condizioni_pagamento, sconto, agente, id_cliente)
-        if details and details['quantity'] is not None:
+        if details is not None:
             update_record_clienti(ragione_sociale, seconda_riga, indirizzo, cap, citta, nazione, partita_iva,esente_iva, telefono, email, zona, giorni_chiusura, orari_scarico, condizioni_pagamento, sconto, agente, id_cliente)
             show_cliente_info(tree, tree.table_frame)
             messagebox.showinfo("Modifica Prodotto", f"Hai modificato '{ragione_sociale}'.")
@@ -791,8 +791,7 @@ def ask_details(ragione_sociale, prompt,seconda_riga, indirizzo, cap, citta, naz
 def handle_action_1(action, current_ragione_sociale,current_id,current_prodotto,current_quantita, tree):
     if action == "modify":
         details = ask_details_1(current_ragione_sociale,f"Inserisci il nuovo id, descrizione e quantità per '{current_prodotto}':", current_id,current_prodotto,current_quantita)
-        if details and details['quantity'] is not None:
-            #update_record_andria(product, details['quantity'], details['cartons'])
+        if details is not None:
             show_lista_info(current_ragione_sociale, tree, tree.table_frame)
             messagebox.showinfo("Aggiunta Prodotto", f"Hai aggiunto {details['quantity']} prodotti di '{current_prodotto}'.")
     elif action == "delete":

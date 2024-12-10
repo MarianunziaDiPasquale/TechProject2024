@@ -245,7 +245,7 @@ def show_action_dialog(ragione_sociale, callback):
 def handle_action(action, tree, id, nome, indirizzo):
     if action == "modify":
         details = ask_details(id, f"Inserisci le nuove info di '{nome}':", nome, indirizzo)
-        if details and details['quantity'] is not None:
+        if details is not None:
             update_record_vettori(id, nome, indirizzo)
             show_vettore_info(tree, tree.table_frame)
             messagebox.showinfo("Modifica Prodotto", f"Hai modificato '{nome}'.")

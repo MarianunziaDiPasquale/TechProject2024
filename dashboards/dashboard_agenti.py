@@ -469,7 +469,7 @@ def show_action_dialog_1(current_cliente_connesso, callback):
 def handle_action(action,tree,agente,nome, id):
     if action == "modify":
         details = ask_details(agente, f"Inserisci le nuove info di '{agente}':",nome, id )
-        if details and details['quantity'] is not None:
+        if details is not None:
             #inserisci funzione per modificare a db il cliente
             show_agente_info(tree, tree.table_frame)
             messagebox.showinfo("Modifica Prodotto", f"Hai modificato '{agente}'.")
